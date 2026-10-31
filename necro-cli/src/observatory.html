@@ -115,16 +115,16 @@ label.chk{min-height:44px}summary{padding:10px 0;cursor:pointer}
 </section>
 
 <section id="t-arcade" role="tabpanel" aria-labelledby="tab-arcade" class="hide">
- <h2>PhantomArcade: CHIP-8 games, lifted and modded live</h2>
+ <h2>PhantomArcade: CHIP-8 and SUPER-CHIP games, lifted and modded live</h2>
  <p class="lead">These games run from the lifted WebAssembly modules. Every change below writes into the running module's memory. The score, the stack and the screen stay.</p>
  <div class="arc">
   <div class="panel">
    <div class="tools"><label for="rom" class="mut">ROM</label><select id="rom"></select><button id="reset">Reset</button><button id="pause">Pause</button>
-    <label for="clock" class="mut">Clock</label><select id="clock"><option value="60">60 ticks/s</option><option value="120">120 ticks/s</option></select><span id="status" class="mut"></span></div>
+    <label for="clock" class="mut">Clock</label><select id="clock"><option value="60">60 ticks/s</option><option value="120">120 ticks/s</option></select><span id="status" class="mut"></span><span id="res" class="pill">64x32</span></div>
    <canvas id="screen" width="64" height="32" aria-label="CHIP-8 display"></canvas>
    <p class="mut" id="rate" style="font-size:13px;margin:6px 0"></p>
    <div class="pad" id="pad"></div>
-   <p class="mut" style="font-size:13px">Keys 1 2 3 4 / Q W E R / A S D F / Z X C V are the hex keypad. Pong uses 1 and 4 (left) and C and D (right).</p>
+   <p class="mut" style="font-size:13px">Keys 1 2 3 4 / Q W E R / A S D F / Z X C V are the hex keypad. Pong uses 1 and 4 (left) and C and D (right). NECRORUNNER uses 5 to jump.</p>
   </div>
   <div class="panel">
    <strong>Presets</strong><div class="tools" id="presets" style="margin-top:8px"></div>
@@ -351,13 +351,17 @@ async function loadRom(i){
   div.append(lab,s,el('small',null,p.description+' (default '+p.default+', byte 0x'+addrOf(p).toString(16).toUpperCase()+(lr!==undefined?', also written to live register V'+lr:'')+')'));box.appendChild(div)});
  if(!patches.length)box.textContent='No patch points.';
  const pre=$('presets');pre.replaceChildren();
- const PRE=[['Multi-Ball',{BALL2_ON:1}],['Double speed',{FRAME_DELAY:1}],['Wide paddles',{PADDLE_H:8}],['Defaults',null]];
+ const PRE=[['Multi-Ball',{BALL2_ON:1}],['Double speed',{FRAME_DELAY:1}],['Wide paddles',{PADDLE_H:8}],['Slow block',{OBST_SPEED:2}],['Fast block',{OBST_SPEED:6}],['Moon jump',{JUMP_STEP:0xFB}],['Defaults',null]];
  PRE.forEach(([n,vals])=>{if(vals&&!Object.keys(vals).every(k=>patches.some(p=>p.name===k)))return;const b=el('button',null,n);
   b.onclick=()=>{if(vals)Object.entries(vals).forEach(([k,v])=>setPatch(k,v));else patches.forEach(p=>setPatch(p.name,p.default))};pre.appendChild(b)});
  heat.fill(0);prev=null;
 }
-const ctx=$('screen').getContext('2d'),img=ctx.createImageData(64,32);
-function draw(){for(let i=0;i<2048;i++){const on=mem[0x1100+(i>>3)]&(0x80>>(i&7));const o=i*4;img.data[o]=on?52:0;img.data[o+1]=on?211:0;img.data[o+2]=on?153:0;img.data[o+3]=255}ctx.putImageData(img,0,0)}
+const cv=$('screen'),ctx=cv.getContext('2d');let img=ctx.createImageData(64,32),hiMode=false;
+function draw(){
+ const hi=mem[0x1070]!==0,W=hi?128:64,H=hi?64:32;
+ if(hi!==hiMode||cv.width!==W){hiMode=hi;cv.width=W;cv.height=H;img=ctx.createImageData(W,H);$('res').textContent=hi?'128x64 SUPER-CHIP':'64x32'}
+ const n=W*H;for(let i=0;i<n;i++){const on=mem[0x1100+(i>>3)]&(0x80>>(i&7));const o=i*4;img.data[o]=on?52:0;img.data[o+1]=on?211:0;img.data[o+2]=on?153:0;img.data[o+3]=255}
+ ctx.putImageData(img,0,0)}
 const hctx=$('heat').getContext('2d'),himg=hctx.createImageData(64,64),heat=new Float32Array(4096);let prev=null;
 function drawHeat(){
  if(!prev)prev=new Uint8Array(4096);

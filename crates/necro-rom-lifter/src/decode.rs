@@ -36,6 +36,20 @@ pub enum Op {
     LdBVx(u8),
     LdIVx(u8),
     LdVxI(u8),
+    /// SUPER-CHIP: scroll down n rows.
+    Scd(u8),
+    /// SUPER-CHIP: scroll right 4 pixels.
+    Scr,
+    /// SUPER-CHIP: scroll left 4 pixels.
+    Scl,
+    /// SUPER-CHIP: 64x32 mode.
+    Low,
+    /// SUPER-CHIP: 128x64 mode.
+    High,
+    /// SUPER-CHIP: save V0..Vx (x up to 7) into the RPL user flags.
+    StRpl(u8),
+    /// SUPER-CHIP: load V0..Vx (x up to 7) from the RPL user flags.
+    LdRpl(u8),
     Unknown(u16),
 }
 
@@ -49,6 +63,11 @@ pub fn decode(w: u16) -> Op {
         0x0 => match w {
             0x00E0 => Op::Cls,
             0x00EE => Op::Ret,
+            0x00FB => Op::Scr,
+            0x00FC => Op::Scl,
+            0x00FE => Op::Low,
+            0x00FF => Op::High,
+            _ if w & 0xFFF0 == 0x00C0 => Op::Scd(n),
             _ => Op::Unknown(w),
         },
         0x1 => Op::Jp(nnn),
@@ -90,6 +109,8 @@ pub fn decode(w: u16) -> Op {
             0x33 => Op::LdBVx(x),
             0x55 => Op::LdIVx(x),
             0x65 => Op::LdVxI(x),
+            0x75 => Op::StRpl(x),
+            0x85 => Op::LdRpl(x),
             _ => Op::Unknown(w),
         },
         _ => Op::Unknown(w),
@@ -133,6 +154,13 @@ impl Op {
             Op::LdBVx(x) => format!("LD B, V{x:X}"),
             Op::LdIVx(x) => format!("LD [I], V{x:X}"),
             Op::LdVxI(x) => format!("LD V{x:X}, [I]"),
+            Op::Scd(n) => format!("SCD {n}"),
+            Op::Scr => "SCR".into(),
+            Op::Scl => "SCL".into(),
+            Op::Low => "LOW".into(),
+            Op::High => "HIGH".into(),
+            Op::StRpl(x) => format!("LD R, V{x:X}"),
+            Op::LdRpl(x) => format!("LD V{x:X}, R"),
             Op::Unknown(w) => format!("DW {w:#06X}"),
         }
     }

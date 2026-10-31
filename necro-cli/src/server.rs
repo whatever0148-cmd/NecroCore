@@ -671,13 +671,13 @@ fn modbox(st: &State, body: &Value) -> Result<Value, String> {
         let rt = tokio::runtime::Runtime::new().map_err(|e| e.to_string())?;
         match rt.block_on(KiroBridge::live(Duration::from_secs(120)).ask(&ask)) {
             Ok(tr) => {
-                if let Some(parsed) = parse_mod_reply(&tr.response, &patches) {
-                    source = "kiro-cli".into();
-                    chosen = Some(parsed);
+                if let Some((vals, why, repaired)) = parse_mod_reply(&tr.response, &patches) {
+                    source = if repaired { "kiro-cli (closing brace added)".into() } else { "kiro-cli".into() };
+                    chosen = Some((vals, why));
                 } else {
                     source = "offline (kiro-cli reply was not usable JSON)".into();
                 }
-                transcript = json!({"response": tr.response, "elapsed_ms": tr.elapsed_ms});
+                transcript = json!({"prompt": tr.prompt, "response": tr.response, "elapsed_ms": tr.elapsed_ms, "started_unix_ms": tr.started_unix_ms, "command": tr.command, "exit_code": tr.exit_code});
             }
             Err(e) => source = format!("offline ({e})"),
         }
@@ -685,25 +685,45 @@ fn modbox(st: &State, body: &Value) -> Result<Value, String> {
     let (values, explanation) = chosen.unwrap_or_else(|| offline_mod(&prompt, &patches));
     let mut list: Vec<Value> = values.iter().map(|(k, v)| json!({"name": k, "value": v})).collect();
     list.sort_by_key(|x| x["name"].as_str().unwrap_or("").to_string());
+    if source.starts_with("kiro-cli") {
+        // Keep every real mod-box turn as evidence, next to the benchmark transcripts.
+        let path = st.root.join("benchmarks/live-mod-trace.json");
+        let mut all: Vec<Value> = std::fs::read_to_string(&path).ok().and_then(|t| serde_json::from_str(&t).ok()).unwrap_or_default();
+        all.push(json!({"rom": name, "user_prompt": prompt, "values_applied": list, "explanation": explanation, "elapsed_ms": t.elapsed().as_millis(), "kiro_turn": transcript}));
+        let _ = std::fs::write(&path, serde_json::to_string_pretty(&all).unwrap_or_default());
+    }
     Ok(json!({"rom": name, "prompt": prompt, "source": source, "values": list, "explanation": explanation, "elapsed_ms": t.elapsed().as_millis(), "transcript": transcript}))
 }
 
-fn parse_mod_reply(text: &str, patches: &PatchTable) -> Option<(HashMap<String, u8>, String)> {
+/// Reads Kiro's one-line JSON reply. One real reply arrived without its last closing
+/// brace, so a reply that only parses after adding braces is accepted and labelled as repaired.
+fn parse_mod_reply(text: &str, patches: &PatchTable) -> Option<(HashMap<String, u8>, String, bool)> {
     let a = text.find('{')?;
-    let b = text.rfind('}')?;
-    let v: Value = serde_json::from_str(text.get(a..=b)?).ok()?;
-    let obj = v["values"].as_object()?;
-    let mut out = HashMap::new();
-    for (k, x) in obj {
-        let e = patches.get(k)?;
-        let (lo, hi) = field_range(e.field);
-        let n = x.as_i64().or_else(|| x.as_f64().map(|f| f as i64))?;
-        out.insert(k.clone(), n.clamp(lo as i64, hi as i64) as u8);
+    let whole = text.get(a..)?.trim_end();
+    let mut attempts: Vec<(String, bool)> = Vec::new();
+    if let Some(b) = text.rfind('}') {
+        attempts.push((text.get(a..=b)?.to_string(), false));
     }
-    if out.is_empty() {
-        return None;
+    attempts.push((format!("{whole}}}"), true));
+    attempts.push((format!("{whole}}}}}"), true));
+    for (cand, repaired) in attempts {
+        let Ok(v) = serde_json::from_str::<Value>(&cand) else { continue };
+        let Some(obj) = v["values"].as_object() else { continue };
+        let mut out = HashMap::new();
+        let mut ok = true;
+        for (k, x) in obj {
+            let (Some(e), Some(n)) = (patches.get(k), x.as_i64().or_else(|| x.as_f64().map(|f| f as i64))) else {
+                ok = false;
+                break;
+            };
+            let (lo, hi) = field_range(e.field);
+            out.insert(k.clone(), n.clamp(lo as i64, hi as i64) as u8);
+        }
+        if ok && !out.is_empty() {
+            return Some((out, v["explanation"].as_str().unwrap_or("").chars().take(300).collect(), repaired));
+        }
     }
-    Some((out, v["explanation"].as_str().unwrap_or("").chars().take(300).collect()))
+    None
 }
 
 // ---------- file drop from the notch ----------
@@ -766,4 +786,32 @@ fn drop_file(st: &State, body: &Value) -> Result<Value, String> {
         "name": name, "kind": kind, "path": rel, "before": counts(&report), "after": counts(&again), "hook": hook,
         "url": format!("http://127.0.0.1:{}/#{}/{}{}", st.port, if kind == "cobol" { "cryptledger" } else { "phantomarcade" }, name, if kind == "cobol" { "/healed" } else { "" }),
     }))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use necro_rom_lifter::PatchEntry;
+
+    fn table() -> PatchTable {
+        let e = |n: &str| PatchEntry { name: n.into(), addr: 0x200, field: PatchField::Kk, default: 1, description: String::new() };
+        PatchTable { rom: "T".into(), entries: vec![e("FRAME_DELAY"), e("PADDLE_H"), e("BALL_DY")] }
+    }
+    #[test]
+    fn reads_a_clean_reply() {
+        let (v, why, repaired) = parse_mod_reply("{\"values\":{\"FRAME_DELAY\":1,\"BALL_DY\":0},\"explanation\":\"ok\"}\n", &table()).unwrap();
+        assert_eq!((v["FRAME_DELAY"], v["BALL_DY"], why.as_str(), repaired), (1, 0, "ok", false));
+    }
+    #[test]
+    fn repairs_a_reply_that_lost_its_last_brace() {
+        let (v, _, repaired) = parse_mod_reply("{\"values\":{\"FRAME_DELAY\":1,\"PADDLE_H\":8,\"BALL_DY\":0},\"explanation\":\"no vertical pull.\"", &table()).unwrap();
+        assert!(repaired);
+        assert_eq!((v["FRAME_DELAY"], v["PADDLE_H"], v["BALL_DY"]), (1, 8, 0));
+    }
+    #[test]
+    fn refuses_unknown_names_and_clamps_range() {
+        assert!(parse_mod_reply("{\"values\":{\"NOPE\":1},\"explanation\":\"x\"}", &table()).is_none());
+        let (v, _, _) = parse_mod_reply("{\"values\":{\"PADDLE_H\":999},\"explanation\":\"x\"}", &table()).unwrap();
+        assert_eq!(v["PADDLE_H"], 255);
+    }
 }

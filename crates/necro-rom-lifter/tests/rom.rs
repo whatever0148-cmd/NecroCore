@@ -153,3 +153,106 @@ fn pong_second_ball_switches_on_live_and_wasm_agrees() {
     };
     assert!(lit(true) > lit(false), "second ball adds lit pixels");
 }
+
+const SCHIP_PROBE: &str = "
+    HIGH
+    LD V0, 3
+    LD V1, 5
+    LD I, spr
+    DRW V0, V1, 0
+    SCD 4
+    SCR
+    SCL
+    SCL
+    LD V2, 0x11
+    LD V3, 0x22
+    LD V4, 0x33
+    LD R, V4
+    LD V2, 0
+    LD V3, 0
+    LD V4, 0
+    LD V4, R
+    LD VE, 1
+    SCD 63
+    LOW
+    LD I, spr
+    DRW V0, V1, 0
+    DRW V0, V1, 3
+    HIGH
+    LD V0, 120
+    LD V1, 60
+    DRW V0, V1, 0
+done:
+    JP done
+spr:
+    DB 0xFF, 0xFF, 0x80, 0x01, 0xBF, 0xFD, 0xA0, 0x05
+    DB 0xAF, 0xF5, 0xA8, 0x15, 0xAB, 0xD5, 0xAA, 0x55
+    DB 0xAA, 0x55, 0xAB, 0xD5, 0xA8, 0x15, 0xAF, 0xF5
+    DB 0xA0, 0x05, 0xBF, 0xFD, 0x80, 0x01, 0xFF, 0xFF
+";
+
+#[test]
+fn schip_opcodes_agree_between_interpreter_and_wasm() {
+    let a = asm::assemble("SCHIP-PROBE", SCHIP_PROBE).unwrap();
+    let mut m = Chip8::new(&a.bytes, 5);
+    let (st, _) = m.run(100);
+    assert_eq!(st, StepStatus::Ok);
+    assert!(m.hires(), "the probe ends in high-res mode");
+    assert_eq!((m.v(2), m.v(3), m.v(4)), (0x11, 0x22, 0x33), "Fx75 then Fx85 restores V0..V4");
+    let (st2, img) = run_wasm("SCHIP-PROBE", &a.bytes, &a.patches, 5, 100, 0);
+    assert_eq!(st2, StepStatus::Ok);
+    assert_eq!(m.image, img, "interpreter and wasm images must match byte for byte");
+    // The wrapped 16x16 sprite near the bottom right corner lit pixels in the 128x64 plane.
+    assert!(m.lit_pixels() > 0);
+}
+
+#[test]
+fn schip_clears_on_mode_switch_and_low_res_ignores_dxy0() {
+    let src = "
+        HIGH
+        LD I, spr
+        DRW V0, V0, 0
+        LOW
+        DRW V0, V0, 0
+        done:
+        JP done
+        spr:
+        DB 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+        DB 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+    ";
+    let a = asm::assemble("T", src).unwrap();
+    let mut m = Chip8::new(&a.bytes, 1);
+    m.run(3);
+    assert_eq!(m.lit_pixels(), 256, "16x16 sprite in high-res lights 256 pixels");
+    m.run(3);
+    assert!(!m.hires());
+    assert_eq!(m.lit_pixels(), 0, "LOW clears the screen and Dxy0 draws nothing in low-res");
+}
+
+#[test]
+fn necrorunner_runs_in_high_res_and_jumps() {
+    let (bytes, patches) = rom("NECRORUNNER-1991");
+    assert!(patches.get("OBST_SPEED").is_some() && patches.get("JUMP_STEP").is_some() && patches.get("FRAME_DELAY").is_some());
+    let mut m = Chip8::new(&bytes, 9);
+    m.run(2000);
+    assert!(m.hires());
+    assert!(m.lit_pixels() > 100, "the ground and the sprites are on the 128x64 screen");
+    let mut j = Chip8::new(&bytes, 9);
+    j.set_keys(1 << 5);
+    let mut min_y = 255u8;
+    for _ in 0..1500 {
+        j.step();
+        min_y = min_y.min(j.v(2));
+    }
+    assert!(min_y < 40, "holding key 5 lifts the runner above the ground (lowest y reached {min_y})");
+    let report = scan(&lift_rom("NECRORUNNER-1991", &bytes).0, vec![]);
+    for k in [PathologyKind::Ghost, PathologyKind::Zombie] {
+        assert!(report.count(k) >= 1, "{k:?} expected");
+    }
+    let (st, img) = run_wasm("NECRORUNNER-1991", &bytes, &patches, 9, 3000, 1 << 5);
+    let mut r = Chip8::new(&bytes, 9);
+    r.set_keys(1 << 5);
+    let (rs, _) = r.run(3000);
+    assert_eq!(st, rs);
+    assert_eq!(r.image, img);
+}

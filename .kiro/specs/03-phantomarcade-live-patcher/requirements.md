@@ -41,3 +41,17 @@ runs, with parity proven between the interpreter and the module.
    the whole machine image and the status at the end.
 2. WHEN the interpreter stops early THE SYSTEM SHALL expect the module to stop
    with the same status and image.
+
+## Requirement 5: SUPER-CHIP
+User story: as a preservationist, I want the 128x64 SUPER-CHIP extensions so that a 1991-style
+high-resolution game lifts and proves the same way as the 64x32 ones.
+
+1. WHEN the decoder reads 00FF or 00FE THE SYSTEM SHALL switch the machine between 128x64 and 64x32
+   and clear the display.
+2. WHEN the decoder reads 00Cn, 00FB or 00FC THE SYSTEM SHALL scroll the active display n rows
+   down, 4 pixels right or 4 pixels left, shifting in blank pixels.
+3. WHEN Dxy0 runs in high-resolution mode THE SYSTEM SHALL draw a 16x16 sprite from 32 bytes at I
+   and set VF to 1 on any collision, and in low-resolution mode THE SYSTEM SHALL draw nothing.
+4. WHEN Fx75 or Fx85 runs THE SYSTEM SHALL copy V0 to Vmin(x,7) into or out of the RPL user flags.
+5. WHEN `prove_chip8` runs a SUPER-CHIP ROM THE SYSTEM SHALL compare the whole image, including the
+   mode byte and the RPL flags, exactly as for CHIP-8.

@@ -42,6 +42,14 @@ fn encode(mn: &str, ops: &[String], labels: &HashMap<String, u16>) -> Result<u16
     let need = |k: usize| if ops.len() == k { Ok(()) } else { Err(format!("{mn} takes {k} operands")) };
     Ok(match mn {
         "CLS" => 0x00E0,
+        "SCD" => {
+            need(1)?;
+            0x00C0 | (n(0)? & 0xF)
+        }
+        "SCR" => 0x00FB,
+        "SCL" => 0x00FC,
+        "LOW" => 0x00FE,
+        "HIGH" => 0x00FF,
         "RET" => 0x00EE,
         "JP" => {
             if ops.len() == 2 && ops[0] == "V0" {
@@ -80,6 +88,8 @@ fn encode(mn: &str, ops: &[String], labels: &HashMap<String, u16>) -> Result<u16
                 ("F", b) => 0xF029 | ((reg(b)? as u16) << 8),
                 ("B", b) => 0xF033 | ((reg(b)? as u16) << 8),
                 ("[I]", b) => 0xF055 | ((reg(b)? as u16) << 8),
+                ("R", b) => 0xF075 | ((reg(b)? as u16) << 8),
+                (a, "R") => 0xF085 | ((reg(a)? as u16) << 8),
                 (a, "DT") => 0xF007 | ((reg(a)? as u16) << 8),
                 (a, "K") => 0xF00A | ((reg(a)? as u16) << 8),
                 (a, "[I]") => 0xF065 | ((reg(a)? as u16) << 8),

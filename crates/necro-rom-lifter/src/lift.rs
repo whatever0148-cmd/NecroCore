@@ -41,8 +41,8 @@ fn inst_of(addr: u16, op: Op) -> Option<Inst> {
         Op::LdVxK(x) => Inst::Assign { var: vname(x), expr: Expr::var("KEYS"), mode: StoreMode::Truncate, span: sp },
         Op::LdDtVx(x) => Inst::Assign { var: "DT".into(), expr: Expr::var(&vname(x)), mode: StoreMode::Truncate, span: sp },
         Op::LdStVx(x) => Inst::Assign { var: "ST".into(), expr: Expr::var(&vname(x)), mode: StoreMode::Truncate, span: sp },
-        Op::LdVxI(x) => Inst::Assign { var: vname(x), expr: Expr::var("MEM"), mode: StoreMode::Truncate, span: sp },
-        Op::Drw(..) | Op::Cls | Op::LdBVx(_) | Op::LdIVx(_) => Inst::Effect { what: op.mnemonic(), span: sp },
+        Op::LdVxI(x) | Op::LdRpl(x) => Inst::Assign { var: vname(x), expr: Expr::var("MEM"), mode: StoreMode::Truncate, span: sp },
+        Op::Drw(..) | Op::Cls | Op::LdBVx(_) | Op::LdIVx(_) | Op::Scd(_) | Op::Scr | Op::Scl | Op::Low | Op::High | Op::StRpl(_) => Inst::Effect { what: op.mnemonic(), span: sp },
         _ => return None,
     })
 }

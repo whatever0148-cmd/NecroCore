@@ -14,5 +14,9 @@
   - _Requirements: 3.1_
 - [x] 7. `prove_chip8` with key schedule and mid-run hot patch (`necro-prover`)
   - _Requirements: 4.1, 4.2_
-- [ ] 8. Phase 2: multi-ball patch preset, SUPER-CHIP, live patch panel
+- [x] 8. Multi-ball patch preset (BALL2_ON) and live patch panel in the Observatory
   - _Requirements: 3.3_
+- [x] 9. SUPER-CHIP decoder, interpreter, assembler, IR lifter and WAT helpers (`decode.rs`, `interp.rs`, `asm.rs`, `lift.rs`, `wat.rs`)
+  - _Requirements: 5.1, 5.2, 5.3, 5.4_
+- [x] 10. NECRORUNNER-1991 sample with three patch points and two deliberate defects, proved over 10,000 vectors
+  - _Requirements: 5.5_

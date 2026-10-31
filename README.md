@@ -22,12 +22,12 @@ are the UI labels; the technical terms sit next to them everywhere.
 |---|---|
 | `crates/necro-core` | `NecroIR`, CFG with Tarjan loops, the scanner, `NecroAutopsyReport` with byte and line offsets and EARS text, `heal` |
 | `crates/necro-cobol-lifter` | parser for the documented COBOL subset (`COBOL-SUBSET.md`), lowering, fixed-point interpreter, WebAssembly text emitter |
-| `crates/necro-rom-lifter` | CHIP-8 decoder, flat-image interpreter, two-pass assembler with `.patch` points, NecroIR and WebAssembly lifters |
+| `crates/necro-rom-lifter` | CHIP-8 and SUPER-CHIP decoder, flat-image interpreter, two-pass assembler with `.patch` points, NecroIR and WebAssembly lifters |
 | `crates/necro-prover` | differential shadow execution against `wasmtime`, parity, divergence vectors, microsecond timings |
 | `crates/necro-kiro-bridge` | async `kiro-cli` driver with a hard timeout and a deterministic offline fallback |
 | `necro-cli` | `autopsy`, `lift`, `assemble`, `benchmark`, and `mcp` (the `necro-mcp` server for Kiro) |
 | `samples/cobol` | three period-style COBOL programs with deliberate defects (two-digit years, COMP-3 drift, a dead paragraph, a loop that never ends on an edge input) |
-| `samples/roms` | three original CHIP-8 games (source, binary, patch table), see `samples/roms/LICENSES.md` |
+| `samples/roms` | four original games: three CHIP-8 and the 128x64 SUPER-CHIP NECRORUNNER-1991 (source, binary, patch table), see `samples/roms/LICENSES.md` |
 | `.kiro/` | steering, four specs, three hooks, the MCP server config |
 
 ## Measured results
@@ -172,7 +172,42 @@ Limits. The Observatory page was checked in an embedded browser at 1920 by 1080 
 browser pane does not run animation frames while hidden, so the game loop was driven by hand there. The
 notch pill was checked by launching it (it appears under the notch) and by the headless drop path, not by
 dragging a file with a mouse. The mod box depends on what kiro-cli answers, and on one live run it left
-the zero-gravity request out until the prompt got a hint. SUPER-CHIP is still open.
+the zero-gravity request out until the prompt got a hint. 
+
+## Phase 3: SUPER-CHIP and 70,000 vectors
+
+`necro-rom-lifter` now handles SUPER-CHIP: `00FF` and `00FE` (128x64 and 64x32), `00Cn`, `00FB`
+and `00FC` (scroll down, right, left), `Dxy0` (16x16 sprite in high-res, nothing in low-res), and
+`Fx75` and `Fx85` (the RPL user flags). The decoder, interpreter, assembler, NecroIR lifter and the
+WebAssembly emitter all know them. The machine image grew from 0x1200 to 0x1500 bytes and holds a mode
+byte and the eight flags, so the prover still compares the whole image. Mode switches clear the screen
+and Dxy0 reports VF as 1 on any collision. Those are my rules, written in spec 03, not a copy of any one
+historical interpreter.
+
+`samples/roms/NECRORUNNER-1991.asm` is an original 128x64 runner (key 5 jumps). It scrolls the ground
+with SCL, draws 16x16 sprites, keeps its best score in the RPL flags and has three patch points
+(OBST_SPEED, JUMP_STEP, FRAME_DELAY). It carries two deliberate defects, a game_over loop that spins
+forever and a bonus_level routine nothing calls. The scanner finds a Ghost, a Vampire and two Zombies in it.
+The file ends in `.ch8` like the other ROMs so every tool picks it up.
+
+Final run, `necro-cli benchmark --live-kiro` (`benchmarks/2026-10-31-phase3.txt`, machine busy with
+other work):
+
+| Result | Value |
+|---|---|
+| Programs and vectors | 7 programs, 10,000 vectors each, seed 7 |
+| Parity | 70,000 of 70,000 matched |
+| COBOL wasm vs interpreter | 9.07x, 16.49x, 16.48x |
+| ROM wasm vs interpreter | 0.92x to 1.06x (no real speedup) |
+| Problems found, left after heal | 19 found, 0 left |
+| Real kiro-cli turns | 7 of 7, 142 s in total (`benchmarks/live-kiro-trace.json`) |
+| Tests, clippy | 30 passed, 0 failed, 0 warnings |
+
+Other real Kiro evidence in `benchmarks/`: `live-kiro-mcp-trace.json` (kiro-cli read
+`.kiro/settings/mcp.json`, started `necro-mcp` and called `necro_autopsy`) and `live-mod-trace.json` (two
+mod-box turns for "double ball speed, widen paddles, and enable zero-gravity bounce", both answered with
+FRAME_DELAY 1, PADDLE_H 8 and BALL_DY 0). The Observatory switches its canvas between 64x32 and 128x64
+from the machine's mode byte. Written submission text is in `deliverables/`.
 
 ## Licence
 MIT. The sample programs and ROMs are original work written for this project.

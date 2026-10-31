@@ -1,0 +1,26 @@
+{
+  "rom": "NECRORUNNER-1991",
+  "entries": [
+    {
+      "name": "OBST_SPEED",
+      "addr": 612,
+      "field": "Kk",
+      "default": 252,
+      "description": "pixels the block moves left each frame, 1 to 6 (0xFC is 4)"
+    },
+    {
+      "name": "FRAME_DELAY",
+      "addr": 636,
+      "field": "Kk",
+      "default": 2,
+      "description": "ticks to wait per frame, 2 normal and 1 double speed"
+    },
+    {
+      "name": "JUMP_STEP",
+      "addr": 676,
+      "field": "Kk",
+      "default": 253,
+      "description": "pixels gained per frame while rising (0xFD is 3 up)"
+    }
+  ]
+}

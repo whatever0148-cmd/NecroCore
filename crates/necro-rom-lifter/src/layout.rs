@@ -10,8 +10,12 @@ pub const ST: usize = 0x1061; // u8
 pub const KEYS: usize = 0x1064; // i32 bitmask
 pub const RNG: usize = 0x1068; // u32 xorshift state
 pub const TIMER_DIV: usize = 0x106C; // u32
-pub const DISPLAY: usize = 0x1100; // 256 bytes, 64x32 bits, row-major
-pub const IMAGE_SIZE: usize = 0x1200;
+pub const HIRES: usize = 0x1070; // u8, 1 while SUPER-CHIP high-resolution mode is on
+pub const RPL: usize = 0x1078; // 8 bytes, SUPER-CHIP user flags (Fx75 and Fx85)
+/// Low-res uses the first 256 bytes (64x32, 8 bytes per row); high-res uses all 1024 (128x64, 16 bytes per row).
+pub const DISPLAY: usize = 0x1100;
+pub const DISPLAY_BYTES: usize = 1024;
+pub const IMAGE_SIZE: usize = 0x1500;
 pub const ROM_BASE: usize = 0x200;
 pub const FONT_BASE: usize = 0x50;
 /// Timers decrement once every this many steps.

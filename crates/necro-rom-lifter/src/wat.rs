@@ -39,7 +39,71 @@ const PRELUDE: &str = r#"
     (loop $l
       (i64.store (i32.add (i32.const 0x1100) (local.get $i)) (i64.const 0))
       (local.set $i (i32.add (local.get $i) (i32.const 8)))
-      (br_if $l (i32.lt_u (local.get $i) (i32.const 256)))))
+      (br_if $l (i32.lt_u (local.get $i) (i32.const 1024)))))
+  (func $setres (param $hi i32)
+    (i32.store8 offset=0x1070 (i32.const 0) (local.get $hi))
+    (call $cls))
+  (func $scd (param $n i32)
+    (local $stride i32) (local $h i32) (local $y i32) (local $k i32)
+    (local.set $stride (select (i32.const 16) (i32.const 8) (i32.load8_u offset=0x1070 (i32.const 0))))
+    (local.set $h (select (i32.const 64) (i32.const 32) (i32.load8_u offset=0x1070 (i32.const 0))))
+    (if (i32.gt_u (local.get $n) (local.get $h)) (then (local.set $n (local.get $h))))
+    (local.set $y (local.get $h))
+    (block $done
+      (loop $rows
+        (br_if $done (i32.eqz (local.get $y)))
+        (local.set $y (i32.sub (local.get $y) (i32.const 1)))
+        (local.set $k (i32.const 0))
+        (loop $cols
+          (i32.store8
+            (i32.add (i32.const 0x1100) (i32.add (i32.mul (local.get $y) (local.get $stride)) (local.get $k)))
+            (select
+              (i32.load8_u (i32.add (i32.const 0x1100) (i32.add (i32.mul (i32.sub (local.get $y) (local.get $n)) (local.get $stride)) (local.get $k))))
+              (i32.const 0)
+              (i32.ge_u (local.get $y) (local.get $n))))
+          (local.set $k (i32.add (local.get $k) (i32.const 1)))
+          (br_if $cols (i32.lt_u (local.get $k) (local.get $stride))))
+        (br $rows))))
+  (func $scr
+    (local $stride i32) (local $h i32) (local $y i32) (local $k i32) (local $a i32)
+    (local.set $stride (select (i32.const 16) (i32.const 8) (i32.load8_u offset=0x1070 (i32.const 0))))
+    (local.set $h (select (i32.const 64) (i32.const 32) (i32.load8_u offset=0x1070 (i32.const 0))))
+    (local.set $y (i32.const 0))
+    (loop $rows
+      (local.set $k (local.get $stride))
+      (loop $cols
+        (local.set $k (i32.sub (local.get $k) (i32.const 1)))
+        (local.set $a (i32.add (i32.const 0x1100) (i32.add (i32.mul (local.get $y) (local.get $stride)) (local.get $k))))
+        (i32.store8 (local.get $a)
+          (i32.or
+            (i32.shr_u (i32.load8_u (local.get $a)) (i32.const 4))
+            (select
+              (i32.shl (i32.load8_u (i32.sub (local.get $a) (i32.const 1))) (i32.const 4))
+              (i32.const 0)
+              (i32.gt_u (local.get $k) (i32.const 0)))))
+        (br_if $cols (i32.gt_u (local.get $k) (i32.const 0))))
+      (local.set $y (i32.add (local.get $y) (i32.const 1)))
+      (br_if $rows (i32.lt_u (local.get $y) (local.get $h)))))
+  (func $scl
+    (local $stride i32) (local $h i32) (local $y i32) (local $k i32) (local $a i32)
+    (local.set $stride (select (i32.const 16) (i32.const 8) (i32.load8_u offset=0x1070 (i32.const 0))))
+    (local.set $h (select (i32.const 64) (i32.const 32) (i32.load8_u offset=0x1070 (i32.const 0))))
+    (local.set $y (i32.const 0))
+    (loop $rows
+      (local.set $k (i32.const 0))
+      (loop $cols
+        (local.set $a (i32.add (i32.const 0x1100) (i32.add (i32.mul (local.get $y) (local.get $stride)) (local.get $k))))
+        (i32.store8 (local.get $a)
+          (i32.or
+            (i32.shl (i32.load8_u (local.get $a)) (i32.const 4))
+            (select
+              (i32.shr_u (i32.load8_u (i32.add (local.get $a) (i32.const 1))) (i32.const 4))
+              (i32.const 0)
+              (i32.lt_u (i32.add (local.get $k) (i32.const 1)) (local.get $stride)))))
+        (local.set $k (i32.add (local.get $k) (i32.const 1)))
+        (br_if $cols (i32.lt_u (local.get $k) (local.get $stride))))
+      (local.set $y (i32.add (local.get $y) (i32.const 1)))
+      (br_if $rows (i32.lt_u (local.get $y) (local.get $h)))))
   (func $rnd (result i32)
     (local $x i32)
     (local.set $x (i32.load offset=0x1068 (i32.const 0)))
@@ -60,28 +124,40 @@ const PRELUDE: &str = r#"
           (then (i32.store8 offset=0x1061 (i32.const 0) (i32.sub (i32.load8_u offset=0x1061 (i32.const 0)) (i32.const 1))))))
       (else (i32.store offset=0x106C (i32.const 0) (local.get $d)))))
   (func $draw (param $x i32) (param $y i32) (param $n i32)
-    (local $r i32) (local $c i32) (local $row i32) (local $idx i32) (local $a i32) (local $mask i32) (local $vf i32)
+    (local $r i32) (local $c i32) (local $bits i32) (local $idx i32) (local $a i32) (local $mask i32) (local $vf i32)
+    (local $w i32) (local $h i32) (local $rows i32) (local $cols i32) (local $hi i32) (local $ip i32)
+    (local.set $hi (i32.ne (i32.load8_u offset=0x1070 (i32.const 0)) (i32.const 0)))
+    (local.set $w (select (i32.const 128) (i32.const 64) (local.get $hi)))
+    (local.set $h (select (i32.const 64) (i32.const 32) (local.get $hi)))
+    (local.set $ip (i32.load offset=0x1010 (i32.const 0)))
+    (if (i32.eqz (local.get $n))
+      (then (local.set $rows (select (i32.const 16) (i32.const 0) (local.get $hi))) (local.set $cols (i32.const 16)))
+      (else (local.set $rows (local.get $n)) (local.set $cols (i32.const 8))))
     (local.set $vf (i32.const 0))
     (local.set $r (i32.const 0))
     (block $done
-      (loop $rows
-        (br_if $done (i32.ge_u (local.get $r) (local.get $n)))
-        (local.set $row (i32.load8_u (i32.and (i32.add (i32.load offset=0x1010 (i32.const 0)) (local.get $r)) (i32.const 4095))))
+      (loop $rows_
+        (br_if $done (i32.ge_u (local.get $r) (local.get $rows)))
+        (if (i32.eq (local.get $cols) (i32.const 16))
+          (then (local.set $bits (i32.or
+            (i32.shl (i32.load8_u (i32.and (i32.add (local.get $ip) (i32.shl (local.get $r) (i32.const 1))) (i32.const 4095))) (i32.const 8))
+            (i32.load8_u (i32.and (i32.add (local.get $ip) (i32.add (i32.shl (local.get $r) (i32.const 1)) (i32.const 1))) (i32.const 4095))))))
+          (else (local.set $bits (i32.shl (i32.load8_u (i32.and (i32.add (local.get $ip) (local.get $r)) (i32.const 4095))) (i32.const 8)))))
         (local.set $c (i32.const 0))
-        (loop $cols
-          (if (i32.and (local.get $row) (i32.shr_u (i32.const 128) (local.get $c)))
+        (loop $cols_
+          (if (i32.and (local.get $bits) (i32.shr_u (i32.const 0x8000) (local.get $c)))
             (then
               (local.set $idx (i32.add
-                (i32.mul (i32.rem_u (i32.add (local.get $y) (local.get $r)) (i32.const 32)) (i32.const 64))
-                (i32.rem_u (i32.add (local.get $x) (local.get $c)) (i32.const 64))))
+                (i32.mul (i32.rem_u (i32.add (local.get $y) (local.get $r)) (local.get $h)) (local.get $w))
+                (i32.rem_u (i32.add (local.get $x) (local.get $c)) (local.get $w))))
               (local.set $a (i32.add (i32.const 0x1100) (i32.shr_u (local.get $idx) (i32.const 3))))
               (local.set $mask (i32.shr_u (i32.const 128) (i32.and (local.get $idx) (i32.const 7))))
               (if (i32.and (i32.load8_u (local.get $a)) (local.get $mask)) (then (local.set $vf (i32.const 1))))
               (i32.store8 (local.get $a) (i32.xor (i32.load8_u (local.get $a)) (local.get $mask)))))
           (local.set $c (i32.add (local.get $c) (i32.const 1)))
-          (br_if $cols (i32.lt_u (local.get $c) (i32.const 8))))
+          (br_if $cols_ (i32.lt_u (local.get $c) (local.get $cols))))
         (local.set $r (i32.add (local.get $r) (i32.const 1)))
-        (br $rows)))
+        (br $rows_)))
     (i32.store8 offset=0x100F (i32.const 0) (local.get $vf)))
 "#;
 
@@ -195,6 +271,13 @@ pub fn emit_wat(name: &str, rom: &[u8], patches: &PatchTable) -> String {
                 "      (local.set $i (i32.const 0))\n      (loop $l (i32.store8 (i32.add (i32.const {V}) (local.get $i)) (i32.load8_u (i32.and (i32.add {i} (local.get $i)) (i32.const 4095))))\n        (local.set $i (i32.add (local.get $i) (i32.const 1)))\n        (br_if $l (i32.le_u (local.get $i) (i32.const {x}))))",
                 i = ld32(I)
             ),
+            Op::Scd(n) => format!("      (call $scd (i32.const {n}))"),
+            Op::Scr => "      (call $scr)".to_string(),
+            Op::Scl => "      (call $scl)".to_string(),
+            Op::Low => "      (call $setres (i32.const 0))".to_string(),
+            Op::High => "      (call $setres (i32.const 1))".to_string(),
+            Op::StRpl(x) => (0..=x.min(7)).map(|k| format!("      (i32.store8 offset={} (i32.const 0) {})", RPL + k as usize, v(k))).collect::<Vec<_>>().join("\n"),
+            Op::LdRpl(x) => (0..=x.min(7)).map(|k| format!("      {}", set_v(k, &format!("(i32.load8_u offset={} (i32.const 0))", RPL + k as usize)))).collect::<Vec<_>>().join("\n"),
             Op::Unknown(_) => format!("      {} (return (i32.const 5))", st32(PC, "(local.get $pc)")),
         };
         s.push_str(&code);

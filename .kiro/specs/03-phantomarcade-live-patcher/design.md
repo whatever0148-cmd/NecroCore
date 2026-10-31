@@ -47,3 +47,10 @@ reported as a Zombie (spin halt), which is true and expected.
 ## Phase 2
 Multi-ball and gravity presets for the Observatory, SUPER-CHIP opcodes, and the
 notch UI that shows the patch table live.
+
+## SUPER-CHIP layout (Phase 3)
+The machine image grows from 0x1200 to 0x1500 bytes. The display keeps its address (0x1100) and
+now holds 1024 bytes. Low-res mode uses the first 256 bytes at 8 bytes per row, high-res mode uses
+all 1024 at 16 bytes per row. The mode byte sits at 0x1070 and the 8 RPL flags at 0x1078. The
+interpreter and the WebAssembly helpers ($draw, $scd, $scr, $scl, $setres) read the same mode byte,
+so a mode change needs no recompilation. The Observatory reads the mode byte to size its canvas.

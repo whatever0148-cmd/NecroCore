@@ -63,11 +63,23 @@ impl Chip8 {
     pub fn keys(&self) -> u16 {
         self.get32(KEYS) as u16
     }
+    pub fn hires(&self) -> bool {
+        self.image[HIRES] != 0
+    }
+    fn dims(&self) -> (usize, usize) {
+        if self.hires() {
+            (128, 64)
+        } else {
+            (64, 32)
+        }
+    }
     pub fn display(&self) -> &[u8] {
-        &self.image[DISPLAY..DISPLAY + 256]
+        let (w, h) = self.dims();
+        &self.image[DISPLAY..DISPLAY + w * h / 8]
     }
     pub fn pixel(&self, x: usize, y: usize) -> bool {
-        let idx = (y % 32) * 64 + (x % 64);
+        let (w, h) = self.dims();
+        let idx = (y % h) * w + (x % w);
         self.image[DISPLAY + idx / 8] & (0x80 >> (idx % 8)) != 0
     }
     pub fn lit_pixels(&self) -> usize {
@@ -75,6 +87,12 @@ impl Chip8 {
     }
     pub fn dt(&self) -> u8 {
         self.image[DT]
+    }
+
+    fn clear_display(&mut self) {
+        for b in &mut self.image[DISPLAY..DISPLAY + DISPLAY_BYTES] {
+            *b = 0;
+        }
     }
 
     fn rnd(&mut self) -> u8 {
@@ -103,16 +121,23 @@ impl Chip8 {
 
     fn draw(&mut self, x: u8, y: u8, n: u8) {
         let i = self.i() as usize;
+        let (w, h) = self.dims();
+        // n = 0 is a 16x16 sprite in high-res mode and draws nothing in low-res mode.
+        let (rows, cols) = if n == 0 { (if self.hires() { 16 } else { 0 }, 16usize) } else { (n as usize, 8usize) };
         let mut vf = 0u8;
-        for r in 0..n as usize {
-            let row = self.image[(i + r) & 0xFFF];
-            for c in 0..8usize {
-                if row & (0x80 >> c) == 0 {
+        for r in 0..rows {
+            let bits: u16 = if cols == 16 {
+                ((self.image[(i + 2 * r) & 0xFFF] as u16) << 8) | self.image[(i + 2 * r + 1) & 0xFFF] as u16
+            } else {
+                (self.image[(i + r) & 0xFFF] as u16) << 8
+            };
+            for c in 0..cols {
+                if bits & (0x8000 >> c) == 0 {
                     continue;
                 }
-                let px = (x as usize + c) % 64;
-                let py = (y as usize + r) % 32;
-                let idx = py * 64 + px;
+                let px = (x as usize + c) % w;
+                let py = (y as usize + r) % h;
+                let idx = py * w + px;
                 let a = DISPLAY + idx / 8;
                 let mask = 0x80u8 >> (idx % 8);
                 if self.image[a] & mask != 0 {
@@ -134,9 +159,53 @@ impl Chip8 {
         self.set32(PC, (pc + 2) as u32);
         let op = decode(w);
         match op {
-            Op::Cls => {
-                for b in &mut self.image[DISPLAY..DISPLAY + 256] {
-                    *b = 0;
+            Op::Cls => self.clear_display(),
+            Op::Scd(n) => {
+                let (w, h) = self.dims();
+                let stride = w / 8;
+                let n = (n as usize).min(h);
+                for y in (0..h).rev() {
+                    for k in 0..stride {
+                        self.image[DISPLAY + y * stride + k] = if y >= n { self.image[DISPLAY + (y - n) * stride + k] } else { 0 };
+                    }
+                }
+            }
+            Op::Scr => {
+                let (w, h) = self.dims();
+                let stride = w / 8;
+                for y in 0..h {
+                    for k in (0..stride).rev() {
+                        let hi = if k > 0 { self.image[DISPLAY + y * stride + k - 1] << 4 } else { 0 };
+                        self.image[DISPLAY + y * stride + k] = (self.image[DISPLAY + y * stride + k] >> 4) | hi;
+                    }
+                }
+            }
+            Op::Scl => {
+                let (w, h) = self.dims();
+                let stride = w / 8;
+                for y in 0..h {
+                    for k in 0..stride {
+                        let lo = if k + 1 < stride { self.image[DISPLAY + y * stride + k + 1] >> 4 } else { 0 };
+                        self.image[DISPLAY + y * stride + k] = (self.image[DISPLAY + y * stride + k] << 4) | lo;
+                    }
+                }
+            }
+            Op::Low => {
+                self.image[HIRES] = 0;
+                self.clear_display();
+            }
+            Op::High => {
+                self.image[HIRES] = 1;
+                self.clear_display();
+            }
+            Op::StRpl(x) => {
+                for k in 0..=(x as usize).min(7) {
+                    self.image[RPL + k] = self.image[V + k];
+                }
+            }
+            Op::LdRpl(x) => {
+                for k in 0..=(x as usize).min(7) {
+                    self.image[V + k] = self.image[RPL + k];
                 }
             }
             Op::Ret => {

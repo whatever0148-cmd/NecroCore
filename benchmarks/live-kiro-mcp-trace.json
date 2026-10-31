@@ -1,0 +1,21 @@
+{
+  "about": "One real kiro-cli turn in ~/NecroCore. kiro-cli read .kiro/settings/mcp.json, started the necro-mcp server (necro-cli mcp), called the necro_autopsy tool and reported what it returned.",
+  "command": [
+    "kiro-cli",
+    "chat",
+    "--no-interactive",
+    "--trust-tools=@necro-mcp",
+    "--wrap",
+    "never",
+    "<prompt>"
+  ],
+  "prompt": "Use the necro-mcp tool necro_autopsy on samples/cobol/PAYROLL-BATCH-1982.cob. Reply with the list of pathologies it returned, one line each.",
+  "kiro_cli_version": "2.35.2",
+  "exit_code": 0,
+  "elapsed_ms": 26264,
+  "tool_log": [
+    "[tool] Running: @necro-mcp/necro_autopsy",
+    "[tool] status: Completed"
+  ],
+  "response": "The autopsy found three pathologies:\n\n- **Zombie** in `PROCESS-EMPLOYEE` (line 26, bytes 1158..1174): the loop's only exit condition reads `WS-EOF`, which the loop never writes, so it cannot terminate once entered.\n- **Vampire** in `PROCESS-EMPLOYEE.32` (line 37, bytes 1587..1608): `WS-PROCESSED` only grows inside the loop and no exit condition reads it; it will silently wrap past 10\u00b3.\n- **Ghost** in `END-OF-BATCH.41` (line 41, bytes 1767..1783): the block has no incoming CFG edge; nothing performs, calls, or jumps to it.\n"
+}
