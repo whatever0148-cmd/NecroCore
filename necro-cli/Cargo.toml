@@ -18,4 +18,5 @@ necro-kiro-bridge = { path = "../crates/necro-kiro-bridge" }
 clap = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+wat = "1"
 tokio = { workspace = true }

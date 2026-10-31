@@ -63,7 +63,7 @@ vectors: 60000, matched: 60000, overall parity: 100.000%
 wrote benchmarks/2026-10-31-phase1.json
 ```
 
-Test run on the same day (`cargo test --release --workspace`): tests passed 21 failed 0 ignored 0.
+Test run on the same day (`cargo test --release --workspace`): tests passed 23 failed 0 ignored 0.
 `cargo clippy --release --workspace --all-targets` reported 0 warnings.
 
 ### Reading the numbers
@@ -121,10 +121,28 @@ printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"n
 - **Property-based tests**: `proptest` on the fixed-point store rule and literal
   parsing.
 
-## Phase 2 (not built yet)
-The Observatory cockpit and the macOS notch patch strip are specified in
-`.kiro/specs/04-observatory-and-notch-ui/` and not started. Multi-ball and
-SUPER-CHIP opcodes are listed as open tasks in spec 03.
+## Observatory (browser cockpit)
+
+```bash
+cargo run --release --bin necro-cli -- benchmark --json benchmarks/run.json
+cargo run --release --bin necro-cli -- observatory --bench benchmarks/run.json -o observatory/index.html
+python3 -m http.server 8765 --directory observatory   # then open http://127.0.0.1:8765
+```
+
+`observatory/index.html` is one file with no network use. It embeds each autopsy
+report, the benchmark rows, and every ROM as a compiled wasm binary. The page runs
+the lifted module itself (12 steps per animation frame), draws the 64x32 display,
+shows the registers, and the Hot patch sliders write one byte into the running
+module's memory with no reset. Checked in a browser on 2026-10-31: the ball moved,
+holding CHIP-8 key 4 moved the Pong paddle from y 28 to y 16 in 1.5 s, a slider
+write changed exactly the patched byte, and the page has no horizontal scroll at
+375 px.
+
+## Phase 2 still open
+The macOS notch strip (spec 04, requirement 2) is not built. The Observatory is
+a browser page, not the native SwiftUI app the spec describes, and the Prove,
+Exorcise and Spec buttons are not wired (the page shows the stored benchmark
+instead of running it). Multi-ball and SUPER-CHIP are open tasks in spec 03.
 
 ## Licence
 MIT. The sample programs and ROMs are original work written for this project.

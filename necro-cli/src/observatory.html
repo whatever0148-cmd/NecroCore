@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NecroCore Observatory</title>
+<style>
+:root{--bg:#0b0d10;--panel:#12161b;--line:#222a33;--tx:#e6ebf0;--mut:#8a97a6;--em:#10b981;--cr:#f43f5e;--am:#f59e0b;--pu:#a855f7}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 ui-sans-serif,system-ui,-apple-system,sans-serif}
+main{max-width:1100px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:28px;margin:0 0 4px;letter-spacing:.02em}h1 span{color:var(--pu)}h2{font-size:17px;margin:32px 0 12px;color:var(--mut);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+p.sub{color:var(--mut);margin:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px}@media(max-width:800px){.grid{grid-template-columns:1fr}}
+canvas{width:100%;image-rendering:pixelated;background:#000;border:1px solid var(--line);border-radius:6px;display:block}
+select,button{background:#0e1216;color:var(--tx);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font:inherit}button{cursor:pointer}button:hover,select:hover{border-color:var(--pu)}
+:focus-visible{outline:2px solid var(--pu);outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px}.pad button{padding:12px 0;font-family:ui-monospace,monospace}.pad button.on{background:var(--em);color:#04120c;border-color:var(--em)}
+.patch{margin-bottom:14px}.patch label{display:flex;justify-content:space-between;gap:8px;font-size:13px}.patch small{color:var(--mut);display:block}.patch input{width:100%;accent-color:var(--em)}
+.regs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font:12px ui-monospace,monospace;color:var(--mut)}.regs b{color:var(--tx);font-weight:500}
+table{border-collapse:collapse;width:100%;font-size:13px}th,td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}th{color:var(--mut);font-weight:600}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.wrap{overflow-x:auto}
+.chip{display:inline-block;padding:1px 8px;border-radius:99px;font-size:12px;font-weight:600;border:1px solid}
+.Ghost{color:#c4b5fd;border-color:#6d4bb0}.Vampire{color:var(--cr);border-color:#8a2a3d}.Zombie{color:var(--am);border-color:#8a5a0c}
+.ok{color:var(--em)}.bad{color:var(--cr)}
+code{font:12px ui-monospace,monospace;color:var(--mut)}
+footer{margin-top:40px;color:var(--mut);font-size:13px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body><main>
+<h1>Necro<span>Core</span> Observatory</h1>
+<p class="sub">Legacy programs, lifted to WebAssembly. The games below run from the lifted modules, not from an emulator written in JavaScript.</p>
+
+<h2>Live ROM (lifted WebAssembly)</h2>
+<div class="grid">
+ <div class="card">
+  <div class="row"><label for="rom">ROM</label><select id="rom"></select><button id="reset">Reset</button><button id="pause">Pause</button><span id="status" class="sub"></span></div>
+  <canvas id="screen" width="64" height="32" aria-label="CHIP-8 display"></canvas>
+  <div class="pad" id="pad"></div>
+  <p class="sub" style="margin-top:8px">Keyboard: 1 2 3 4 / Q W E R / A S D F / Z X C V map to the hex keypad. Hold the keys named in the ROM header.</p>
+ </div>
+ <div class="card">
+  <strong>Hot patch</strong><p class="sub" style="margin:0 0 12px">Writes one byte into the running module. Registers, stack and display stay.</p>
+  <div id="patches"></div>
+  <strong>Machine</strong><div class="regs" id="regs" style="margin-top:8px"></div>
+ </div>
+</div>
+
+<h2>Autopsy</h2>
+<div class="card wrap"><table id="path"><thead><tr><th>Program</th><th>Label</th><th>Technical term</th><th>Block</th><th class="n">Line</th><th class="n">Bytes</th><th>Detail</th></tr></thead><tbody></tbody></table></div>
+
+<h2>Parity benchmark</h2>
+<div class="card wrap"><table id="bench"><thead><tr><th>Target</th><th class="n">Vectors</th><th class="n">Parity</th><th class="n">Interpreter us/vec</th><th class="n">Wasm us/vec</th><th class="n">Speedup</th><th class="n">Found</th><th class="n">Left after heal</th></tr></thead><tbody></tbody></table>
+<p class="sub" id="benchsrc"></p></div>
+<footer>Every figure on this page is read from the embedded run data. Hover a figure to see its source.</footer>
+</main>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+const $=id=>document.getElementById(id);
+const D2=JSON.parse($('data').textContent);
+const KB={'1':1,'2':2,'3':3,'4':0xC,'q':4,'w':5,'e':6,'r':0xD,'a':7,'s':8,'d':9,'f':0xE,'z':0xA,'x':0,'c':0xB,'v':0xF};
+const PADL=[1,2,3,0xC,4,5,6,0xD,7,8,9,0xE,0xA,0,0xB,0xF];
+let keys=0,inst=null,mem=null,step=null,rom=null,paused=false,patches=[];
+const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+const sel=$('rom');D2.roms.forEach((r,i)=>{const o=el('option',null,r.name);o.value=i;sel.appendChild(o)});
+const pad=$('pad');PADL.forEach(k=>{const b=el('button',null,k.toString(16).toUpperCase());b.dataset.k=k;
+ const dn=e=>{keys|=1<<k;b.classList.add('on');e.preventDefault()},up=()=>{keys&=~(1<<k);b.classList.remove('on')};
+ b.onpointerdown=dn;b.onpointerup=up;b.onpointerleave=up;pad.appendChild(b)});
+addEventListener('keydown',e=>{const k=KB[e.key.toLowerCase()];if(k!==undefined&&!e.ctrlKey&&!e.metaKey){keys|=1<<k;pad.children[PADL.indexOf(k)].classList.add('on');e.preventDefault()}});
+addEventListener('keyup',e=>{const k=KB[e.key.toLowerCase()];if(k!==undefined){keys&=~(1<<k);pad.children[PADL.indexOf(k)].classList.remove('on')}});
+async function load(i){
+ rom=D2.roms[i];const m=await WebAssembly.instantiate(unb64(rom.wasm),{});
+ inst=m.instance;mem=new Uint8Array(inst.exports.mem.buffer);mem.set(unb64(rom.image));step=inst.exports.step;patches=rom.patches;
+ const box=$('patches');box.replaceChildren();
+ patches.forEach(p=>{
+  const max=p.field==='N'?15:255,div=el('div','patch');const lab=el('label'),nm=el('span',null,p.name),val=el('b',null,'');lab.append(nm,val);
+  const s=el('input');s.type='range';s.min=0;s.max=max;s.value=p.default;s.setAttribute('aria-label',p.name);
+  const addr=p.field==='Byte'?p.addr:p.addr+1;
+  const w=v=>{mem[addr]=p.field==='N'?(mem[addr]&0xF0)|v:v;val.textContent=v};
+  s.oninput=()=>w(+s.value);val.textContent=p.default;
+  const d=el('small',null,p.description+' (default '+p.default+', byte at 0x'+addr.toString(16).toUpperCase()+')');
+  div.append(lab,s,d);box.appendChild(div)});
+ if(!patches.length)box.textContent='No patch points.';
+}
+const ctx=$('screen').getContext('2d'),img=ctx.createImageData(64,32);
+function draw(){for(let i=0;i<2048;i++){const on=mem[0x1100+(i>>3)]&(0x80>>(i&7));const o=i*4;img.data[o]=on?16:0;img.data[o+1]=on?185:0;img.data[o+2]=on?129:0;img.data[o+3]=255}ctx.putImageData(img,0,0)}
+const dv=()=>new DataView(inst.exports.mem.buffer);
+const NAMES=['running','waiting for key','','bad pc','','unknown opcode','stack fault'];
+function regs(code){const d=dv(),r=$('regs');r.replaceChildren();
+ for(let i=0;i<16;i++){const s=el('span',null,'V'+i.toString(16).toUpperCase()+' ');s.append(el('b',null,mem[0x1000+i].toString(16).padStart(2,'0')));r.appendChild(s)}
+ [['PC',d.getUint32(0x1014,true)],['I',d.getUint32(0x1010,true)],['SP',d.getUint32(0x1018,true)],['DT',mem[0x1060]]].forEach(([n,v])=>{const s=el('span',null,n+' ');s.append(el('b',null,v.toString(16)));r.appendChild(s)});
+ $('status').textContent=NAMES[code]||('status '+code)}
+function frame(){if(inst&&!paused){mem=new Uint8Array(inst.exports.mem.buffer);new DataView(inst.exports.mem.buffer).setUint32(0x1064,keys,true);let c=0;try{c=step(12)}catch(e){c=-1}draw();regs(c)}requestAnimationFrame(frame)}
+$('reset').onclick=()=>load(sel.value);$('pause').onclick=e=>{paused=!paused;e.target.textContent=paused?'Resume':'Pause'};sel.onchange=()=>load(sel.value);
+load(0);requestAnimationFrame(frame);
+
+// Autopsy table
+const tb=$('path').tBodies[0];
+D2.reports.forEach(r=>{r.report.pathologies.forEach(p=>{const tr=el('tr');
+ const chip=el('span','chip '+p.kind,p.label);const c=el('td');c.appendChild(chip);
+ tr.append(el('td',null,r.name),c,el('td',null,{Ghost:'unreachable code',Vampire:'unbounded accumulator',Zombie:'non-terminating loop'}[p.kind]),el('td',null,p.block),el('td','n',p.span.line),el('td','n',p.span.byte_start+'..'+p.span.byte_end),el('td',null,p.detail));
+ tr.title='Source: static scan of '+r.name+' ('+r.kind+')';tb.appendChild(tr)})});
+// Bench table
+const bb=$('bench').tBodies[0];
+if(D2.bench){D2.bench.forEach(b=>{const p=b.parity,tr=el('tr');const f=(x,d)=>x.toFixed(d);
+ const pc=el('td','n '+(p.parity_pct===100?'ok':'bad'),f(p.parity_pct,2)+'% ('+p.matched+'/'+p.vectors+')');
+ tr.append(el('td',null,b.target),el('td','n',p.vectors),pc,el('td','n',f(p.interp_per_vector_us,2)),el('td','n',f(p.wasm_per_vector_us,2)),el('td','n',f(p.speedup,2)+'x'),el('td','n',b.ghosts+b.vampires+b.zombies),el('td','n',b.healed_remaining));
+ tr.title='Source: '+D2.bench_source+' row '+b.target;bb.appendChild(tr)});
+ $('benchsrc').textContent='Source: '+D2.bench_source}
+else $('benchsrc').textContent='No benchmark file was given. Run necro-cli benchmark --json FILE, then necro-cli observatory --bench FILE.';
+</script></body></html>

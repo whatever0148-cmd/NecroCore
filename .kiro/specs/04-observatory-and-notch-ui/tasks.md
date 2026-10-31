@@ -1,4 +1,4 @@
-# Tasks: Observatory and notch UI (Phase 2, none started)
+# Tasks: Observatory and notch UI (Phase 2, browser Observatory done, native app not started)
 
 - [ ] 1. `necro-cli mcp` tool contract frozen: `necro_autopsy`, `necro_parity`, `necro_hotpatch`
   - _Requirements: 1.1, 1.2, 2.2_
@@ -12,3 +12,5 @@
   - _Requirements: 2.1, 2.2, 2.3_
 - [ ] 6. Spec button writing through the Kiro bridge
   - _Requirements: 1.4, 3.2_
+- [x] 7. Browser Observatory: `necro-cli observatory` writes one HTML page with autopsies, benchmark, and the lifted ROMs running live with hot-patch sliders (`necro-cli/src/observatory.rs`)
+  - _Requirements: 1.1, 2.2, 3.1, 3.2 (partly: the page shows stored results, it does not run Prove, Exorcise or Spec itself)_

@@ -1,4 +1,5 @@
 mod mcp;
+mod observatory;
 
 use clap::{Parser, Subcommand};
 use necro_core::{heal, scan, PathologyKind};
@@ -24,6 +25,15 @@ enum Cmd {
     Lift { file: PathBuf, #[arg(short, long)] out: Option<PathBuf> },
     /// Assemble a CHIP-8 .asm into .ch8 plus a .patch.json sidecar.
     Assemble { file: PathBuf },
+    /// Write the Observatory: one self-contained HTML page that shows the autopsies and runs the lifted ROMs live.
+    Observatory {
+        #[arg(short, long, default_value = "observatory/index.html")]
+        out: PathBuf,
+        #[arg(long, default_value = "samples")]
+        samples: PathBuf,
+        #[arg(long)]
+        bench: Option<PathBuf>,
+    },
     /// Serve the necro-mcp Model Context Protocol server over stdio (used by .kiro/settings/mcp.json).
     Mcp,
     /// End-to-end benchmark over samples/cobol and samples/roms.
@@ -124,6 +134,14 @@ fn real_main() -> Result<(), String> {
             std::fs::write(&ch8, &a.bytes).map_err(|e| e.to_string())?;
             std::fs::write(file.with_extension("patch.json"), serde_json::to_string_pretty(&a.patches).unwrap()).map_err(|e| e.to_string())?;
             println!("{}: {} bytes, {} patch points, {} labels", ch8.display(), a.bytes.len(), a.patches.entries.len(), a.labels.len());
+        }
+        Cmd::Observatory { out, samples, bench } => {
+            let html = observatory::build(&samples, bench.as_deref())?;
+            if let Some(d) = out.parent() {
+                std::fs::create_dir_all(d).map_err(|e| e.to_string())?;
+            }
+            std::fs::write(&out, &html).map_err(|e| e.to_string())?;
+            println!("{}: {} bytes", out.display(), html.len());
         }
         Cmd::Mcp => mcp::serve()?,
         Cmd::Benchmark { vectors, seed, rom_steps, fuel, live_kiro, json, samples } => {
