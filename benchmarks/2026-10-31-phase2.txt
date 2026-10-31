@@ -1,0 +1,25 @@
+NecroCore benchmark: 10000 vectors per target, seed 7, COBOL fuel 10000 blocks, ROM 300 steps per vector
+host: macos aarch64, necro-cli 0.1.0, wasmtime 50 (Cranelift), release build
+
+| target | kind | lift us | blocks | edges | ghosts | vampires | zombies | warnings | left after heal | parity | interp us/vec | wasm us/vec | speedup | compile us | non-halting vecs | bridge |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| BANK-INTEREST-1978 | cobol | 540.7 | 26 | 23 | 1 | 1 | 0 | 4 | 0 | 100.00% (10000/10000) | 68.44 | 7.97 | 8.59x | 5074 | 2845 | kiro-cli (2 patches, 16442 ms) |
+| PAYROLL-BATCH-1982 | cobol | 154.4 | 15 | 11 | 1 | 1 | 1 | 2 | 0 | 100.00% (10000/10000) | 546.88 | 37.52 | 14.57x | 1939 | 10000 | kiro-cli (3 patches, 20797 ms) |
+| WIRE-CLEARING-1985 | cobol | 283.2 | 22 | 16 | 1 | 1 | 0 | 2 | 0 | 100.00% (10000/10000) | 50.10 | 3.01 | 16.63x | 4832 | 1138 | kiro-cli (2 patches, 15807 ms) |
+| BREAKOUT-STYLE | chip8 | 1095.4 | 62 | 164 | 0 | 0 | 2 | 0 | 0 | 100.00% (10000/10000) | 3.15 | 2.88 | 1.09x | 7614 | 0 | kiro-cli (2 patches, 28174 ms) |
+| INVADERS-STYLE | chip8 | 568.5 | 61 | 113 | 0 | 2 | 2 | 0 | 0 | 100.00% (10000/10000) | 3.26 | 3.25 | 1.00x | 7418 | 0 | kiro-cli (4 patches, 18806 ms) |
+| PONG-STYLE | chip8 | 255.2 | 86 | 364 | 1 | 0 | 1 | 0 | 0 | 100.00% (10000/10000) | 2.06 | 2.06 | 1.00x | 3618 | 0 | kiro-cli (2 patches, 17626 ms) |
+
+pathologies found: 15, remaining after heal: 0, healed: 15
+vectors: 60000, matched: 60000, overall parity: 100.000%
+  BANK-INTEREST-1978: FuelExhausted x 2845
+  BANK-INTEREST-1978: Halted x 7155
+  PAYROLL-BATCH-1982: FuelExhausted x 10000
+  WIRE-CLEARING-1985: FuelExhausted x 1138
+  WIRE-CLEARING-1985: Halted x 8862
+  BREAKOUT-STYLE: Ok x 10000
+  INVADERS-STYLE: Ok x 10000
+  PONG-STYLE: Ok x 10000
+live kiro-cli turns: 6 of 6 (117652 ms in total)
+wrote benchmarks/live-kiro-trace.json
+wrote benchmarks/2026-10-31-phase2.json

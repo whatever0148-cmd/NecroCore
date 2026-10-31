@@ -27,6 +27,20 @@ pub struct SpecProposal {
     pub requirements_md: String,
     pub patches: Vec<PatchProposal>,
     pub elapsed_ms: u128,
+    /// Present only when a real `kiro-cli` turn ran: the exact command, prompt and reply.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub trace: Option<LiveTrace>,
+}
+
+/// Transcript of one real `kiro-cli` invocation.
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub struct LiveTrace {
+    pub command: Vec<String>,
+    pub prompt: String,
+    pub response: String,
+    pub started_unix_ms: u128,
+    pub elapsed_ms: u128,
+    pub exit_code: Option<i32>,
 }
 
 #[derive(Clone, Debug)]
@@ -88,7 +102,7 @@ impl KiroBridge {
                 PatchProposal { pathology_index: i, title, rationale: p.detail.clone(), proposed_change: change }
             })
             .collect();
-        SpecProposal { source: "offline".into(), requirements_md: report.requirements_markdown.clone(), patches, elapsed_ms: 0 }
+        SpecProposal { source: "offline".into(), requirements_md: report.requirements_markdown.clone(), patches, elapsed_ms: 0, trace: None }
     }
 
     /// Produces a proposal. The live path falls back to the offline proposal on
@@ -99,12 +113,14 @@ impl KiroBridge {
             return Self::offline_proposal(report);
         }
         let start = std::time::Instant::now();
-        match self.run_live(report).await {
-            Ok(text) if !text.trim().is_empty() => {
+        let prompt = Self::prompt_for(report);
+        match self.ask(&prompt).await {
+            Ok(trace) if !trace.response.trim().is_empty() => {
                 let mut p = Self::offline_proposal(report);
                 p.source = "kiro-cli".into();
-                p.requirements_md = text;
+                p.requirements_md = trace.response.clone();
                 p.elapsed_ms = start.elapsed().as_millis();
+                p.trace = Some(trace);
                 p
             }
             Ok(_) => {
@@ -122,14 +138,17 @@ impl KiroBridge {
         }
     }
 
-    async fn run_live(&self, report: &NecroAutopsyReport) -> Result<String, String> {
+    /// Runs one real `kiro-cli` turn with no tool access and returns the transcript.
+    pub async fn ask(&self, prompt: &str) -> Result<LiveTrace, String> {
         if !self.cli_available() {
             return Err(format!("kiro-cli not found at {}", self.cli.display()));
         }
-        let prompt = Self::prompt_for(report);
+        let args = ["chat", "--no-interactive", "--trust-tools=", "--wrap", "never"];
+        let started = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_millis()).unwrap_or(0);
+        let t0 = std::time::Instant::now();
         let mut child = tokio::process::Command::new(&self.cli)
-            .args(["chat", "--no-interactive", "--trust-tools=", "--wrap", "never"])
-            .arg(&prompt)
+            .args(args)
+            .arg(prompt)
             .stdin(Stdio::null())
             .stdout(Stdio::piped())
             .stderr(Stdio::null())
@@ -144,13 +163,37 @@ impl KiroBridge {
             if !status.success() {
                 return Err(format!("kiro-cli exited with {status}"));
             }
-            Ok(buf)
+            Ok((buf, status.code()))
         };
         match tokio::time::timeout(self.timeout, read).await {
-            Ok(r) => r,
+            Ok(Ok((text, code))) => {
+                let mut command = vec![self.cli.display().to_string()];
+                command.extend(args.iter().map(|a| a.to_string()));
+                command.push("<prompt>".into());
+                Ok(LiveTrace { command, prompt: prompt.to_string(), response: strip_ansi(&text), started_unix_ms: started, elapsed_ms: t0.elapsed().as_millis(), exit_code: code })
+            }
+            Ok(Err(e)) => Err(e),
             Err(_) => Err(format!("timed out after {:?}", self.timeout)),
         }
     }
+}
+
+/// Removes terminal colour codes that `kiro-cli` may print around its reply.
+pub fn strip_ansi(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    let mut it = s.chars().peekable();
+    while let Some(c) = it.next() {
+        if c == '\u{1b}' && it.peek() == Some(&'[') {
+            for d in it.by_ref() {
+                if d.is_ascii_alphabetic() {
+                    break;
+                }
+            }
+        } else {
+            out.push(c);
+        }
+    }
+    out
 }
 
 #[cfg(test)]

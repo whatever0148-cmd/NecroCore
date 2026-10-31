@@ -3,21 +3,35 @@
   "entries": [
     {
       "name": "PADDLE_H",
-      "addr": 526,
+      "addr": 524,
       "field": "Kk",
       "default": 4,
       "description": "paddle height in rows, 1 to 15"
     },
     {
+      "name": "BALL2_ON",
+      "addr": 598,
+      "field": "Kk",
+      "default": 0,
+      "description": "second ball switch, 0 off and 1 on"
+    },
+    {
+      "name": "FRAME_DELAY",
+      "addr": 672,
+      "field": "Kk",
+      "default": 2,
+      "description": "ticks to wait per frame, 2 normal and 1 double speed"
+    },
+    {
       "name": "BALL_DX",
-      "addr": 704,
+      "addr": 744,
       "field": "Kk",
       "default": 1,
       "description": "ball horizontal velocity per frame (0x01 right, 0xFF left)"
     },
     {
       "name": "BALL_DY",
-      "addr": 706,
+      "addr": 746,
       "field": "Kk",
       "default": 1,
       "description": "ball vertical velocity per frame (0x01 down, 0xFF up)"

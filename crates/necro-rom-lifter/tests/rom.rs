@@ -132,3 +132,24 @@ fn assembler_roundtrips_through_the_decoder() {
         assert!(!matches!(decode(got), necro_rom_lifter::Op::Unknown(_)));
     }
 }
+
+#[test]
+fn pong_second_ball_switches_on_live_and_wasm_agrees() {
+    let src = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../../samples/roms/PONG-STYLE.asm")).unwrap();
+    let a = asm::assemble("PONG-STYLE", &src).unwrap();
+    assert!(a.patches.get("BALL2_ON").is_some() && a.patches.get("FRAME_DELAY").is_some());
+    let lit = |on: bool| {
+        let mut c = Chip8::new(&a.bytes, 3);
+        let mut most = 0usize;
+        for k in 0..2000 {
+            if k == 100 && on {
+                a.patches.apply(&mut c.image, "BALL2_ON", 1);
+            }
+            c.step();
+            let px: usize = c.image[layout::DISPLAY..layout::DISPLAY + 256].iter().map(|b| b.count_ones() as usize).sum();
+            most = most.max(px);
+        }
+        most
+    };
+    assert!(lit(true) > lit(false), "second ball adds lit pixels");
+}

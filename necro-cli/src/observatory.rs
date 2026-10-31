@@ -20,6 +20,31 @@ pub fn b64(data: &[u8]) -> String {
     out
 }
 
+/// Standard base64 decoder (padding optional, whitespace ignored).
+pub fn unb64(s: &str) -> Result<Vec<u8>, String> {
+    let mut out = Vec::with_capacity(s.len() * 3 / 4);
+    let (mut acc, mut bits) = (0u32, 0u32);
+    for c in s.bytes() {
+        let v = match c {
+            b'A'..=b'Z' => c - b'A',
+            b'a'..=b'z' => c - b'a' + 26,
+            b'0'..=b'9' => c - b'0' + 52,
+            b'+' => 62,
+            b'/' => 63,
+            b'=' | b' ' | b'\n' | b'\r' => continue,
+            _ => return Err("invalid base64".into()),
+        };
+        acc = acc << 6 | v as u32;
+        bits += 6;
+        if bits >= 8 {
+            bits -= 8;
+            out.push((acc >> bits) as u8);
+            acc &= (1 << bits) - 1;
+        }
+    }
+    Ok(out)
+}
+
 fn files(dir: &Path, ext: &str) -> Result<Vec<std::path::PathBuf>, String> {
     let mut v: Vec<_> = std::fs::read_dir(dir).map_err(|e| format!("{}: {e}", dir.display()))?.filter_map(|e| e.ok()).map(|e| e.path()).filter(|p| p.extension().map(|x| x == ext).unwrap_or(false)).collect();
     v.sort();
@@ -61,6 +86,9 @@ mod tests {
         assert_eq!(b64(b"f"), "Zg==");
         assert_eq!(b64(b"fo"), "Zm8=");
         assert_eq!(b64(b"foobar"), "Zm9vYmFy");
+        for t in [&b""[..], b"f", b"fo", b"foo", b"foobar", &[0u8, 255, 128, 7, 9][..]] {
+            assert_eq!(unb64(&b64(t)).unwrap(), t);
+        }
     }
     #[test]
     fn page_embeds_every_sample() {

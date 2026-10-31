@@ -138,11 +138,41 @@ holding CHIP-8 key 4 moved the Pong paddle from y 28 to y 16 in 1.5 s, a slider
 write changed exactly the patched byte, and the page has no horizontal scroll at
 375 px.
 
-## Phase 2 still open
-The macOS notch strip (spec 04, requirement 2) is not built. The Observatory is
-a browser page, not the native SwiftUI app the spec describes, and the Prove,
-Exorcise and Spec buttons are not wired (the page shows the stored benchmark
-instead of running it). Multi-ball and SUPER-CHIP are open tasks in spec 03.
+## Phase 2: local daemon, notch pill, live Kiro trace
+
+`necro-cli observatory --serve` starts a zero-dependency HTTP and Server-Sent-Events daemon on
+127.0.0.1:4300 (loopback Host and Origin checks, no external crates). The page it serves has three views.
+- **CryptLedger.** Pick a COBOL sample or drop your own .cob. Buttons run the real code paths:
+  Autopsy CFG (clickable graph tied to source lines), Exorcise via Kiro (a real kiro-cli turn, then heal,
+  rescan and a before and after WebAssembly diff), Prove 10,000 vectors (ten batches of 1,000 streamed
+  through wasmtime, same seeded vectors as the benchmark), and Generate .kiro/specs/ (writes
+  requirements, design and tasks files).
+- **PhantomArcade.** The three lifted ROMs at a 60 or 120 ticks per second module clock, a register panel,
+  a RAM heat map, a Multi-Ball preset (Pong now has a second ball behind a patch point), and a text box.
+  The text box sends your sentence to kiro-cli, which answers with patch values. They are written into
+  the running module without a reset.
+- **Evidence.** The saved benchmark and the saved kiro-cli transcript.
+
+`apps/macos-notch/necro_notch.swift` is a borderless dark-glass pill that docks under the MacBook notch.
+Drop a .cob or .ch8 on it, or press Resurrect sample. It posts the file to the daemon, which saves it under
+samples/dropped/ and runs the command from `.kiro/hooks/on-legacy-drop.json`. The pill shows the Ghost,
+Vampire and Zombie counts and opens the healed result in the Observatory. Build and check:
+
+```
+swiftc -O apps/macos-notch/necro_notch.swift -o apps/macos-notch/necro_notch
+apps/macos-notch/necro_notch --sample PAYROLL-BATCH-1982     # same path as a drop, no window
+```
+
+Live Kiro benchmark (`necro-cli benchmark --live-kiro`, output in `benchmarks/2026-10-31-phase2.txt`,
+transcripts in `benchmarks/live-kiro-trace.json`): all 6 targets got a real kiro-cli turn, 117.7 s in total,
+and parity stayed at 60,000 of 60,000. COBOL speedups on that run were 8.59x, 14.57x and 16.63x. The run
+shared the machine with a browser and a compiler, so they sit a little under the Phase 1 numbers.
+
+Limits. The Observatory page was checked in an embedded browser at 1920 by 1080 and 375 wide. The in-app
+browser pane does not run animation frames while hidden, so the game loop was driven by hand there. The
+notch pill was checked by launching it (it appears under the notch) and by the headless drop path, not by
+dragging a file with a mouse. The mod box depends on what kiro-cli answers, and on one live run it left
+the zero-gravity request out until the prompt got a hint. SUPER-CHIP is still open.
 
 ## Licence
 MIT. The sample programs and ROMs are original work written for this project.

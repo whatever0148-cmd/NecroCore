@@ -1,109 +1,435 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
 <title>NecroCore Observatory</title>
 <style>
-:root{--bg:#0b0d10;--panel:#12161b;--line:#222a33;--tx:#e6ebf0;--mut:#8a97a6;--em:#10b981;--cr:#f43f5e;--am:#f59e0b;--pu:#a855f7}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 ui-sans-serif,system-ui,-apple-system,sans-serif}
-main{max-width:1100px;margin:0 auto;padding:24px 16px 64px}
-h1{font-size:28px;margin:0 0 4px;letter-spacing:.02em}h1 span{color:var(--pu)}h2{font-size:17px;margin:32px 0 12px;color:var(--mut);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
-p.sub{color:var(--mut);margin:0}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
-.grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px}@media(max-width:800px){.grid{grid-template-columns:1fr}}
+:root{color-scheme:dark;--bg:#0c0e11;--panel:#13171c;--panel2:#181d23;--line:#252d37;--line2:#364250;--tx:#e7ecf1;--mut:#9aa6b4;--acc:#34d399;--accink:#04140d;--ghost:#c4b5fd;--vamp:#fb7185;--zomb:#fbbf24;--add:#10331f;--del:#3a1620;
+--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;--sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}
+html{scrollbar-color:var(--line2) var(--bg)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 var(--sans);caret-color:var(--acc);overflow-wrap:break-word}
+::selection{background:#1f5d46;color:#fff}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line2);border-radius:6px;border:2px solid var(--bg)}::-webkit-scrollbar-track{background:var(--bg)}
+a{color:var(--acc);text-underline-offset:3px}
+header{border-bottom:1px solid var(--line);background:var(--bg);position:sticky;top:0;z-index:5}
+.bar{max-width:1280px;margin:0 auto;padding:12px 16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+h1{font-size:28px;margin:0;letter-spacing:0;font-weight:700}h1 b{color:var(--acc);font-weight:700}
+.pill{font-size:12px;padding:3px 10px;border-radius:99px;border:1px solid var(--line2);color:var(--mut);white-space:nowrap}
+.pill.on{color:var(--acc);border-color:#1d6a4e}.pill.off{color:var(--zomb);border-color:#6b4d0e}
+[role=tablist]{display:flex;gap:4px;margin-left:auto;overflow-x:auto;max-width:100%}
+[role=tab]{background:none;border:1px solid transparent;color:var(--mut);padding:9px 14px;border-radius:8px;font:inherit;font-weight:600;cursor:pointer;white-space:nowrap}
+[role=tab]:hover{color:var(--tx)}[role=tab][aria-selected=true]{color:var(--tx);background:var(--panel2);border-color:var(--line2)}
+main{max-width:1280px;margin:0 auto;padding:20px 16px 72px}
+h2{font-size:22px;margin:0 0 6px;font-weight:700}h3{font-size:17px;margin:28px 0 10px;font-weight:700}
+.lead{color:var(--mut);margin:0 0 16px;max-width:64ch}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+select,button,textarea,input[type=text]{background:var(--panel2);color:var(--tx);border:1px solid var(--line2);border-radius:8px;padding:9px 12px;font:inherit;min-height:40px}
+button{cursor:pointer;font-weight:600}button:hover:not(:disabled),select:hover{border-color:var(--acc)}
+button.go{background:var(--acc);color:var(--accink);border-color:var(--acc)}button.go:hover:not(:disabled){filter:brightness(1.08)}
+button:disabled{opacity:.5;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+label.chk{display:inline-flex;gap:6px;align-items:center;color:var(--mut);font-size:14px}
+input[type=checkbox]{accent-color:var(--acc);width:16px;height:16px}
+input[type=range]{accent-color:var(--acc);width:100%}
+.drop{border:1px dashed var(--line2);border-radius:8px;padding:8px 12px;color:var(--mut);font-size:14px;cursor:pointer}
+.drop.over{border-color:var(--acc);color:var(--tx)}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media(max-width:960px){.split{grid-template-columns:minmax(0,1fr)}}
+.src{font:12.5px/1.55 var(--mono);max-height:560px;overflow:auto;background:#0f1216;border:1px solid var(--line);border-radius:8px}
+.ln{display:grid;grid-template-columns:44px 1fr;white-space:pre}.ln .no{color:#8a97a6;text-align:right;padding-right:10px;user-select:none}.ln .tx{padding-right:12px}
+.ln.Ghost{background:#2a2142}.ln.Vampire{background:#3a1822}.ln.Zombie{background:#3a2c0b}
+.ln.sel{outline:1px solid var(--acc);outline-offset:-1px}
+.ln.detached .tx{text-decoration:line-through;color:#8c7fb3}
+.ln.note{background:var(--add)}.ln.note .tx{color:#86efac;white-space:pre-wrap}
+.cfgwrap{overflow:auto;max-height:560px;background:#0f1216;border:1px solid var(--line);border-radius:8px}
+svg text{font:11px var(--mono);fill:var(--tx);pointer-events:none}
+.node rect{fill:var(--panel2);stroke:var(--line2);stroke-width:1}
+.node{cursor:pointer}.node:hover rect,.node:focus-visible rect,.node.sel rect{stroke:var(--acc);stroke-width:2}
+.node.Ghost rect{fill:#2a2142;stroke:var(--ghost)}.node.Vampire rect{fill:#3a1822;stroke:var(--vamp)}.node.Zombie rect{fill:#3a2c0b;stroke:var(--zomb)}
+.edge{fill:none;stroke:#5b6a7b;stroke-width:1.2}.edge.back{stroke:#8a7440;stroke-dasharray:4 3}
+.chip{display:inline-block;padding:1px 9px;border-radius:99px;font-size:12.5px;font-weight:600;border:1px solid;white-space:nowrap}
+.chip.Ghost{color:var(--ghost);border-color:#6d4bb0}.chip.Vampire{color:var(--vamp);border-color:#9b3049}.chip.Zombie{color:var(--zomb);border-color:#8f640f}
+table{border-collapse:collapse;width:100%;font-size:13.5px}th,td{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}th{color:var(--mut);font-weight:600}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}.wrap{overflow-x:auto}
+td.dt span{display:block;max-width:62ch}
+#finds :is(th,td):nth-child(-n+4),#path :is(th,td):nth-child(-n+4){white-space:nowrap;padding-right:20px}
+tr.click{cursor:pointer}tr.click:hover td{background:var(--panel2)}
+.ok{color:var(--acc)}.bad{color:var(--vamp)}.mut{color:var(--mut)}
+code,pre{font-family:var(--mono)}
+.stat{display:flex;gap:28px;flex-wrap:wrap;margin:8px 0}.stat div{min-width:96px}.stat b{display:block;font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}.stat span{color:var(--mut);font-size:13px}
+progress{width:100%;height:8px;accent-color:var(--acc);margin:8px 0}
+.log{font:13px/1.6 var(--mono);color:var(--mut);margin:8px 0}.log div::before{content:"> ";color:var(--acc)}
+.diff{font:12px/1.5 var(--mono);max-height:420px;overflow:auto;background:#0f1216;border:1px solid var(--line);border-radius:8px}
+.diff div{white-space:pre;padding:0 10px}.diff .p{background:var(--add);color:#a7f3d0}.diff .m{background:var(--del);color:#fecdd3}.diff .s{color:#8a97a6;font-style:italic}
+.md{white-space:pre-wrap;font:13px/1.55 var(--mono);background:#0f1216;border:1px solid var(--line);border-radius:8px;padding:12px;max-height:340px;overflow:auto}
+.hide{display:none!important}
+.arc{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px}@media(max-width:960px){.arc{grid-template-columns:minmax(0,1fr)}}
 canvas{width:100%;image-rendering:pixelated;background:#000;border:1px solid var(--line);border-radius:6px;display:block}
-select,button{background:#0e1216;color:var(--tx);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font:inherit}button{cursor:pointer}button:hover,select:hover{border-color:var(--pu)}
-:focus-visible{outline:2px solid var(--pu);outline-offset:2px}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
-.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px}.pad button{padding:12px 0;font-family:ui-monospace,monospace}.pad button.on{background:var(--em);color:#04120c;border-color:var(--em)}
-.patch{margin-bottom:14px}.patch label{display:flex;justify-content:space-between;gap:8px;font-size:13px}.patch small{color:var(--mut);display:block}.patch input{width:100%;accent-color:var(--em)}
-.regs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font:12px ui-monospace,monospace;color:var(--mut)}.regs b{color:var(--tx);font-weight:500}
-table{border-collapse:collapse;width:100%;font-size:13px}th,td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}th{color:var(--mut);font-weight:600}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
-.wrap{overflow-x:auto}
-.chip{display:inline-block;padding:1px 8px;border-radius:99px;font-size:12px;font-weight:600;border:1px solid}
-.Ghost{color:#c4b5fd;border-color:#6d4bb0}.Vampire{color:var(--cr);border-color:#8a2a3d}.Zombie{color:var(--am);border-color:#8a5a0c}
-.ok{color:var(--em)}.bad{color:var(--cr)}
-code{font:12px ui-monospace,monospace;color:var(--mut)}
+.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px;max-width:360px}.pad button{padding:12px 0;font-family:var(--mono)}.pad button.on{background:var(--acc);color:var(--accink);border-color:var(--acc)}
+.patch{margin-bottom:12px}.patch label{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:600}.patch small{color:var(--mut);display:block}
+.regs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font:12px var(--mono);color:var(--mut)}.regs b{color:var(--tx);font-weight:500}
+textarea{width:100%;min-height:72px;resize:vertical}
 footer{margin-top:40px;color:var(--mut);font-size:13px}
-@media(prefers-reduced-motion:reduce){*{transition:none!important}}
-</style></head><body><main>
-<h1>Necro<span>Core</span> Observatory</h1>
-<p class="sub">Legacy programs, lifted to WebAssembly. The games below run from the lifted modules, not from an emulator written in JavaScript.</p>
-
-<h2>Live ROM (lifted WebAssembly)</h2>
-<div class="grid">
- <div class="card">
-  <div class="row"><label for="rom">ROM</label><select id="rom"></select><button id="reset">Reset</button><button id="pause">Pause</button><span id="status" class="sub"></span></div>
-  <canvas id="screen" width="64" height="32" aria-label="CHIP-8 display"></canvas>
-  <div class="pad" id="pad"></div>
-  <p class="sub" style="margin-top:8px">Keyboard: 1 2 3 4 / Q W E R / A S D F / Z X C V map to the hex keypad. Hold the keys named in the ROM header.</p>
+@media(pointer:coarse){button,select,[role=tab]{min-height:44px}}
+label.chk{min-height:44px}summary{padding:10px 0;cursor:pointer}
+@media(max-width:600px){.drop{min-height:44px;display:flex;align-items:center}main{padding:16px 12px 56px}.bar{padding:10px 12px}[role=tablist]{margin-left:0;width:100%}.stat{gap:16px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style></head><body>
+<header><div class="bar">
+ <h1>Necro<b>Core</b></h1><span id="daemon" class="pill">connecting</span>
+ <div role="tablist" aria-label="Views">
+  <button role="tab" id="tab-crypt" aria-controls="t-crypt" aria-selected="true">CryptLedger</button>
+  <button role="tab" id="tab-arcade" aria-controls="t-arcade" aria-selected="false" tabindex="-1">PhantomArcade</button>
+  <button role="tab" id="tab-proof" aria-controls="t-proof" aria-selected="false" tabindex="-1">Evidence</button>
  </div>
- <div class="card">
-  <strong>Hot patch</strong><p class="sub" style="margin:0 0 12px">Writes one byte into the running module. Registers, stack and display stay.</p>
-  <div id="patches"></div>
-  <strong>Machine</strong><div class="regs" id="regs" style="margin-top:8px"></div>
+</div></header>
+<main>
+<noscript>The Observatory needs JavaScript to run the lifted WebAssembly modules.</noscript>
+
+<section id="t-crypt" role="tabpanel" aria-labelledby="tab-crypt">
+ <h2>CryptLedger: COBOL banking programs, resurrected</h2>
+ <p class="lead">Pick a program or drop your own .cob file. The daemon runs the static scan, asks Kiro for a fix plan, heals the program, and proves the WebAssembly version against the reference interpreter.</p>
+ <p id="staticnote" class="panel hide">This page was saved without the daemon, so the buttons are off. Start it with <code>necro-cli observatory --serve</code> and open <a href="http://127.0.0.1:4300">127.0.0.1:4300</a>.</p>
+ <div class="tools" id="ctools">
+  <label for="prog" class="mut">Program</label><select id="prog"></select>
+  <label class="drop" id="drop" tabindex="0">Drop a .cob file here or click to choose<input id="file" type="file" accept=".cob,.cbl,.txt" hidden></label>
  </div>
-</div>
+ <div class="tools">
+  <button id="b-auto" class="go">Autopsy CFG</button>
+  <button id="b-exo">Exorcise via Kiro</button>
+  <button id="b-prove">Prove 10,000 vectors</button>
+  <button id="b-spec">Generate .kiro/specs/</button>
+  <label class="chk"><input type="checkbox" id="live" checked> Real kiro-cli turn (15 to 60 s)</label>
+ </div>
+ <div id="counts" class="tools"></div>
+ <div class="split">
+  <div><h3 style="margin-top:0">Source <label class="chk" style="font-weight:400;margin-left:8px"><input type="checkbox" id="plan"> show patch plan</label></h3><div class="src" id="src" tabindex="0" aria-label="COBOL source with findings highlighted"></div></div>
+  <div><h3 style="margin-top:0">Control-flow graph</h3><div class="cfgwrap" id="cfg"></div><p class="mut" style="font-size:13px;margin:6px 0 0">Click a block to jump to its lines. Dashed edges loop back.</p></div>
+ </div>
+ <h3>Findings</h3>
+ <div class="panel wrap"><table id="finds"><thead><tr><th>Label</th><th>Technical term</th><th>Block</th><th class="n">Lines</th><th>Detail</th></tr></thead><tbody></tbody></table></div>
+ <div id="out-exo" class="hide"><h3>Exorcise</h3><div class="panel" id="exo"></div></div>
+ <div id="out-prove" class="hide"><h3>Proof in wasmtime</h3><div class="panel" id="prove"></div></div>
+ <div id="out-spec" class="hide"><h3>Kiro spec</h3><div class="panel" id="spec"></div></div>
+</section>
 
-<h2>Autopsy</h2>
-<div class="card wrap"><table id="path"><thead><tr><th>Program</th><th>Label</th><th>Technical term</th><th>Block</th><th class="n">Line</th><th class="n">Bytes</th><th>Detail</th></tr></thead><tbody></tbody></table></div>
+<section id="t-arcade" role="tabpanel" aria-labelledby="tab-arcade" class="hide">
+ <h2>PhantomArcade: CHIP-8 games, lifted and modded live</h2>
+ <p class="lead">These games run from the lifted WebAssembly modules. Every change below writes into the running module's memory. The score, the stack and the screen stay.</p>
+ <div class="arc">
+  <div class="panel">
+   <div class="tools"><label for="rom" class="mut">ROM</label><select id="rom"></select><button id="reset">Reset</button><button id="pause">Pause</button>
+    <label for="clock" class="mut">Clock</label><select id="clock"><option value="60">60 ticks/s</option><option value="120">120 ticks/s</option></select><span id="status" class="mut"></span></div>
+   <canvas id="screen" width="64" height="32" aria-label="CHIP-8 display"></canvas>
+   <p class="mut" id="rate" style="font-size:13px;margin:6px 0"></p>
+   <div class="pad" id="pad"></div>
+   <p class="mut" style="font-size:13px">Keys 1 2 3 4 / Q W E R / A S D F / Z X C V are the hex keypad. Pong uses 1 and 4 (left) and C and D (right).</p>
+  </div>
+  <div class="panel">
+   <strong>Presets</strong><div class="tools" id="presets" style="margin-top:8px"></div>
+   <strong>Say what you want</strong>
+   <textarea id="modtxt" aria-label="Describe a change to the running game">double ball speed, widen paddles, enable zero-gravity bounce</textarea>
+   <div class="tools" style="margin-top:8px"><button id="modgo" class="go">Apply live</button><label class="chk"><input type="checkbox" id="modlive" checked> Real kiro-cli turn</label></div>
+   <div class="log" id="modlog" aria-live="polite"></div>
+   <strong>Patch table</strong><div id="patches" style="margin-top:8px"></div>
+  </div>
+ </div>
+ <div class="split" style="margin-top:16px">
+  <div class="panel"><strong>Registers</strong><div class="regs" id="regs" style="margin-top:8px"></div></div>
+  <div class="panel"><strong>RAM 0x000 to 0xFFF</strong><canvas id="heat" width="64" height="64" aria-label="RAM heat map" style="max-width:256px;margin-top:8px"></canvas>
+   <p class="mut" style="font-size:13px;margin:6px 0 0">Brighter means a larger byte. Amber marks bytes written in the last few frames.</p></div>
+ </div>
+</section>
 
-<h2>Parity benchmark</h2>
-<div class="card wrap"><table id="bench"><thead><tr><th>Target</th><th class="n">Vectors</th><th class="n">Parity</th><th class="n">Interpreter us/vec</th><th class="n">Wasm us/vec</th><th class="n">Speedup</th><th class="n">Found</th><th class="n">Left after heal</th></tr></thead><tbody></tbody></table>
-<p class="sub" id="benchsrc"></p></div>
-<footer>Every figure on this page is read from the embedded run data. Hover a figure to see its source.</footer>
+<section id="t-proof" role="tabpanel" aria-labelledby="tab-proof" class="hide">
+ <h2>Evidence</h2>
+ <p class="lead">Figures here are read from the saved benchmark run and the saved kiro-cli transcript.</p>
+ <h3 style="margin-top:0">Parity benchmark</h3>
+ <div class="panel wrap"><table id="bench"><thead><tr><th>Target</th><th class="n">Vectors</th><th class="n">Parity</th><th class="n">Interpreter us/vec</th><th class="n">Wasm us/vec</th><th class="n">Speedup</th><th class="n">Found</th><th class="n">Left after heal</th><th>Bridge</th></tr></thead><tbody></tbody></table><p class="mut" id="benchsrc" style="font-size:13px"></p></div>
+ <h3>Real kiro-cli turns</h3>
+ <div class="panel" id="trace"></div>
+ <h3>Autopsy of every sample</h3>
+ <div class="panel wrap"><table id="path"><thead><tr><th>Program</th><th>Label</th><th>Technical term</th><th>Block</th><th class="n">Line</th><th>Detail</th></tr></thead><tbody></tbody></table></div>
+</section>
+<footer>Everything on this page comes from a run on this machine. Nothing is typed in by hand.</footer>
 </main>
 <script id="data" type="application/json">__DATA__</script>
 <script>
 const $=id=>document.getElementById(id);
-const D2=JSON.parse($('data').textContent);
+function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+const EMB=JSON.parse($('data').textContent);
+let B=null,DAEMON=false;
+const GLYPH={Ghost:'\u{1F47B} Ghost',Vampire:'\u{1F9DB} Vampire',Zombie:'\u{1F9DF} Zombie'};
+const TERM={Ghost:'unreachable code',Vampire:'unbounded accumulator',Zombie:'non-terminating loop'};
+function dcell(t){const td=el('td','dt');td.appendChild(el('span',null,t));return td}
+const chip=k=>el('span','chip '+k,GLYPH[k]||k);
+const fx=(x,d)=>Number(x).toFixed(d);
+async function api(path,body){const r=await fetch(path,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});const j=await r.json();if(!r.ok)throw new Error(j.error||r.statusText);return j}
+async function sse(path,body,on){
+ const r=await fetch(path,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+ if(!r.ok){let j={};try{j=await r.json()}catch(e){}throw new Error(j.error||r.statusText)}
+ const rd=r.body.getReader(),dec=new TextDecoder();let buf='';
+ for(;;){const {done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});let i;
+  while((i=buf.indexOf('\n\n'))>=0){const blk=buf.slice(0,i);buf=buf.slice(i+2);let ev='message',data='';
+   for(const l of blk.split('\n')){if(l.startsWith('event: '))ev=l.slice(7);else if(l.startsWith('data: '))data+=l.slice(6)}
+   if(data)on(ev,JSON.parse(data))}}}
+
+/* ---------- tabs and routing ---------- */
+const TABS={crypt:'t-crypt',arcade:'t-arcade',proof:'t-proof'};
+function showTab(k,push){
+ for(const [n,id] of Object.entries(TABS)){const on=n===k;$(id).classList.toggle('hide',!on);const t=$('tab-'+n);t.setAttribute('aria-selected',on);t.tabIndex=on?0:-1}
+ if(push){const cur=location.hash.slice(1).split('/');history.replaceState(null,'','#'+{crypt:'cryptledger',arcade:'phantomarcade',proof:'evidence'}[k]+(cur[1]&&k!=='proof'?'/'+cur[1]:''))}
+}
+document.querySelectorAll('[role=tab]').forEach(t=>{t.onclick=()=>showTab(t.id.slice(4),true);
+ t.onkeydown=e=>{const ks=Object.keys(TABS),i=ks.indexOf(t.id.slice(4));if(e.key==='ArrowRight'||e.key==='ArrowLeft'){const n=ks[(i+(e.key==='ArrowRight'?1:ks.length-1))%ks.length];showTab(n,true);$('tab-'+n).focus()}}});
+
+/* ---------- CryptLedger ---------- */
+let cur={name:null,custom:null,res:null,plan:null,sel:null};
+const progSel=$('prog');
+function fillPrograms(){
+ progSel.replaceChildren();
+ (B.cobol||[]).forEach(c=>{const o=el('option',null,c.name+(c.dropped?' (dropped)':''));o.value=c.name;progSel.appendChild(o)});
+ if(cur.custom){const o=el('option',null,cur.custom.name+' (your file)');o.value='__custom';progSel.appendChild(o)}
+ if(cur.name)progSel.value=cur.name;
+}
+function reqBody(extra){return Object.assign(cur.name==='__custom'?{name:cur.custom.name,source:cur.custom.source}:{name:cur.name},extra||{})}
+function setBusy(b){['b-auto','b-exo','b-prove','b-spec'].forEach(i=>$(i).disabled=b||!DAEMON)}
+progSel.onchange=()=>{cur.name=progSel.value;history.replaceState(null,'','#cryptledger/'+(cur.name==='__custom'?'':cur.name));runAutopsy().catch(showErr)};
+function showErr(e){const d=el('div','panel bad','Error: '+e.message);const o=$('counts');o.replaceChildren(d);setBusy(false)}
+function loadFile(f){const rd=new FileReader();rd.onload=()=>{cur.custom={name:(f.name.replace(/\.[^.]+$/,'').replace(/[^A-Za-z0-9._-]/g,'-')||'CUSTOM').slice(0,60),source:String(rd.result)};cur.name='__custom';fillPrograms();runAutopsy().catch(showErr)};rd.readAsText(f)}
+const drop=$('drop');
+drop.onclick=()=>$('file').click();drop.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('file').click()}};
+$('file').onchange=e=>e.target.files[0]&&loadFile(e.target.files[0]);
+drop.ondragover=e=>{e.preventDefault();drop.classList.add('over')};drop.ondragleave=()=>drop.classList.remove('over');
+drop.ondrop=e=>{e.preventDefault();drop.classList.remove('over');e.dataTransfer.files[0]&&loadFile(e.dataTransfer.files[0])};
+
+async function runAutopsy(){
+ if(!DAEMON||!cur.name)return;
+ setBusy(true);const r=await api('/api/autopsy',reqBody());cur.res=r;cur.plan=null;cur.sel=null;
+ renderCounts(r.counts,null);renderSource();renderCfg(r);renderFinds(r);
+ ['out-exo','out-prove','out-spec'].forEach(i=>$(i).classList.add('hide'));setBusy(false);return r;
+}
+function renderCounts(c,after){
+ const o=$('counts');o.replaceChildren();
+ for(const k of ['Ghost','Vampire','Zombie']){const s=el('span');s.append(chip(k),' '+c[k.toLowerCase()]);if(after)s.append(' to '+after[k.toLowerCase()]);o.appendChild(s)}
+ o.append(el('span','mut','total '+c.total+(after?' to '+after.total:'')+' in '+cur.res.block_count+' blocks'));
+}
+function renderSource(){
+ const box=$('src');box.replaceChildren();const r=cur.res;if(!r||!r.source)return;
+ const kinds={};r.pathologies.forEach(p=>{for(let l=p.span.line;l<=p.line_end;l++){(kinds[l]=kinds[l]||[]).push(p.kind)}});
+ const notes={},ghost=new Set();
+ if($('plan').checked&&cur.plan){cur.plan.patches.forEach(pt=>{const p=r.pathologies[pt.pathology_index];if(!p)return;(notes[p.span.line]=notes[p.span.line]||[]).push(p.label+': '+pt.proposed_change);if(p.kind==='Ghost')for(let l=p.span.line;l<=p.line_end;l++)ghost.add(l)})}
+ r.source.split('\n').forEach((t,i)=>{const n=i+1,row=el('div','ln'+(kinds[n]?' '+kinds[n][kinds[n].length-1]:'')+(ghost.has(n)?' detached':''));
+  row.dataset.n=n;row.append(el('span','no',n),el('span','tx',t||' '));box.appendChild(row);
+  (notes[n]||[]).forEach(x=>{const nr=el('div','ln note');nr.append(el('span','no','+'),el('span','tx','*> NECRO '+x));box.appendChild(nr)})});
+ if(cur.sel)hiLines(cur.sel[0],cur.sel[1],false);
+}
+$('plan').onchange=renderSource;
+function hiLines(a,b,scroll){
+ cur.sel=[a,b];const box=$('src');box.querySelectorAll('.sel').forEach(x=>x.classList.remove('sel'));
+ let first=null;box.querySelectorAll('.ln[data-n]').forEach(x=>{const n=+x.dataset.n;if(n>=a&&n<=b){x.classList.add('sel');first=first||x}});
+ if(first&&scroll)box.scrollTo({top:first.offsetTop-box.clientHeight/3,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'});
+}
+function renderFinds(r){
+ const tb=$('finds').tBodies[0];tb.replaceChildren();
+ if(!r.pathologies.length){const tr=el('tr'),td=el('td',null,'No findings.');td.colSpan=5;tr.appendChild(td);tb.appendChild(tr)}
+ r.pathologies.forEach(p=>{const tr=el('tr','click');tr.tabIndex=0;const c=el('td');c.appendChild(chip(p.kind));
+  tr.append(c,el('td',null,TERM[p.kind]),el('td',null,p.block),el('td','n',p.span.line===p.line_end?p.span.line:p.span.line+' to '+p.line_end),dcell(p.detail));
+  const go=()=>{hiLines(p.span.line,p.line_end,true);markNode(p.block)};tr.onclick=go;tr.onkeydown=e=>{if(e.key==='Enter')go()};tb.appendChild(tr)});
+}
+const SVGNS='http://www.w3.org/2000/svg';
+function sv(t,a,x){const e=document.createElementNS(SVGNS,t);for(const k in a)e.setAttribute(k,a[k]);if(x!=null)e.textContent=x;return e}
+function markNode(id){document.querySelectorAll('#cfg .node').forEach(n=>n.classList.toggle('sel',n.dataset.id===id))}
+function renderCfg(r){
+ const box=$('cfg');box.replaceChildren();const N=r.nodes;if(!N.length)return;
+ if(N.length>140){box.appendChild(el('p','mut','Graph hidden: '+N.length+' blocks is too many to draw. The findings table still lists every block.'));return}
+ const idx=new Map(N.map((n,i)=>[n.id,i])),adj=N.map(()=>[]);
+ r.edges.forEach(([a,b])=>{if(idx.has(a)&&idx.has(b))adj[idx.get(a)].push(idx.get(b))});
+ const layer=Array(N.length).fill(-1);layer[0]=0;const q=[0];
+ while(q.length){const a=q.shift();adj[a].forEach(b=>{if(layer[b]<0){layer[b]=layer[a]+1;q.push(b)}})}
+ let mx=Math.max(0,...layer);if(layer.some(l=>l<0)){mx++;layer.forEach((l,i)=>{if(l<0)layer[i]=mx})}
+ const rows=[];layer.forEach((l,i)=>(rows[l]=rows[l]||[]).push(i));
+ const W0=164,NW=150,NH=28,GY=56,maxRow=Math.max(...rows.filter(Boolean).map(r=>r.length));
+ const W=Math.max(300,maxRow*W0+60),H=rows.length*GY+20;const pos=[];
+ rows.forEach((row,l)=>{if(row)row.forEach((i,k)=>{pos[i]={x:W/2-(row.length-1)*W0/2+k*W0,y:10+NH/2+l*GY}})});
+ const svg=sv('svg',{viewBox:`0 0 ${W} ${H}`,width:W,height:H,role:'img','aria-label':'Control-flow graph with '+N.length+' blocks'});
+ const defs=sv('defs',{});const mk=sv('marker',{id:'ar',viewBox:'0 0 8 8',refX:7,refY:4,markerWidth:7,markerHeight:7,orient:'auto'});mk.appendChild(sv('path',{d:'M0 0L8 4L0 8z',fill:'#5b6a7b'}));defs.appendChild(mk);svg.appendChild(defs);
+ r.edges.forEach(([a,b])=>{if(!idx.has(a)||!idx.has(b))return;const i=idx.get(a),j=idx.get(b),p=pos[i],s=pos[j];let d,cls='edge';
+  if(i===j){d=`M${p.x+NW/2} ${p.y} q 26 -2 0 -${NH/2+2}`;cls+=' back'}
+  else if(layer[j]>layer[i]){const x1=p.x,y1=p.y+NH/2,x2=s.x,y2=s.y-NH/2;d=`M${x1} ${y1} C${x1} ${(y1+y2)/2} ${x2} ${(y1+y2)/2} ${x2} ${y2}`}
+  else{const x1=p.x+NW/2,y1=p.y,x2=s.x+NW/2,y2=s.y,bx=Math.max(x1,x2)+26+((i+j)%3)*8;d=`M${x1} ${y1} C${bx} ${y1} ${bx} ${y2} ${x2} ${y2}`;cls+=' back'}
+  svg.appendChild(sv('path',{d,class:cls,'marker-end':'url(#ar)'}))});
+ N.forEach((n,i)=>{const p=pos[i];const k=n.kinds.length?n.kinds[0]:'';const g=sv('g',{class:'node '+k,tabindex:0,role:'button','data-id':n.id,'aria-label':n.id+(k?', '+k:'')+', line '+n.line,transform:`translate(${p.x-NW/2},${p.y-NH/2})`});
+  g.appendChild(sv('rect',{width:NW,height:NH,rx:6}));g.appendChild(sv('title',{},n.id+' (line '+n.line+')'+(n.kinds.length?' '+n.kinds.join(', '):'')));
+  g.appendChild(sv('text',{x:8,y:18},(n.id.length>21?n.id.slice(0,20)+'…':n.id)));
+  const go=()=>{markNode(n.id);hiLines(n.line,n.line_end,true)};g.onclick=go;g.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}};svg.appendChild(g)});
+ box.appendChild(svg);
+}
+
+/* Exorcise */
+$('b-exo').onclick=async()=>{
+ const o=$('exo');$('out-exo').classList.remove('hide');o.replaceChildren();const log=el('div','log');o.appendChild(log);setBusy(true);
+ const t0=Date.now();let tick=null;const add=t=>log.appendChild(el('div',null,t));
+ try{await sse('/api/exorcise',reqBody({live:$('live').checked}),(ev,d)=>{
+  if(ev==='stage'){
+   if(d.stage==='scan')add(d.text);
+   if(d.stage==='scanned')add('Found '+d.counts.total+' ('+d.counts.ghost+' ghost, '+d.counts.vampire+' vampire, '+d.counts.zombie+' zombie)');
+   if(d.stage==='kiro'){add(d.text);const w=el('div',null,'');log.appendChild(w);tick=setInterval(()=>w.textContent='waiting '+Math.round((Date.now()-t0)/1000)+' s',500)}
+   if(d.stage==='kiro_done'){clearInterval(tick);add('Plan from '+d.source+' in '+d.ms+' ms')}
+   if(d.stage==='heal')add(d.text)}
+  if(ev==='fail'){clearInterval(tick);throw new Error(d.error)}
+  if(ev==='result'){clearInterval(tick);showExo(o,d)}})}catch(e){clearInterval(tick);o.appendChild(el('p','bad','Error: '+e.message))}
+ setBusy(false);
+};
+function showExo(o,d){
+ cur.plan={patches:d.patches};
+ renderCounts(d.before,d.after);$('plan').checked=true;renderSource();
+ const st=el('div','stat');[['Before',d.before.total],['After',d.after.total],['Plan source',d.kiro_source],['Plan time',d.kiro_ms+' ms']].forEach(([l,v])=>{const x=el('div');x.append(el('b',null,v),el('span',null,l));st.appendChild(x)});o.appendChild(st);
+ const hc=d.healed_check;if(hc&&hc.vectors)o.appendChild(el('p',null,'Healed module on '+hc.vectors+' vectors: '+hc.matched+' agree with the interpreter. Vectors that never finished: '+hc.original_non_halting+' before, '+hc.non_halting+' after (stopped by the guard).'));
+ if(d.remaining.length)o.appendChild(el('p','bad','Still present: '+d.remaining.map(x=>x.label+' at '+x.block).join(', ')));
+ o.appendChild(el('h3',null,'Patch plan'));
+ const ul=el('div');d.patches.forEach(p=>{const row=el('p');row.append(el('b',null,p.title+'. '),p.proposed_change);ul.appendChild(row)});o.appendChild(ul);
+ const dt=el('details');dt.open=d.kiro_source==='kiro-cli';dt.appendChild(el('summary',null,'Requirements text from '+d.kiro_source));dt.appendChild(el('div','md',d.requirements_md));o.appendChild(dt);
+ o.appendChild(el('h3',null,'WebAssembly before and after ('+d.wat_lines[0]+' to '+d.wat_lines[1]+' lines)'));
+ const df=el('div','diff');d.wat_diff.forEach(x=>{const r=el('div',x.op==='+'?'p':x.op==='-'?'m':x.op==='skip'?'s':'',x.op==='skip'?'… '+x.n+' unchanged lines':(x.op==='+'||x.op==='-'?x.op+' ':'  ')+x.text);df.appendChild(r)});o.appendChild(df);
+}
+
+/* Prove */
+$('b-prove').onclick=async()=>{
+ const o=$('prove');$('out-prove').classList.remove('hide');o.replaceChildren();setBusy(true);
+ const pr=el('progress');pr.max=10;pr.value=0;pr.setAttribute('aria-label','Proof progress');const stat=el('div','stat');const tbl=el('table');tbl.innerHTML='<thead><tr><th class="n">Batch</th><th class="n">Vectors</th><th class="n">Matched</th><th class="n">Parity</th><th class="n">Speedup</th></tr></thead><tbody></tbody>';
+ const wr=el('div','wrap');wr.appendChild(tbl);const live=el('div');live.setAttribute('aria-live','polite');o.append(pr,stat,live,wr);
+ const S=(l,v)=>{const x=el('div');x.append(el('b',null,v),el('span',null,l));return x};
+ const paint=d=>{stat.replaceChildren(S('Vectors',d.vectors),S('Matched',d.matched),S('Parity',fx(d.parity_pct,2)+'%'),S('Interpreter us/vec',fx(d.interp_us_per_vec,1)),S('Wasm us/vec',fx(d.wasm_us_per_vec,2)),S('Speedup',fx(d.speedup,2)+'x'))};
+ try{await sse('/api/prove',reqBody({vectors:10000}),(ev,d)=>{
+  if(ev==='batch'){pr.value=d.batch;paint(d);const tr=el('tr');tr.append(el('td','n',d.batch+'/'+d.batches),el('td','n',d.vectors),el('td','n',d.matched),el('td','n '+(d.parity_pct===100?'ok':'bad'),fx(d.parity_pct,2)+'%'),el('td','n',fx(d.speedup,2)+'x'));tbl.tBodies[0].appendChild(tr)}
+  if(ev==='done'){pr.value=10;paint(d);live.textContent='Done. '+d.non_halting+' of '+d.vectors+' vectors never reached the end of the program and ran until the fuel limit. Both sides stopped in the same state. Seed '+d.seed+'.'+(d.divergences.length?' First divergence: '+JSON.stringify(d.divergences[0]):'')}
+  if(ev==='fail')throw new Error(d.error)})}catch(e){o.appendChild(el('p','bad','Error: '+e.message))}
+ setBusy(false);
+};
+
+/* Spec */
+$('b-spec').onclick=async()=>{
+ const o=$('spec');$('out-spec').classList.remove('hide');o.replaceChildren(el('p','mut','Writing…'));setBusy(true);
+ try{const d=await api('/api/spec',reqBody());o.replaceChildren(el('p',null,'Wrote '+d.files.length+' files from the '+d.source+' plan.'));
+  d.files.forEach((f,k)=>{const dt=el('details');dt.open=k===0;dt.appendChild(el('summary',null,f.path+' ('+f.bytes+' bytes)'));dt.appendChild(el('div','md',f.text));o.appendChild(dt)})}
+ catch(e){o.replaceChildren(el('p','bad','Error: '+e.message))}
+ setBusy(false);
+};
+$('b-auto').onclick=()=>runAutopsy().catch(showErr);
+
+/* ---------- PhantomArcade ---------- */
 const KB={'1':1,'2':2,'3':3,'4':0xC,'q':4,'w':5,'e':6,'r':0xD,'a':7,'s':8,'d':9,'f':0xE,'z':0xA,'x':0,'c':0xB,'v':0xF};
 const PADL=[1,2,3,0xC,4,5,6,0xD,7,8,9,0xE,0xA,0,0xB,0xF];
-let keys=0,inst=null,mem=null,step=null,rom=null,paused=false,patches=[];
+const LIVEREG={'PONG-STYLE':{BALL_DX:6,BALL_DY:7}};
+let keys=0,inst=null,mem=null,step=null,rom=null,paused=false,patches=[],sliders={},rate=60,acc=0,last=0,ticks=0,tAt=0;
 const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
-function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
-const sel=$('rom');D2.roms.forEach((r,i)=>{const o=el('option',null,r.name);o.value=i;sel.appendChild(o)});
-const pad=$('pad');PADL.forEach(k=>{const b=el('button',null,k.toString(16).toUpperCase());b.dataset.k=k;
+const pad=$('pad');PADL.forEach(k=>{const b=el('button',null,k.toString(16).toUpperCase());b.setAttribute('aria-label','Key '+k.toString(16).toUpperCase());
  const dn=e=>{keys|=1<<k;b.classList.add('on');e.preventDefault()},up=()=>{keys&=~(1<<k);b.classList.remove('on')};
  b.onpointerdown=dn;b.onpointerup=up;b.onpointerleave=up;pad.appendChild(b)});
-addEventListener('keydown',e=>{const k=KB[e.key.toLowerCase()];if(k!==undefined&&!e.ctrlKey&&!e.metaKey){keys|=1<<k;pad.children[PADL.indexOf(k)].classList.add('on');e.preventDefault()}});
+addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;const k=KB[e.key.toLowerCase()];if(k!==undefined&&!e.ctrlKey&&!e.metaKey&&!$('t-arcade').classList.contains('hide')){keys|=1<<k;pad.children[PADL.indexOf(k)].classList.add('on');e.preventDefault()}});
 addEventListener('keyup',e=>{const k=KB[e.key.toLowerCase()];if(k!==undefined){keys&=~(1<<k);pad.children[PADL.indexOf(k)].classList.remove('on')}});
-async function load(i){
- rom=D2.roms[i];const m=await WebAssembly.instantiate(unb64(rom.wasm),{});
- inst=m.instance;mem=new Uint8Array(inst.exports.mem.buffer);mem.set(unb64(rom.image));step=inst.exports.step;patches=rom.patches;
+function fillRoms(){const s=$('rom');s.replaceChildren();B.roms.forEach((r,i)=>{const o=el('option',null,r.name+(r.dropped?' (dropped)':''));o.value=i;s.appendChild(o)})}
+function addrOf(p){return p.field==='Byte'?p.addr:p.addr+1}
+function setPatch(name,v){
+ const p=patches.find(x=>x.name===name);if(!p||!mem)return null;
+ const max=p.field==='N'?15:255;v=Math.max(0,Math.min(max,v|0));const a=addrOf(p);
+ mem[a]=p.field==='N'?(mem[a]&0xF0)|v:v;
+ const s=sliders[name];if(s){s.input.value=v;s.val.textContent=v}
+ const lr=(LIVEREG[rom.name]||{})[name];if(lr!==undefined)mem[0x1000+lr]=v;
+ return v;
+}
+async function loadRom(i){
+ rom=B.roms[i];const m=await WebAssembly.instantiate(unb64(rom.wasm),{});
+ inst=m.instance;mem=new Uint8Array(inst.exports.mem.buffer);mem.set(unb64(rom.image));step=inst.exports.step;patches=rom.patches;sliders={};
  const box=$('patches');box.replaceChildren();
- patches.forEach(p=>{
-  const max=p.field==='N'?15:255,div=el('div','patch');const lab=el('label'),nm=el('span',null,p.name),val=el('b',null,'');lab.append(nm,val);
-  const s=el('input');s.type='range';s.min=0;s.max=max;s.value=p.default;s.setAttribute('aria-label',p.name);
-  const addr=p.field==='Byte'?p.addr:p.addr+1;
-  const w=v=>{mem[addr]=p.field==='N'?(mem[addr]&0xF0)|v:v;val.textContent=v};
-  s.oninput=()=>w(+s.value);val.textContent=p.default;
-  const d=el('small',null,p.description+' (default '+p.default+', byte at 0x'+addr.toString(16).toUpperCase()+')');
-  div.append(lab,s,d);box.appendChild(div)});
+ patches.forEach(p=>{const max=p.field==='N'?15:255,div=el('div','patch'),lab=el('label'),nm=el('span',null,p.name),val=el('b',null,p.default);lab.append(nm,val);lab.htmlFor='pt-'+p.name;
+  const s=el('input');s.type='range';s.id='pt-'+p.name;s.min=0;s.max=max;s.value=p.default;
+  s.oninput=()=>setPatch(p.name,+s.value);sliders[p.name]={input:s,val};
+  const lr=(LIVEREG[rom.name]||{})[p.name];
+  div.append(lab,s,el('small',null,p.description+' (default '+p.default+', byte 0x'+addrOf(p).toString(16).toUpperCase()+(lr!==undefined?', also written to live register V'+lr:'')+')'));box.appendChild(div)});
  if(!patches.length)box.textContent='No patch points.';
+ const pre=$('presets');pre.replaceChildren();
+ const PRE=[['Multi-Ball',{BALL2_ON:1}],['Double speed',{FRAME_DELAY:1}],['Wide paddles',{PADDLE_H:8}],['Defaults',null]];
+ PRE.forEach(([n,vals])=>{if(vals&&!Object.keys(vals).every(k=>patches.some(p=>p.name===k)))return;const b=el('button',null,n);
+  b.onclick=()=>{if(vals)Object.entries(vals).forEach(([k,v])=>setPatch(k,v));else patches.forEach(p=>setPatch(p.name,p.default))};pre.appendChild(b)});
+ heat.fill(0);prev=null;
 }
 const ctx=$('screen').getContext('2d'),img=ctx.createImageData(64,32);
-function draw(){for(let i=0;i<2048;i++){const on=mem[0x1100+(i>>3)]&(0x80>>(i&7));const o=i*4;img.data[o]=on?16:0;img.data[o+1]=on?185:0;img.data[o+2]=on?129:0;img.data[o+3]=255}ctx.putImageData(img,0,0)}
-const dv=()=>new DataView(inst.exports.mem.buffer);
+function draw(){for(let i=0;i<2048;i++){const on=mem[0x1100+(i>>3)]&(0x80>>(i&7));const o=i*4;img.data[o]=on?52:0;img.data[o+1]=on?211:0;img.data[o+2]=on?153:0;img.data[o+3]=255}ctx.putImageData(img,0,0)}
+const hctx=$('heat').getContext('2d'),himg=hctx.createImageData(64,64),heat=new Float32Array(4096);let prev=null;
+function drawHeat(){
+ if(!prev)prev=new Uint8Array(4096);
+ for(let i=0;i<4096;i++){const v=mem[i];if(v!==prev[i]){heat[i]=1;prev[i]=v}else heat[i]*=.92;
+  const h=heat[i],g=v*0.55,o=i*4;himg.data[o]=Math.min(255,g+h*230);himg.data[o+1]=Math.min(255,g+h*150);himg.data[o+2]=Math.min(255,g*.8);himg.data[o+3]=255}
+ hctx.putImageData(himg,0,0);
+}
 const NAMES=['running','waiting for key','','bad pc','','unknown opcode','stack fault'];
-function regs(code){const d=dv(),r=$('regs');r.replaceChildren();
+function regs(code){const d=new DataView(inst.exports.mem.buffer),r=$('regs');r.replaceChildren();
  for(let i=0;i<16;i++){const s=el('span',null,'V'+i.toString(16).toUpperCase()+' ');s.append(el('b',null,mem[0x1000+i].toString(16).padStart(2,'0')));r.appendChild(s)}
  [['PC',d.getUint32(0x1014,true)],['I',d.getUint32(0x1010,true)],['SP',d.getUint32(0x1018,true)],['DT',mem[0x1060]]].forEach(([n,v])=>{const s=el('span',null,n+' ');s.append(el('b',null,v.toString(16)));r.appendChild(s)});
  $('status').textContent=NAMES[code]||('status '+code)}
-function frame(){if(inst&&!paused){mem=new Uint8Array(inst.exports.mem.buffer);new DataView(inst.exports.mem.buffer).setUint32(0x1064,keys,true);let c=0;try{c=step(12)}catch(e){c=-1}draw();regs(c)}requestAnimationFrame(frame)}
-$('reset').onclick=()=>load(sel.value);$('pause').onclick=e=>{paused=!paused;e.target.textContent=paused?'Resume':'Pause'};sel.onchange=()=>load(sel.value);
-load(0);requestAnimationFrame(frame);
+function frame(t){
+ if(inst&&!paused&&!$('t-arcade').classList.contains('hide')){
+  mem=new Uint8Array(inst.exports.mem.buffer);
+  if(!last)last=t;acc+=Math.min(100,t-last)*rate/1000;last=t;
+  let c=0,n=Math.min(8,Math.floor(acc));acc-=n;
+  for(let k=0;k<n;k++){new DataView(inst.exports.mem.buffer).setUint32(0x1064,keys,true);try{c=step(12)}catch(e){c=-1}ticks++}
+  draw();drawHeat();regs(c);
+  if(t-tAt>1000){$('rate').textContent='Module clock: '+Math.round(ticks*1000/(t-tAt))+' ticks/s, '+Math.round(ticks*12000/(t-tAt))+' instructions/s';ticks=0;tAt=t}
+ }else last=0;
+ requestAnimationFrame(frame)}
+$('reset').onclick=()=>loadRom($('rom').value);$('pause').onclick=e=>{paused=!paused;e.target.textContent=paused?'Resume':'Pause'};$('rom').onchange=()=>{history.replaceState(null,'','#phantomarcade/'+B.roms[$('rom').value].name);loadRom($('rom').value)};
+$('clock').onchange=e=>{rate=+e.target.value};
+$('modgo').onclick=async()=>{
+ const log=$('modlog');log.replaceChildren();if(!DAEMON){log.appendChild(el('div',null,'The mod box needs the daemon.'));return}
+ const b=$('modgo');b.disabled=true;const who=$('modlive').checked?'kiro-cli':'the offline mapper';const w=el('div',null,'asking '+who+'…');log.appendChild(w);const t0=Date.now(),tk=setInterval(()=>w.textContent='asking '+who+', '+Math.round((Date.now()-t0)/1000)+' s',500);
+ try{const d=await api('/api/mod',{rom:rom.name,prompt:$('modtxt').value,live:$('modlive').checked});clearInterval(tk);log.replaceChildren();
+  d.values.forEach(x=>{const v=setPatch(x.name,x.value);log.appendChild(el('div',null,'set '+x.name+' = '+v))});
+  log.appendChild(el('div',null,d.values.length?'applied live, no reset ('+d.source+', '+d.elapsed_ms+' ms)':'nothing applied ('+d.source+')'));if(d.explanation)log.appendChild(el('div',null,d.explanation))}
+ catch(e){clearInterval(tk);log.replaceChildren(el('div','bad','Error: '+e.message))}
+ b.disabled=false;
+};
 
-// Autopsy table
-const tb=$('path').tBodies[0];
-D2.reports.forEach(r=>{r.report.pathologies.forEach(p=>{const tr=el('tr');
- const chip=el('span','chip '+p.kind,p.label);const c=el('td');c.appendChild(chip);
- tr.append(el('td',null,r.name),c,el('td',null,{Ghost:'unreachable code',Vampire:'unbounded accumulator',Zombie:'non-terminating loop'}[p.kind]),el('td',null,p.block),el('td','n',p.span.line),el('td','n',p.span.byte_start+'..'+p.span.byte_end),el('td',null,p.detail));
- tr.title='Source: static scan of '+r.name+' ('+r.kind+')';tb.appendChild(tr)})});
-// Bench table
-const bb=$('bench').tBodies[0];
-if(D2.bench){D2.bench.forEach(b=>{const p=b.parity,tr=el('tr');const f=(x,d)=>x.toFixed(d);
- const pc=el('td','n '+(p.parity_pct===100?'ok':'bad'),f(p.parity_pct,2)+'% ('+p.matched+'/'+p.vectors+')');
- tr.append(el('td',null,b.target),el('td','n',p.vectors),pc,el('td','n',f(p.interp_per_vector_us,2)),el('td','n',f(p.wasm_per_vector_us,2)),el('td','n',f(p.speedup,2)+'x'),el('td','n',b.ghosts+b.vampires+b.zombies),el('td','n',b.healed_remaining));
- tr.title='Source: '+D2.bench_source+' row '+b.target;bb.appendChild(tr)});
- $('benchsrc').textContent='Source: '+D2.bench_source}
-else $('benchsrc').textContent='No benchmark file was given. Run necro-cli benchmark --json FILE, then necro-cli observatory --bench FILE.';
+/* ---------- Evidence ---------- */
+function renderEvidence(){
+ const bb=$('bench').tBodies[0];bb.replaceChildren();
+ if(B.bench){B.bench.forEach(b=>{const p=b.parity,tr=el('tr'),f=(x,d)=>x.toFixed(d);
+  tr.append(el('td',null,b.target),el('td','n',p.vectors),el('td','n '+(p.parity_pct===100?'ok':'bad'),f(p.parity_pct,2)+'% ('+p.matched+'/'+p.vectors+')'),el('td','n',f(p.interp_per_vector_us,2)),el('td','n',f(p.wasm_per_vector_us,2)),el('td','n',f(p.speedup,2)+'x'),el('td','n',b.ghosts+b.vampires+b.zombies),el('td','n',b.healed_remaining),el('td',null,b.bridge_source));bb.appendChild(tr)});
+  $('benchsrc').textContent='Source: '+B.bench_source}
+ else $('benchsrc').textContent='No benchmark file found. Run necro-cli benchmark --json benchmarks/FILE.json.';
+ const t=$('trace');t.replaceChildren();const lt=B.live_trace;
+ if(lt&&lt.live_turns){t.appendChild(el('p',null,lt.live_turns+' real kiro-cli turns ('+lt.kiro_cli_version+'), saved in benchmarks/live-kiro-trace.json:'));
+  const ul=el('div','log');(lt.turns||[]).forEach(x=>ul.appendChild(el('div',null,x.program+': '+x.elapsed_ms+' ms')));t.appendChild(ul)}
+ else t.appendChild(el('p','mut','No live trace saved yet. Run: cargo run --release --bin necro-cli -- benchmark --live-kiro'));
+ const tb=$('path').tBodies[0];tb.replaceChildren();
+ (B.reports||[]).forEach(r=>r.report.pathologies.forEach(p=>{const tr=el('tr'),c=el('td');c.appendChild(chip(p.kind));tr.append(el('td',null,r.name),c,el('td',null,TERM[p.kind]),el('td',null,p.block),el('td','n',p.span.line),dcell(p.detail));tb.appendChild(tr)}));
+}
+
+/* ---------- start ---------- */
+function route(){
+ const h=location.hash.slice(1).split('/');const tab={cryptledger:'crypt',phantomarcade:'arcade',evidence:'proof'}[h[0]]||'crypt';showTab(tab,false);
+ return {tab,name:h[1]||null,healed:h[2]==='healed'};
+}
+async function boot(){
+ if(EMB){B=EMB;DAEMON=false;$('daemon').textContent='static copy';$('daemon').className='pill off'}
+ else{try{B=await (await fetch('/api/bootstrap')).json();DAEMON=true;$('daemon').textContent='daemon on 127.0.0.1:'+location.port+(B.kiro_available?', kiro-cli ready':', kiro-cli not found');$('daemon').className='pill on';if(!B.kiro_available){$('live').checked=false;$('modlive').checked=false}}
+  catch(e){$('daemon').textContent='daemon unreachable';$('daemon').className='pill off';return}}
+ if(!DAEMON){$('staticnote').classList.remove('hide');$('ctools').classList.add('hide');B.cobol=[];setBusy(true)}
+ fillPrograms();fillRoms();renderEvidence();
+ const r=route();
+ if(DAEMON&&B.cobol.length){cur.name=(r.name&&B.cobol.some(c=>c.name===r.name))?r.name:B.cobol[0].name;progSel.value=cur.name;
+  await runAutopsy().catch(showErr);
+  if(r.healed)$('b-exo').click()}
+ if(B.roms.length){const i=Math.max(0,B.roms.findIndex(x=>x.name===r.name));$('rom').value=i;await loadRom(i)}
+ requestAnimationFrame(frame);
+}
+addEventListener('hashchange',async()=>{
+ const r=route();if(!DAEMON)return;
+ if(r.name&&!(B.cobol.some(c=>c.name===r.name)||B.roms.some(c=>c.name===r.name))){B=await (await fetch('/api/bootstrap')).json();fillPrograms();fillRoms()}
+ if(r.tab==='crypt'&&r.name&&B.cobol.some(c=>c.name===r.name)){cur.name=r.name;progSel.value=r.name;await runAutopsy().catch(showErr);if(r.healed)$('b-exo').click()}
+ if(r.tab==='arcade'&&r.name){const i=B.roms.findIndex(x=>x.name===r.name);if(i>=0){$('rom').value=i;loadRom(i)}}
+});
+boot();
 </script></body></html>

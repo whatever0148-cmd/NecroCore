@@ -114,6 +114,12 @@ impl CobolModule {
 
 /// Runs `n` seeded vectors through the COBOL interpreter and the wasm module.
 pub fn prove_cobol(ir: &NecroIR, wat: &str, n: usize, seed: u64, fuel: u64) -> Result<ParityResult, String> {
+    prove_cobol_at(ir, wat, 0, n, seed, fuel)
+}
+
+/// Same as `prove_cobol` but runs vectors `start..start+n` of the seeded sequence,
+/// so ten batches of 1,000 cover exactly the vectors one batch of 10,000 would.
+pub fn prove_cobol_at(ir: &NecroIR, wat: &str, start: usize, n: usize, seed: u64, fuel: u64) -> Result<ParityResult, String> {
     let m = CobolModule::compile(wat)?;
     let mut store = wasmtime::Store::new(&m.engine, ());
     let inst = wasmtime::Instance::new(&mut store, &m.module, &[]).map_err(|e| e.to_string())?;
@@ -127,7 +133,7 @@ pub fn prove_cobol(ir: &NecroIR, wat: &str, n: usize, seed: u64, fuel: u64) -> R
     let mut wasm_us = 0f64;
     let mut statuses = Vec::with_capacity(n);
     let mut non_halting = 0usize;
-    for k in 0..n {
+    for k in start..start + n {
         let vseed = seed.wrapping_mul(1_000_003).wrapping_add(k as u64);
         let raw = cobol_vector(ir, vseed);
         let t = Instant::now();
@@ -196,6 +202,12 @@ fn finish(target: String, n: usize, matched: usize, divergences: Vec<Divergence>
 pub const KEY_PERIOD: usize = 25;
 
 pub fn prove_chip8(name: &str, rom: &[u8], patches: &PatchTable, wat: &str, n: usize, seed: u64, steps: usize) -> Result<ParityResult, String> {
+    prove_chip8_at(name, rom, patches, wat, 0, n, seed, steps)
+}
+
+/// Vectors `start..start+n` of the seeded sequence (see `prove_cobol_at`).
+#[allow(clippy::too_many_arguments)]
+pub fn prove_chip8_at(name: &str, rom: &[u8], patches: &PatchTable, wat: &str, start: usize, n: usize, seed: u64, steps: usize) -> Result<ParityResult, String> {
     let engine = wasmtime::Engine::default();
     let t = Instant::now();
     let module = wasmtime::Module::new(&engine, wat).map_err(|e| e.to_string())?;
@@ -211,7 +223,7 @@ pub fn prove_chip8(name: &str, rom: &[u8], patches: &PatchTable, wat: &str, n: u
     let mut statuses = Vec::with_capacity(n);
     let mut non_halting = 0usize;
     let mut wasm_image = vec![0u8; layout::IMAGE_SIZE];
-    for k in 0..n {
+    for k in start..start + n {
         let vseed = seed.wrapping_mul(1_000_003).wrapping_add(k as u64);
         let mut rng = Rng::new(vseed);
         let rng_seed = rng.next_u64() as u32;

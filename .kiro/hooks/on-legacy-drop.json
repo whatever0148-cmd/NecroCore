@@ -3,9 +3,9 @@
   "hooks": [
     {
       "name": "on-legacy-drop",
-      "description": "When a legacy source file is saved under samples/, run the static autopsy and write its EARS requirements next to the spec so Kiro can pick them up.",
+      "description": "When a legacy source file is saved or dropped under samples/ (including the notch drop folder samples/dropped/), run the static autopsy and write its EARS requirements next to the specs so Kiro can pick them up.",
       "trigger": "PostFileSave",
-      "matcher": "samples/(cobol/.*\\.cob|roms/.*\\.ch8)$",
+      "matcher": "samples/(cobol|dropped)/.*\\.cob$|samples/(roms|dropped)/.*\\.ch8$",
       "action": {
         "type": "command",
         "command": "f=$(python3 -c 'import sys,json; print(json.load(sys.stdin).get(\"file_path\", \"\"))'); [ -n \"$f\" ] && cargo run --quiet --release --bin necro-cli -- autopsy \"$f\" --requirements > \".kiro/specs/autopsy-$(basename \"${f%.*}\").md\""

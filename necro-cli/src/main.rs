@@ -1,5 +1,6 @@
 mod mcp;
 mod observatory;
+mod server;
 
 use clap::{Parser, Subcommand};
 use necro_core::{heal, scan, PathologyKind};
@@ -33,6 +34,14 @@ enum Cmd {
         samples: PathBuf,
         #[arg(long)]
         bench: Option<PathBuf>,
+        /// Run the local daemon (HTTP and SSE on 127.0.0.1) instead of writing a file.
+        #[arg(long)]
+        serve: bool,
+        #[arg(long, default_value_t = 4300)]
+        port: u16,
+        /// NecroCore checkout the daemon reads samples from and writes .kiro/specs into.
+        #[arg(long, default_value = ".")]
+        root: PathBuf,
     },
     /// Serve the necro-mcp Model Context Protocol server over stdio (used by .kiro/settings/mcp.json).
     Mcp,
@@ -135,7 +144,8 @@ fn real_main() -> Result<(), String> {
             std::fs::write(file.with_extension("patch.json"), serde_json::to_string_pretty(&a.patches).unwrap()).map_err(|e| e.to_string())?;
             println!("{}: {} bytes, {} patch points, {} labels", ch8.display(), a.bytes.len(), a.patches.entries.len(), a.labels.len());
         }
-        Cmd::Observatory { out, samples, bench } => {
+        Cmd::Observatory { serve, port, root, .. } if serve => server::serve(root, port)?,
+        Cmd::Observatory { out, samples, bench, .. } => {
             let html = observatory::build(&samples, bench.as_deref())?;
             if let Some(d) = out.parent() {
                 std::fs::create_dir_all(d).map_err(|e| e.to_string())?;
@@ -155,6 +165,7 @@ fn benchmark(vectors: usize, seed: u64, rom_steps: usize, fuel: u64, live_kiro: 
     let rt = tokio::runtime::Runtime::new().map_err(|e| e.to_string())?;
     let bridge = if live_kiro { KiroBridge::live(Duration::from_secs(120)) } else { KiroBridge::offline() };
     let mut rows: Vec<BenchRow> = Vec::new();
+    let mut traces: Vec<serde_json::Value> = Vec::new();
     let mut cob: Vec<PathBuf> = std::fs::read_dir(samples.join("cobol")).map_err(|e| e.to_string())?.filter_map(|e| e.ok()).map(|e| e.path()).filter(|p| p.extension().map(|x| x == "cob").unwrap_or(false)).collect();
     cob.sort();
     let mut roms: Vec<PathBuf> = std::fs::read_dir(samples.join("roms")).map_err(|e| e.to_string())?.filter_map(|e| e.ok()).map(|e| e.path()).filter(|p| p.extension().map(|x| x == "ch8").unwrap_or(false)).collect();
@@ -174,6 +185,9 @@ fn benchmark(vectors: usize, seed: u64, rom_steps: usize, fuel: u64, live_kiro: 
         let again = scan(&healed, vec![]);
         let parity = prove_cobol(&ir, &wat, vectors, seed, fuel)?;
         let prop = rt.block_on(bridge.specify(&report));
+        if let Some(t) = &prop.trace {
+            traces.push(serde_json::json!({"program": name, "kind": "cobol", "pathologies": report.pathologies.len(), "trace": t}));
+        }
         rows.push(BenchRow {
             target: name,
             kind: "cobol".into(),
@@ -203,6 +217,9 @@ fn benchmark(vectors: usize, seed: u64, rom_steps: usize, fuel: u64, live_kiro: 
         let again = scan(&healed, vec![]);
         let parity = prove_chip8(&name, &rom, &patches, &wat, vectors, seed, rom_steps)?;
         let prop = rt.block_on(bridge.specify(&report));
+        if let Some(t) = &prop.trace {
+            traces.push(serde_json::json!({"program": name, "kind": "chip8", "pathologies": report.pathologies.len(), "trace": t}));
+        }
         rows.push(BenchRow {
             target: name,
             kind: "chip8".into(),
@@ -242,6 +259,26 @@ fn benchmark(vectors: usize, seed: u64, rom_steps: usize, fuel: u64, live_kiro: 
         for d in r.parity.divergences.iter().take(3) {
             println!("  DIVERGENCE {} #{} seed {} inputs {:?}: interp {} | wasm {}", r.target, d.index, d.seed, d.inputs, d.interpreter, d.wasm);
         }
+    }
+    if live_kiro {
+        let live = rows.iter().filter(|r| r.bridge_source == "kiro-cli").count();
+        println!("live kiro-cli turns: {live} of {} ({} ms in total)", rows.len(), rows.iter().filter(|r| r.bridge_source == "kiro-cli").map(|r| r.bridge_ms).sum::<u128>());
+        let version = std::process::Command::new(&bridge.cli).arg("--version").output().map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string()).unwrap_or_default();
+        let doc = serde_json::json!({
+            "about": "Real kiro-cli transcripts captured by `necro-cli benchmark --live-kiro`. Each entry is one chat turn with tools disabled.",
+            "kiro_cli_version": version,
+            "host": format!("{} {}", std::env::consts::OS, std::env::consts::ARCH),
+            "live_turns": live,
+            "fell_back_to_offline": rows.len() - live,
+            "turns": traces,
+            "rows": rows.iter().map(|r| serde_json::json!({"target": r.target, "bridge": r.bridge_source, "ms": r.bridge_ms})).collect::<Vec<_>>(),
+        });
+        let tp = std::path::Path::new("benchmarks/live-kiro-trace.json");
+        if let Some(d) = tp.parent() {
+            let _ = std::fs::create_dir_all(d);
+        }
+        std::fs::write(tp, serde_json::to_string_pretty(&doc).unwrap()).map_err(|e| e.to_string())?;
+        println!("wrote {}", tp.display());
     }
     if let Some(p) = json {
         std::fs::write(&p, serde_json::to_string_pretty(&rows).unwrap()).map_err(|e| e.to_string())?;
