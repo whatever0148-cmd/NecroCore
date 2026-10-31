@@ -1,5 +1,5 @@
-//! `necro-cli observatory --serve`: a zero-dependency HTTP and Server-Sent-Events
-//! daemon on 127.0.0.1. It serves the Observatory page and answers its buttons by
+//! necro-daemon: the lean template that every NecroCore app is built on. A zero-dependency HTTP and
+//! Server-Sent-Events daemon on 127.0.0.1. It serves the Observatory page and answers its buttons by
 //! calling the same library crates the command line uses.
 //!
 //! Routes
@@ -14,7 +14,6 @@
 //!
 //! The listener binds to 127.0.0.1 only. Every request must carry a loopback Host header and a
 //! POST may only come from a loopback Origin (or none, as from a native app).
-use crate::observatory::{b64, unb64};
 use necro_core::{heal, scan, NecroAutopsyReport, NecroIR, PathologyKind};
 use necro_kiro_bridge::{KiroBridge, SpecProposal};
 use necro_prover::{prove_chip8_at, prove_cobol_at};
@@ -27,7 +26,72 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
-const PAGE: &str = include_str!("observatory.html");
+/// The one UI shell. An [`AppSpec`] decides which views of it an app shows.
+pub const SHELL: &str = include_str!("ui.html");
+
+/// What makes one app different from another: a name, the views it shows and its default port.
+#[derive(Clone, Copy, Debug)]
+pub struct AppSpec {
+    pub id: &'static str,
+    pub title: &'static str,
+    /// Views of the shell to show: "crypt" (COBOL), "arcade" (ROMs), "proof" (evidence).
+    pub tabs: &'static [&'static str],
+    pub port: u16,
+}
+
+impl AppSpec {
+    /// Both apps in one page, the way the notch pill and the combined Observatory use it.
+    pub const fn observatory() -> AppSpec {
+        AppSpec { id: "observatory", title: "NecroCore", tabs: &["crypt", "arcade", "proof"], port: 4300 }
+    }
+    pub fn json(&self) -> String {
+        json!({"id": self.id, "title": self.title, "tabs": self.tabs}).to_string()
+    }
+}
+
+/// Fills the shell for one app. `data` is the embedded JSON for a saved static copy, or "null".
+pub fn render_page(spec: &AppSpec, data: &str) -> String {
+    SHELL.replace("__APP__", &spec.json()).replace("__TITLE__", spec.title).replace("__DATA__", data)
+}
+
+const B64: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+pub fn b64(data: &[u8]) -> String {
+    let mut out = String::with_capacity(data.len().div_ceil(3) * 4);
+    for c in data.chunks(3) {
+        let n = (c[0] as u32) << 16 | (*c.get(1).unwrap_or(&0) as u32) << 8 | *c.get(2).unwrap_or(&0) as u32;
+        out.push(B64[(n >> 18) as usize & 63] as char);
+        out.push(B64[(n >> 12) as usize & 63] as char);
+        out.push(if c.len() > 1 { B64[(n >> 6) as usize & 63] as char } else { '=' });
+        out.push(if c.len() > 2 { B64[n as usize & 63] as char } else { '=' });
+    }
+    out
+}
+
+/// Standard base64 decoder (padding optional, whitespace ignored).
+pub fn unb64(s: &str) -> Result<Vec<u8>, String> {
+    let mut out = Vec::with_capacity(s.len() * 3 / 4);
+    let (mut acc, mut bits) = (0u32, 0u32);
+    for c in s.bytes() {
+        let v = match c {
+            b'A'..=b'Z' => c - b'A',
+            b'a'..=b'z' => c - b'a' + 26,
+            b'0'..=b'9' => c - b'0' + 52,
+            b'+' => 62,
+            b'/' => 63,
+            b'=' | b' ' | b'\n' | b'\r' => continue,
+            _ => return Err("invalid base64".into()),
+        };
+        acc = acc << 6 | v as u32;
+        bits += 6;
+        if bits >= 8 {
+            bits -= 8;
+            out.push((acc >> bits) as u8);
+            acc &= (1 << bits) - 1;
+        }
+    }
+    Ok(out)
+}
 const MAX_BODY: usize = 2 * 1024 * 1024;
 const PROVE_BATCHES: usize = 10;
 const PROVE_SEED: u64 = 7;
@@ -37,6 +101,7 @@ const ROM_STEPS: usize = 300;
 struct State {
     root: PathBuf,
     port: u16,
+    page: String,
     /// Last proposal per program, so "Generate spec" can reuse the Kiro text from "Exorcise".
     proposals: Mutex<HashMap<String, SpecProposal>>,
 }
@@ -48,14 +113,14 @@ struct Req {
     body: Vec<u8>,
 }
 
-pub fn serve(root: PathBuf, port: u16) -> Result<(), String> {
+pub fn serve(root: PathBuf, spec: &AppSpec, port: u16) -> Result<(), String> {
     let root = root.canonicalize().map_err(|e| format!("{}: {e}", root.display()))?;
     if !root.join("samples").is_dir() {
         return Err(format!("{} has no samples/ folder; pass --root to the NecroCore checkout", root.display()));
     }
     let listener = TcpListener::bind(("127.0.0.1", port)).map_err(|e| format!("cannot bind 127.0.0.1:{port}: {e}"))?;
-    let state = Arc::new(State { root, port, proposals: Mutex::new(HashMap::new()) });
-    println!("NecroCore daemon on http://127.0.0.1:{port} (root {})", state.root.display());
+    let state = Arc::new(State { root, port, page: render_page(spec, "null"), proposals: Mutex::new(HashMap::new()) });
+    println!("{} on http://127.0.0.1:{port} (root {})", spec.title, state.root.display());
     for conn in listener.incoming() {
         let Ok(stream) = conn else { continue };
         let st = Arc::clone(&state);
@@ -147,7 +212,7 @@ fn handle(mut stream: TcpStream, st: &State) -> std::io::Result<()> {
     let path = req.path.split('?').next().unwrap_or("/").to_string();
     let body: Value = if req.body.is_empty() { Value::Null } else { serde_json::from_slice(&req.body).unwrap_or(Value::Null) };
     match (req.method.as_str(), path.as_str()) {
-        ("GET", "/") | ("GET", "/index.html") => respond(&mut stream, 200, "text/html; charset=utf-8", PAGE.replace("__DATA__", "null").as_bytes()),
+        ("GET", "/") | ("GET", "/index.html") => respond(&mut stream, 200, "text/html; charset=utf-8", st.page.as_bytes()),
         ("GET", "/api/bootstrap") => match bootstrap(st) {
             Ok(v) => json_resp(&mut stream, 200, &v),
             Err(e) => json_resp(&mut stream, 400, &json!({"error": e})),
@@ -813,5 +878,25 @@ mod tests {
         assert!(parse_mod_reply("{\"values\":{\"NOPE\":1},\"explanation\":\"x\"}", &table()).is_none());
         let (v, _, _) = parse_mod_reply("{\"values\":{\"PADDLE_H\":999},\"explanation\":\"x\"}", &table()).unwrap();
         assert_eq!(v["PADDLE_H"], 255);
+    }
+}
+
+#[cfg(test)]
+mod shell_tests {
+    use super::*;
+    #[test]
+    fn every_app_gets_its_own_page_from_the_one_shell() {
+        let crypt = AppSpec { id: "cryptledger", title: "CryptLedger", tabs: &["crypt", "proof"], port: 4301 };
+        let page = render_page(&crypt, "null");
+        assert!(page.contains("<title>CryptLedger</title>") && page.contains("\"tabs\":[\"crypt\",\"proof\"]"));
+        assert!(!page.contains("__APP__") && !page.contains("__TITLE__") && !page.contains("__DATA__"));
+        assert!(render_page(&AppSpec::observatory(), "null").contains("\"arcade\""));
+    }
+    #[test]
+    fn base64_round_trips() {
+        for t in [&b""[..], b"f", b"fo", b"foo", b"foobar", &[0u8, 255, 128, 7, 9][..]] {
+            assert_eq!(unb64(&b64(t)).unwrap(), t);
+        }
+        assert_eq!(b64(b"foobar"), "Zm9vYmFy");
     }
 }

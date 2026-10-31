@@ -1,0 +1,14 @@
+[package]
+name = "phantomarcade"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "PhantomArcade: one of the two NecroCore apps, built on the necro-daemon template"
+
+[[bin]]
+name = "phantomarcade"
+path = "src/main.rs"
+
+[dependencies]
+necro-daemon = { path = "../../crates/necro-daemon" }
+clap = { workspace = true }

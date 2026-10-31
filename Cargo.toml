@@ -6,6 +6,9 @@ members = [
     "crates/necro-rom-lifter",
     "crates/necro-prover",
     "crates/necro-kiro-bridge",
+    "crates/necro-daemon",
+    "apps/cryptledger",
+    "apps/phantomarcade",
     "necro-cli",
 ]
 

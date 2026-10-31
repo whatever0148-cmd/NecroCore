@@ -65,8 +65,8 @@ I wanted one more thing that felt like a haunted house. There is a small dark pi
 
 ## What I would do next
 
-The COBOL subset needs REDEFINES and file handling before it can touch real programs. The two apps, CryptLedger and PhantomArcade, should live in their own folders. And I would like a Kiro Power that bundles the autopsy.
+The COBOL subset needs REDEFINES and file handling before it can touch real programs. And I would like a Kiro Power that bundles the autopsy.
 
 ## Try it
 
-The code is built with Rust, wasmtime and a bit of Swift. Build it with `cargo build --release`, run `necro-cli observatory --serve`, and open `127.0.0.1:4300`. Every number in this post comes from a run that is saved in the repo under `benchmarks/`.
+The code is built with Rust, wasmtime and a bit of Swift. Build it with `cargo build --release`. Run `cryptledger` and open `127.0.0.1:4301` for the COBOL studio, or run `phantomarcade` and open `127.0.0.1:4302` for the games. Every number in this post comes from a run that is saved in the repo under `benchmarks/`.

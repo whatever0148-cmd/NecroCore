@@ -15,6 +15,7 @@ necro-cobol-lifter = { path = "../crates/necro-cobol-lifter" }
 necro-rom-lifter = { path = "../crates/necro-rom-lifter" }
 necro-prover = { path = "../crates/necro-prover" }
 necro-kiro-bridge = { path = "../crates/necro-kiro-bridge" }
+necro-daemon = { path = "../crates/necro-daemon" }
 clap = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }

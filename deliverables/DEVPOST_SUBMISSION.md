@@ -32,14 +32,14 @@ For each program it does the following.
 | ROMs, WebAssembly vs interpreter | 0.92x to 1.06x, so no real speedup. Copying the machine image costs about as much as the work |
 | Problems found and left after healing | 19 found, 0 left |
 | Real kiro-cli turns in the benchmark | 7 of 7, 142 s in total |
-| Tests | 30 passed, 0 failed. Clippy shows 0 warnings |
+| Tests | 32 passed, 0 failed. Clippy shows 0 warnings |
 
 ## How it fits the four tracks
 **Resurrection.** This is the main entry. A 1978 style interest program and a 1991 style SUPER-CHIP game come back as live WebAssembly, and the proof is a number, not a promise.
 
 **Frankenstein.** The parts do not belong together, and they are stitched into one tool: COBOL decimal arithmetic, 8-bit game bytecode, WebAssembly, a Rust daemon with server-sent events, a Swift program that lives under the MacBook notch, and the Kiro CLI.
 
-**Skeleton Crew.** One shared engine (the intermediate form, the scanner, the healer, the prover and the Kiro bridge) carries two apps. CryptLedger is the COBOL studio. PhantomArcade is the ROM lifter and live modder. Both are views over the same crates.
+**Skeleton Crew.** The template is one shared engine (the intermediate form, the scanner, the healer, the prover and the Kiro bridge) plus `crates/necro-daemon`, a small server and UI shell. Two apps sit on it in separate folders. `apps/cryptledger` is the COBOL studio and `apps/phantomarcade` is the ROM lifter and live modder. Each has its own Cargo package, its own binary and its own port, and its `main.rs` is about 25 lines. A third app would cost one more folder.
 
 **Costume Contest.** The interface treats bugs as monsters, and the monsters are the function. A Ghost row is dead code, a Zombie row is a loop that never ends. The notch pill takes a file dropped on it and shows the three counts. The page is dark and quiet. The Impeccable detector reports 0 findings, and I measured it at 1920 by 1080 and at 375 pixels wide with no sideways scrolling.
 
@@ -83,7 +83,7 @@ The notch pill and the daemon actually run the command from `on-legacy-drop.json
 - **Rust workspace.** Five library crates and one CLI. Rust stable, wasmtime 50, tokio, clap, serde and proptest.
 - **COBOL.** A parser for a documented subset, an interpreter with fixed-point decimal rules, and a WebAssembly emitter. The interpreter and the emitter share the same rules: a working scale of 10,000 in a 64-bit integer, truncation or ROUNDED half away from zero, and high-order digits dropped to the PIC width.
 - **CHIP-8 and SUPER-CHIP.** A decoder, an interpreter, a two-pass assembler with `.patch` directives, and a WebAssembly emitter with one `br_table` case per ROM address. Patchable bytes are loaded from memory at run time, so a hot patch takes effect on the next instruction.
-- **Daemon.** `necro-cli observatory --serve` is a std-only HTTP and server-sent-events server on 127.0.0.1. It checks the Host and Origin headers.
+- **Daemon.** `crates/necro-daemon` is a std-only HTTP and server-sent-events server on 127.0.0.1. It checks the Host and Origin headers. The two apps and the combined Observatory all use it.
 - **Notch pill.** `apps/macos-notch/necro_notch.swift`, about 300 lines of AppKit, compiled with `swiftc`.
 
 ## Challenges
@@ -96,7 +96,7 @@ The notch pill and the daemon actually run the command from `on-legacy-drop.json
 Proving a rewrite is mostly about choosing what to compare. For CHIP-8 I compare the whole machine image, so a hidden difference in a register or in a scrolled pixel shows up. The 128x64 mode added a mode byte and 8 user flags to that image, and the same comparison kept working.
 
 ## What is next
-A bigger COBOL subset (the REDEFINES clause and file handling), a Kiro Power for the autopsy, and moving the two apps into their own folders in the repository.
+A bigger COBOL subset (the REDEFINES clause and file handling) and a Kiro Power that bundles the autopsy.
 
 ## Built with
 Rust, WebAssembly, wasmtime, Swift, AppKit, tokio, serde, proptest, Kiro CLI, Kiro specs, steering, hooks and MCP.
@@ -104,9 +104,10 @@ Rust, WebAssembly, wasmtime, Swift, AppKit, tokio, serde, proptest, Kiro CLI, Ki
 ## Try it
 ```
 cargo build --release
-./target/release/necro-cli observatory --serve
+./target/release/cryptledger
+./target/release/phantomarcade
 ```
-Open http://127.0.0.1:4300. The first tab is CryptLedger and the second is PhantomArcade. To run the checks:
+Open http://127.0.0.1:4301 for CryptLedger and http://127.0.0.1:4302 for PhantomArcade. `./target/release/necro-cli observatory --serve` shows both in one page on port 4300, and the notch pill uses that one. To run the checks:
 ```
 cargo test --release
 ./target/release/necro-cli benchmark --vectors 10000

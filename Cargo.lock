@@ -447,6 +447,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "cryptledger"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "necro-daemon",
+]
+
+[[package]]
 name = "crypto-common"
 version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -747,6 +755,7 @@ dependencies = [
  "clap",
  "necro-cobol-lifter",
  "necro-core",
+ "necro-daemon",
  "necro-kiro-bridge",
  "necro-prover",
  "necro-rom-lifter",
@@ -774,6 +783,20 @@ dependencies = [
  "proptest",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "necro-daemon"
+version = "0.1.0"
+dependencies = [
+ "necro-cobol-lifter",
+ "necro-core",
+ "necro-kiro-bridge",
+ "necro-prover",
+ "necro-rom-lifter",
+ "serde_json",
+ "tokio",
+ "wat",
 ]
 
 [[package]]
@@ -840,6 +863,14 @@ name = "once_cell_polyfill"
 version = "1.70.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "384b8ab6d37215f3c5301a95a4accb5d64aa607f1fcb26a11b5303878451b4fe"
+
+[[package]]
+name = "phantomarcade"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "necro-daemon",
+]
 
 [[package]]
 name = "pin-project-lite"

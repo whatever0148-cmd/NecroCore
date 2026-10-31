@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="dark">
-<title>NecroCore Observatory</title>
+<title>__TITLE__</title>
 <style>
 :root{color-scheme:dark;--bg:#0c0e11;--panel:#13171c;--panel2:#181d23;--line:#252d37;--line2:#364250;--tx:#e7ecf1;--mut:#9aa6b4;--acc:#34d399;--accink:#04140d;--ghost:#c4b5fd;--vamp:#fb7185;--zomb:#fbbf24;--add:#10331f;--del:#3a1620;
 --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;--sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
@@ -63,7 +63,7 @@ progress{width:100%;height:8px;accent-color:var(--acc);margin:8px 0}
 .diff{font:12px/1.5 var(--mono);max-height:420px;overflow:auto;background:#0f1216;border:1px solid var(--line);border-radius:8px}
 .diff div{white-space:pre;padding:0 10px}.diff .p{background:var(--add);color:#a7f3d0}.diff .m{background:var(--del);color:#fecdd3}.diff .s{color:#8a97a6;font-style:italic}
 .md{white-space:pre-wrap;font:13px/1.55 var(--mono);background:#0f1216;border:1px solid var(--line);border-radius:8px;padding:12px;max-height:340px;overflow:auto}
-.hide{display:none!important}
+.hide,.gone{display:none!important}
 .arc{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px}@media(max-width:960px){.arc{grid-template-columns:minmax(0,1fr)}}
 canvas{width:100%;image-rendering:pixelated;background:#000;border:1px solid var(--line);border-radius:6px;display:block}
 .pad{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px;max-width:360px}.pad button{padding:12px 0;font-family:var(--mono)}.pad button.on{background:var(--acc);color:var(--accink);border-color:var(--acc)}
@@ -77,7 +77,7 @@ label.chk{min-height:44px}summary{padding:10px 0;cursor:pointer}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style></head><body>
 <header><div class="bar">
- <h1>Necro<b>Core</b></h1><span id="daemon" class="pill">connecting</span>
+ <h1 id="apptitle">Necro<b>Core</b></h1><span id="daemon" class="pill">connecting</span>
  <div role="tablist" aria-label="Views">
   <button role="tab" id="tab-crypt" aria-controls="t-crypt" aria-selected="true">CryptLedger</button>
   <button role="tab" id="tab-arcade" aria-controls="t-arcade" aria-selected="false" tabindex="-1">PhantomArcade</button>
@@ -160,6 +160,8 @@ const $=id=>document.getElementById(id);
 function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
 const EMB=JSON.parse($('data').textContent);
 let B=null,DAEMON=false;
+const APP=__APP__;const has=k=>APP.tabs.includes(k);
+if(APP.id!=='observatory'){document.getElementById('apptitle').textContent=APP.title}
 const GLYPH={Ghost:'\u{1F47B} Ghost',Vampire:'\u{1F9DB} Vampire',Zombie:'\u{1F9DF} Zombie'};
 const TERM={Ghost:'unreachable code',Vampire:'unbounded accumulator',Zombie:'non-terminating loop'};
 function dcell(t){const td=el('td','dt');td.appendChild(el('span',null,t));return td}
@@ -177,6 +179,7 @@ async function sse(path,body,on){
 
 /* ---------- tabs and routing ---------- */
 const TABS={crypt:'t-crypt',arcade:'t-arcade',proof:'t-proof'};
+for(const n of Object.keys(TABS)){if(!has(n)){$(TABS[n]).classList.add('gone');$('tab-'+n).classList.add('gone')}}
 function showTab(k,push){
  for(const [n,id] of Object.entries(TABS)){const on=n===k;$(id).classList.toggle('hide',!on);const t=$('tab-'+n);t.setAttribute('aria-selected',on);t.tabIndex=on?0:-1}
  if(push){const cur=location.hash.slice(1).split('/');history.replaceState(null,'','#'+{crypt:'cryptledger',arcade:'phantomarcade',proof:'evidence'}[k]+(cur[1]&&k!=='proof'?'/'+cur[1]:''))}
@@ -413,7 +416,7 @@ function renderEvidence(){
 
 /* ---------- start ---------- */
 function route(){
- const h=location.hash.slice(1).split('/');const tab={cryptledger:'crypt',phantomarcade:'arcade',evidence:'proof'}[h[0]]||'crypt';showTab(tab,false);
+ const h=location.hash.slice(1).split('/');let tab={cryptledger:'crypt',phantomarcade:'arcade',evidence:'proof'}[h[0]]||APP.tabs[0];if(!has(tab))tab=APP.tabs[0];showTab(tab,false);
  return {tab,name:h[1]||null,healed:h[2]==='healed'};
 }
 async function boot(){
@@ -423,11 +426,11 @@ async function boot(){
  if(!DAEMON){$('staticnote').classList.remove('hide');$('ctools').classList.add('hide');B.cobol=[];setBusy(true)}
  fillPrograms();fillRoms();renderEvidence();
  const r=route();
- if(DAEMON&&B.cobol.length){cur.name=(r.name&&B.cobol.some(c=>c.name===r.name))?r.name:B.cobol[0].name;progSel.value=cur.name;
+ if(DAEMON&&has('crypt')&&B.cobol.length){cur.name=(r.name&&B.cobol.some(c=>c.name===r.name))?r.name:B.cobol[0].name;progSel.value=cur.name;
   await runAutopsy().catch(showErr);
   if(r.healed)$('b-exo').click()}
- if(B.roms.length){const i=Math.max(0,B.roms.findIndex(x=>x.name===r.name));$('rom').value=i;await loadRom(i)}
- requestAnimationFrame(frame);
+ if(has('arcade')&&B.roms.length){const i=Math.max(0,B.roms.findIndex(x=>x.name===r.name));$('rom').value=i;await loadRom(i)}
+ if(has('arcade'))requestAnimationFrame(frame);
 }
 addEventListener('hashchange',async()=>{
  const r=route();if(!DAEMON)return;

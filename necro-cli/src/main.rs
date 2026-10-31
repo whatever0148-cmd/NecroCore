@@ -1,6 +1,5 @@
 mod mcp;
 mod observatory;
-mod server;
 
 use clap::{Parser, Subcommand};
 use necro_core::{heal, scan, PathologyKind};
@@ -144,7 +143,7 @@ fn real_main() -> Result<(), String> {
             std::fs::write(file.with_extension("patch.json"), serde_json::to_string_pretty(&a.patches).unwrap()).map_err(|e| e.to_string())?;
             println!("{}: {} bytes, {} patch points, {} labels", ch8.display(), a.bytes.len(), a.patches.entries.len(), a.labels.len());
         }
-        Cmd::Observatory { serve, port, root, .. } if serve => server::serve(root, port)?,
+        Cmd::Observatory { serve, port, root, .. } if serve => necro_daemon::serve(root, &necro_daemon::AppSpec::observatory(), port)?,
         Cmd::Observatory { out, samples, bench, .. } => {
             let html = observatory::build(&samples, bench.as_deref())?;
             if let Some(d) = out.parent() {

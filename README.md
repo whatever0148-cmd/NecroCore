@@ -25,6 +25,10 @@ are the UI labels; the technical terms sit next to them everywhere.
 | `crates/necro-rom-lifter` | CHIP-8 and SUPER-CHIP decoder, flat-image interpreter, two-pass assembler with `.patch` points, NecroIR and WebAssembly lifters |
 | `crates/necro-prover` | differential shadow execution against `wasmtime`, parity, divergence vectors, microsecond timings |
 | `crates/necro-kiro-bridge` | async `kiro-cli` driver with a hard timeout and a deterministic offline fallback |
+| `crates/necro-daemon` | the lean template: std-only HTTP and SSE daemon, one UI shell, `AppSpec` |
+| `apps/cryptledger` | app 1, the COBOL studio. Own binary, port 4301 |
+| `apps/phantomarcade` | app 2, the CHIP-8 and SUPER-CHIP lifter and live modder. Own binary, port 4302 |
+| `apps/macos-notch` | the Swift notch pill |
 | `necro-cli` | `autopsy`, `lift`, `assemble`, `benchmark`, and `mcp` (the `necro-mcp` server for Kiro) |
 | `samples/cobol` | three period-style COBOL programs with deliberate defects (two-digit years, COMP-3 drift, a dead paragraph, a loop that never ends on an edge input) |
 | `samples/roms` | four original games: three CHIP-8 and the 128x64 SUPER-CHIP NECRORUNNER-1991 (source, binary, patch table), see `samples/roms/LICENSES.md` |
@@ -201,13 +205,29 @@ other work):
 | ROM wasm vs interpreter | 0.92x to 1.06x (no real speedup) |
 | Problems found, left after heal | 19 found, 0 left |
 | Real kiro-cli turns | 7 of 7, 142 s in total (`benchmarks/live-kiro-trace.json`) |
-| Tests, clippy | 30 passed, 0 failed, 0 warnings |
+| Tests, clippy | 32 passed, 0 failed, 0 warnings |
 
 Other real Kiro evidence in `benchmarks/`: `live-kiro-mcp-trace.json` (kiro-cli read
 `.kiro/settings/mcp.json`, started `necro-mcp` and called `necro_autopsy`) and `live-mod-trace.json` (two
 mod-box turns for "double ball speed, widen paddles, and enable zero-gravity bounce", both answered with
 FRAME_DELAY 1, PADDLE_H 8 and BALL_DY 0). The Observatory switches its canvas between 64x32 and 128x64
 from the machine's mode byte. Written submission text is in `deliverables/`.
+
+## Skeleton Crew layout
+
+The engine crates and `necro-daemon` are the template. The two apps are separate folders with their own
+binaries, built on that template.
+
+```
+cargo build --release
+./target/release/cryptledger        # http://127.0.0.1:4301  COBOL studio
+./target/release/phantomarcade      # http://127.0.0.1:4302  ROM lifter and live modder
+./target/release/necro-cli observatory --serve   # http://127.0.0.1:4300  both in one page, used by the notch pill
+```
+
+Each app main is about 25 lines. It names the app, picks which views of the shared UI shell to show and
+sets a port. Everything else comes from the shared crates, so every button runs the same tested code in all
+three. The notch pill still talks to the combined daemon on 4300.
 
 ## Licence
 MIT. The sample programs and ROMs are original work written for this project.

@@ -26,3 +26,6 @@ divergences, amber for warnings. Respect reduced motion. Readable at 390 px.
 ## Open questions for Phase 2
 - Whether to render the CFG with a force layout or a layered (Sugiyama) layout.
 - Whether the notch strip should also show the COBOL fuel counter during a run.
+
+## Skeleton Crew split (Phase 3b)
+The daemon and UI shell moved from `necro-cli` into `crates/necro-daemon`. `apps/cryptledger` (port 4301) and `apps/phantomarcade` (port 4302) are separate Cargo packages that each pass an `AppSpec` naming their views. `necro-cli observatory --serve` stays as the combined page on port 4300 for the notch pill.

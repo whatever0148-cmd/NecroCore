@@ -1,0 +1,16 @@
+[package]
+name = "necro-daemon"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "The lean template under every NecroCore app: a std-only HTTP and SSE daemon plus one UI shell"
+
+[dependencies]
+necro-core = { path = "../necro-core" }
+necro-cobol-lifter = { path = "../necro-cobol-lifter" }
+necro-rom-lifter = { path = "../necro-rom-lifter" }
+necro-prover = { path = "../necro-prover" }
+necro-kiro-bridge = { path = "../necro-kiro-bridge" }
+serde_json = { workspace = true }
+wat = "1"
+tokio = { workspace = true }
