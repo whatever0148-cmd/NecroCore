@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "on-parity-verify",
+      "description": "Before the agent stops, run the differential prover on every sample with 1,000 vectors. A session may not end with a lifter that disagrees with its interpreter.",
+      "trigger": "Stop",
+      "action": {
+        "type": "command",
+        "command": "cargo run --quiet --release --bin necro-cli -- benchmark --vectors 1000 --rom-steps 200 | tail -n 20"
+      },
+      "timeout": 900
+    }
+  ]
+}

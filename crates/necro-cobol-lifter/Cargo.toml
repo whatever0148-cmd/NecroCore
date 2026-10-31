@@ -1,0 +1,15 @@
+[package]
+name = "necro-cobol-lifter"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Reference interpreter for a documented COBOL subset and a lifter from that subset to WebAssembly text"
+
+[dependencies]
+necro-core = { path = "../necro-core" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+wasmtime = { workspace = true }

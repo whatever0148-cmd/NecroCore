@@ -1,0 +1,23 @@
+NecroCore benchmark: 10000 vectors per target, seed 7, COBOL fuel 10000 blocks, ROM 300 steps per vector
+host: macos aarch64, necro-cli 0.1.0, wasmtime 50 (Cranelift), release build
+
+| target | kind | lift us | blocks | edges | ghosts | vampires | zombies | warnings | left after heal | parity | interp us/vec | wasm us/vec | speedup | compile us | non-halting vecs | bridge |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| BANK-INTEREST-1978 | cobol | 494.1 | 26 | 23 | 1 | 1 | 0 | 4 | 0 | 100.00% (10000/10000) | 62.76 | 6.92 | 9.07x | 10494 | 2845 | offline (2 patches, 0 ms) |
+| PAYROLL-BATCH-1982 | cobol | 77.0 | 15 | 11 | 1 | 1 | 1 | 2 | 0 | 100.00% (10000/10000) | 458.59 | 27.70 | 16.55x | 1430 | 10000 | offline (3 patches, 0 ms) |
+| WIRE-CLEARING-1985 | cobol | 68.0 | 22 | 16 | 1 | 1 | 0 | 2 | 0 | 100.00% (10000/10000) | 46.18 | 2.71 | 17.07x | 1365 | 1138 | offline (2 patches, 0 ms) |
+| BREAKOUT-STYLE | chip8 | 181.1 | 62 | 164 | 0 | 0 | 2 | 0 | 0 | 100.00% (10000/10000) | 2.23 | 2.04 | 1.09x | 2593 | 0 | offline (2 patches, 0 ms) |
+| INVADERS-STYLE | chip8 | 155.1 | 61 | 113 | 0 | 2 | 2 | 0 | 0 | 100.00% (10000/10000) | 2.47 | 2.41 | 1.02x | 2472 | 0 | offline (4 patches, 0 ms) |
+| PONG-STYLE | chip8 | 134.8 | 55 | 135 | 1 | 0 | 1 | 0 | 0 | 100.00% (10000/10000) | 2.20 | 2.35 | 0.94x | 2412 | 0 | offline (2 patches, 0 ms) |
+
+pathologies found: 15, remaining after heal: 0, healed: 15
+vectors: 60000, matched: 60000, overall parity: 100.000%
+  BANK-INTEREST-1978: FuelExhausted x 2845
+  BANK-INTEREST-1978: Halted x 7155
+  PAYROLL-BATCH-1982: FuelExhausted x 10000
+  WIRE-CLEARING-1985: FuelExhausted x 1138
+  WIRE-CLEARING-1985: Halted x 8862
+  BREAKOUT-STYLE: Ok x 10000
+  INVADERS-STYLE: Ok x 10000
+  PONG-STYLE: Ok x 10000
+wrote benchmarks/2026-10-31-phase1.json

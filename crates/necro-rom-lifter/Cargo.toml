@@ -1,0 +1,14 @@
+[package]
+name = "necro-rom-lifter"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "CHIP-8 bytecode decoder, reference interpreter, assembler, hot-patch table, and lifters to NecroIR and WebAssembly text"
+
+[dependencies]
+necro-core = { path = "../necro-core" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+wasmtime = { workspace = true }

@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "necro-mcp": {
+      "command": "cargo",
+      "args": ["run", "--quiet", "--release", "--bin", "necro-cli", "--", "mcp"],
+      "env": {
+        "NECRO_SAMPLES": "samples"
+      },
+      "disabled": false,
+      "autoApprove": ["necro_autopsy", "necro_parity", "necro_hotpatch"]
+    }
+  }
+}

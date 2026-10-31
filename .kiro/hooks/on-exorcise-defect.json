@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "on-exorcise-defect",
+      "description": "After the agent edits the scanner or the healer, make sure the three sample programs still produce the documented pathologies and that healing leaves none.",
+      "trigger": "PostToolUse",
+      "matcher": "fs_write",
+      "action": {
+        "type": "command",
+        "command": "changed=$(python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get(\"tool_input\",{}).get(\"path\",\"\"))'); case \"$changed\" in *necro-core/src/scan.rs|*necro-core/src/heal.rs) cargo test --quiet --release -p necro-cobol-lifter --test lifter ;; esac"
+      },
+      "timeout": 600
+    }
+  ]
+}

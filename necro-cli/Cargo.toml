@@ -1,0 +1,21 @@
+[package]
+name = "necro-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "NecroCore command line: autopsy, lift, assemble, benchmark"
+
+[[bin]]
+name = "necro-cli"
+path = "src/main.rs"
+
+[dependencies]
+necro-core = { path = "../crates/necro-core" }
+necro-cobol-lifter = { path = "../crates/necro-cobol-lifter" }
+necro-rom-lifter = { path = "../crates/necro-rom-lifter" }
+necro-prover = { path = "../crates/necro-prover" }
+necro-kiro-bridge = { path = "../crates/necro-kiro-bridge" }
+clap = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }

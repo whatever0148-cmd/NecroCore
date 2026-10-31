@@ -1,0 +1,26 @@
+{
+  "rom": "PONG-STYLE",
+  "entries": [
+    {
+      "name": "PADDLE_H",
+      "addr": 526,
+      "field": "Kk",
+      "default": 4,
+      "description": "paddle height in rows, 1 to 15"
+    },
+    {
+      "name": "BALL_DX",
+      "addr": 704,
+      "field": "Kk",
+      "default": 1,
+      "description": "ball horizontal velocity per frame (0x01 right, 0xFF left)"
+    },
+    {
+      "name": "BALL_DY",
+      "addr": 706,
+      "field": "Kk",
+      "default": 1,
+      "description": "ball vertical velocity per frame (0x01 down, 0xFF up)"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "rom": "BREAKOUT-STYLE",
+  "entries": [
+    {
+      "name": "GRAVITY",
+      "addr": 522,
+      "field": "Kk",
+      "default": 0,
+      "description": "added to dy every 16 frames (0 off, 1 pulls down)"
+    },
+    {
+      "name": "BALL_DX",
+      "addr": 728,
+      "field": "Kk",
+      "default": 1,
+      "description": "ball horizontal velocity per frame"
+    },
+    {
+      "name": "BALL_DY",
+      "addr": 730,
+      "field": "Kk",
+      "default": 255,
+      "description": "ball vertical velocity per frame"
+    }
+  ]
+}

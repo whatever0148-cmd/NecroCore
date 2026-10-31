@@ -1,0 +1,13 @@
+[package]
+name = "necro-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "NecroIR: a unified intermediate representation, CFG builder and static pathology scanner for legacy code"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }

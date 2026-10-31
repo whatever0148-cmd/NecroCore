@@ -1,0 +1,4 @@
+/target
+**/*.rs.bk
+.DS_Store
+# .kiro/ is tracked on purpose: judges inspect it. Never ignore it.

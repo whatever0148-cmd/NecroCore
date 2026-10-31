@@ -1,0 +1,19 @@
+{
+  "rom": "INVADERS-STYLE",
+  "entries": [
+    {
+      "name": "SHOT_SPEED",
+      "addr": 528,
+      "field": "Kk",
+      "default": 2,
+      "description": "rows the shot climbs per frame"
+    },
+    {
+      "name": "DESCENT",
+      "addr": 692,
+      "field": "Kk",
+      "default": 2,
+      "description": "rows the row drops at each wall"
+    }
+  ]
+}
