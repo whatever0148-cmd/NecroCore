@@ -78,3 +78,11 @@ sets `$pc` to the ending instruction and runs that instruction's normal code. Br
 key reads, DT and ST instructions and unknown opcodes can only end a run, so faults, key reads and PC changes
 happen exactly where `step` would have them. Patch points are read from memory inside the fused code, so a hot
 patch inside a run takes effect on the next execution.
+
+## Registers in locals and row-wise drawing (requirement 8)
+`step_batch` declares `$v0` to `$v15` and `$ri`, loads them from the image before the loop and stores all of them,
+with PC and the timer divider, in `writeback()`, which every return path calls. Instruction cases read and write the
+locals (writes are masked to 8 bits). Instructions that index registers dynamically, `LD [I],Vx` and `LD Vx,[I]`,
+are unrolled for their static x. `$draw` takes I as a parameter and returns VF, so it no longer touches the register
+file. It builds a 24-bit window from the sprite row shifted by the column offset and XORs up to three display bytes,
+wrapping the byte index inside the row, which matches the per-pixel modulo definition.

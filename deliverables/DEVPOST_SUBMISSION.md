@@ -24,12 +24,12 @@ For each program it does the following.
 5. **Spec.** It writes the findings as EARS requirements into `.kiro/specs/` and asks kiro-cli for a fix plan.
 6. **Hot patch.** A ROM can be changed while it runs. Pong gets a second ball, a faster pace or wider paddles by writing one byte into the module. The score and the screen stay.
 
-### Measured results (from `benchmarks/2026-11-01-fused-blocks.txt` and `benchmarks/2026-11-01-fused-blocks-longrun.txt`)
+### Measured results (from `benchmarks/2026-11-01-register-locals.txt` and `benchmarks/2026-11-01-register-locals-longrun.txt`)
 | What | Result |
 |---|---|
 | Differential vectors | 70,000 of 70,000 matched (7 programs, 10,000 each, seed 7) |
-| COBOL, WebAssembly vs interpreter | 9.12x, 16.53x and 17.14x faster per vector |
-| ROMs, WebAssembly vs interpreter | 1.00x to 1.41x at 300 steps per vector, and 1.51x to 1.89x at 30,000 steps. A Kiro-written `step_batch` and my fused basic blocks helped, but not by a large multiple |
+| COBOL, WebAssembly vs reference interpreter | 8.69x, 16.77x and 17.25x faster per vector |
+| CHIP-8 and SUPER-CHIP, lifted WebAssembly vs native Rust reference interpreter | 1.61x to 2.40x faster at 300 steps per vector and 1.87x to 2.32x at 30,000 steps |
 | Problems found and left after healing | 19 found, 0 left |
 | Real kiro-cli turns in the live benchmark (earlier run, `benchmarks/2026-10-31-phase3.txt`) | 7 of 7, 142 s in total |
 | Tests | 33 passed, 0 failed. Clippy shows 0 warnings |
@@ -71,7 +71,7 @@ Kiro is in this project at three levels: it shaped the plan, it wrote a real fea
 
 Kiro could only read and write files in these sessions, so I ran `cargo build` and `cargo test` between turns and pasted the compiler errors back to it. It fixed the two prover errors that way. After one turn that exited with an error, I added the single missing closing parenthesis myself, and the log marks that turn as a human edit. The full transcript of every turn is in `benchmarks/kiro-coding-sessions.json`.
 
-**Hooks that Kiro fired.** The three hooks use the Kiro v1 hook schema. During the coding turns, Kiro fired `on-exorcise-defect` 18 times (a PostToolUse hook that runs the lifter tests when the scanner or the healer is edited) and `on-parity-verify` twice (a Stop hook that runs the prover). The exact payloads it received are in `benchmarks/hook-firings.log`. The third hook, `on-legacy-drop`, is not fired by Kiro yet. The turn meant to do that failed because my free Kiro plan hit its monthly limit, and I have requested the hackathon credits. The notch pill and the daemon do run the same command on every file dropped on them, and that works, but it is not Kiro.
+**Hooks that Kiro fired.** The three hooks use the Kiro v1 hook schema. During the coding turns, Kiro fired `on-exorcise-defect` 18 times (a PostToolUse hook that runs the lifter tests when the scanner or the healer is edited) and `on-parity-verify` twice (a Stop hook that runs the prover). The exact payloads it received are in `benchmarks/hook-firings.log`. The third hook, `on-legacy-drop`, runs the same command from the daemon and the notch pill on every file dropped on them, and has not yet been fired from inside a Kiro session.
 
 **MCP.** `.kiro/settings/mcp.json` defines `necro-mcp`, a small MCP server I wrote in Rust that speaks JSON-RPC over stdio, with `necro_autopsy`, `necro_parity` and `necro_hotpatch`. A real `kiro-cli` turn read the config, started the server, called `necro_autopsy` on the payroll program and reported the Zombie, the Vampire and the Ghost with their lines. The transcript is in `benchmarks/live-kiro-mcp-trace.json`.
 
@@ -79,7 +79,7 @@ Kiro could only read and write files in these sessions, so I ran `cargo build` a
 
 **Property-based testing.** The COBOL lifter has `proptest` tests, and the prover is a seeded differential test of its own with 70,000 vectors.
 
-**Who wrote what.** The first version of the engine, the lifters, the daemon and the apps was written with Claude Code, with me deciding and reviewing. The superblock feature, its test and the hook runs above are Kiro's. The fused basic blocks that came after it are mine, written with Claude Code while Kiro's free plan was paused. I did not use Kiro Powers, custom agents or Kiro Crew.
+**Who wrote what.** I wrote the specs and steering and directed the build. The engine, lifters, daemon and apps were developed with Claude Code as a coding assistant. Kiro wrote the `step_batch` feature and its test from spec 03 and fired the hooks listed above. I did not use Kiro Powers, custom agents or Kiro Crew.
 
 ## How I built the rest
 - **Rust workspace.** Five library crates and one CLI. Rust stable, wasmtime 50, tokio, clap, serde and proptest.
@@ -91,7 +91,7 @@ Kiro could only read and write files in these sessions, so I ran `cargo build` a
 ## Challenges
 - My first control-flow graph let a PERFORMed paragraph fall through into the next one, which made every loop look like it had an exit. I rebuilt it so that it tracks the call context.
 - The static scanner cannot see that BANK-INTEREST fails to finish on 2,845 of 10,000 inputs. Two loops share one paragraph and merge. The prover catches it. I wrote this limit into the spec instead of hiding it.
-- ROM speedups stayed small. Kiro wrote a faster execution path that keeps parity at 70,000 of 70,000, and I then added fused basic blocks myself, but the gain is 1.5x to 1.9x on long runs and 1.0x to 1.4x on short ones. The interpreter is native Rust and already quick, so a large multiple would need registers kept in WebAssembly locals. I kept the honest numbers in the table.
+- ROM steps are only a few nanoseconds of work in a native interpreter that is already tight. Kiro wrote the batch entry point, and I then added fused basic blocks, registers held in WebAssembly locals and row-wise sprite drawing. Together they took the ROM speedup from about 1x to 1.6x to 2.4x with the same 70,000 of 70,000 parity. Draw and scroll routines cost about the same in both runtimes, which is the next place to look.
 - Kiro once answered the mod box with valid JSON that was missing its last closing brace. The bridge now repairs that, labels the source as repaired, and has tests for it.
 
 ## What I learned

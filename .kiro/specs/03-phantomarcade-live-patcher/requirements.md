@@ -84,3 +84,11 @@ that the lifted ROM is clearly faster than the interpreter and not just equal to
 3. WHEN an instruction can fault, reads or writes DT or ST, reads the key mask, or changes the program counter
    THE SYSTEM SHALL not place it inside the run, only at its end.
 4. WHEN a patch point lies inside a fused run THE SYSTEM SHALL still read its value from the machine image.
+
+## Requirement 8: registers in locals and row-wise drawing
+1. WHEN `step_batch` runs THE SYSTEM SHALL hold V0 to VF and I in WebAssembly locals for the whole call, load
+   them from the machine image on entry and store them back on every exit path, so the image after the call is
+   byte for byte what the interpreter has.
+2. WHEN Dxyn or Dxy0 draws THE SYSTEM SHALL XOR each sprite row into at most three display bytes, wrap the row
+   inside its own display row, and report a collision when any set sprite bit meets a lit pixel, with the same
+   result as the pixel-by-pixel definition.

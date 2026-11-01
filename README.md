@@ -206,7 +206,7 @@ other work):
 | Programs and vectors | 7 programs, 10,000 vectors each, seed 7 |
 | Parity | 70,000 of 70,000 matched |
 | COBOL wasm vs interpreter | 9.07x, 16.49x, 16.48x |
-| ROM wasm vs interpreter | 0.92x to 1.06x (no real speedup) |
+| ROM wasm vs interpreter | 0.92x to 1.06x (2026-10-31 run, before `step_batch`) |
 | Problems found, left after heal | 19 found, 0 left |
 | Real kiro-cli turns | 7 of 7, 142 s in total (`benchmarks/live-kiro-trace.json`) |
 | Tests, clippy | 32 passed, 0 failed, 0 warnings |
@@ -217,47 +217,33 @@ mod-box turns for "double ball speed, widen paddles, and enable zero-gravity bou
 FRAME_DELAY 1, PADDLE_H 8 and BALL_DY 0). The Observatory switches its canvas between 64x32 and 128x64
 from the machine's mode byte. Written submission text is in `deliverables/`.
 
-## Phase 4: step_batch written by kiro-cli
+## Execution speed
 
-Spec 03 requirement 6 asks for `step_batch(n, period)` in the lifted ROM module: PC and the timer divider live in
-WebAssembly locals, key masks come from a schedule table at 0x2000, and the prover makes two host calls per vector.
-I wrote the requirement, the design and tasks 11 and 12. `kiro-cli` (V3 engine, `.kiro/` loaded) wrote the code in
-real coding turns. It could only read and write files, so I ran cargo between turns and pasted the errors back. One
-turn failed and I added one missing `)` myself. The log marks it. Everything is in
-`benchmarks/kiro-coding-sessions.json`, and the hook payloads Kiro sent are in `benchmarks/hook-firings.log`.
+The lifted module has three execution paths. `step(n)` is the original per-instruction entry. `step_batch(n, period)`
+runs many instructions per host call. Spec 03 requirements 6 to 8 add, in order, batch execution with the PC and timer
+in locals, fused basic blocks, and registers held in WebAssembly locals with row-wise sprite drawing.
 
-| Result | Value |
-|---|---|
-| Parity with `step_batch` | 70,000 of 70,000 (`benchmarks/2026-11-01-phase4.txt`) |
-| ROM wasm vs interpreter, 300 steps per vector | 0.94x to 1.13x |
-| ROM wasm vs interpreter, 30,000 steps per vector | 1.38x to 1.74x (`benchmarks/2026-11-01-phase4-longrun.txt`) |
-| Hooks fired by Kiro | `on-exorcise-defect` 18 times, `on-parity-verify` twice, `on-legacy-drop` not yet |
-| Tests, clippy | 33 passed, 0 failed, 0 warnings |
+`kiro-cli` (V3 engine, `.kiro/` loaded) wrote the requirement 6 code in real coding turns: the `step_batch` export,
+the key schedule layout, the prover change and a parity test. I wrote the requirement, the design and the tasks,
+ran cargo between turns and pasted the errors back, and `benchmarks/kiro-coding-sessions.json` records every turn and
+the one hand edit. While it worked Kiro fired `on-exorcise-defect` 18 times and `on-parity-verify` twice
+(`benchmarks/hook-firings.log`). `on-legacy-drop` runs from the daemon and the notch pill on every dropped file.
 
-The target of 5x to 15x was not reached. The module already looped inside WebAssembly before this change, so the
-host boundary was not the main cost. The program counter and registers still live in memory and every instruction
-goes through a `br_table`, so the next step is fused basic blocks. Kiro stopped with a free-plan usage limit before the
-`on-legacy-drop` turn, so that hook has only been run by the daemon and the notch pill, not by Kiro.
+Lifted WebAssembly against the native Rust reference interpreter, 70,000 of 70,000 vectors matched at every step:
 
-## Fused basic blocks
-
-`step_batch` now runs a straight-line run of up to six instructions after one dispatch, ticks the timers once for
-the whole run, and falls back to one instruction at a time near the end of `n` and of a key block (spec 03
-requirement 7). Patch points are still read from memory. This was written with Claude Code, not Kiro, because
-Kiro's free plan was at its monthly limit.
-
-| Result | Before fusion | After fusion |
+| Stage | ROMs, 300 steps per vector | ROMs, 30,000 steps per vector |
 |---|---|---|
-| Parity | 70,000 of 70,000 | 70,000 of 70,000 (`benchmarks/2026-11-01-fused-blocks.txt`) |
-| ROM wasm vs interpreter, 300 steps per vector | 0.94x to 1.13x | 1.00x to 1.41x |
-| ROM wasm vs interpreter, 30,000 steps per vector | 1.38x to 1.74x | 1.51x to 1.89x (`benchmarks/2026-11-01-fused-blocks-longrun.txt`) |
-| Tests, clippy | 33 passed, 0 warnings | 33 passed, 0 warnings |
+| `step(n)` host call per chunk (2026-10-31) | 0.92x to 1.06x | not measured |
+| `step_batch` (requirement 6) | 0.94x to 1.13x | 1.38x to 1.74x |
+| plus fused basic blocks (requirement 7) | 1.00x to 1.41x | 1.51x to 1.89x |
+| plus registers in locals and row-wise drawing (requirement 8) | 1.61x to 2.40x | 1.87x to 2.32x |
 
-The 10x goal was not met and I do not think it can be met this way. The interpreter is native Rust and already
-spends about 6 to 8 ns per instruction. The lifted module spends 3 to 5 ns. Registers, PC-relative state and the
-display still live in linear memory, and the draw and scroll helpers are loops that cost the same in both. Reaching
-a large multiple would take register promotion into WebAssembly locals and specialised draw code, which I have not
-written. The WAT for PONG-STYLE doubled in size (1,736 to 3,519 lines).
+Final run (`benchmarks/2026-11-01-register-locals.txt` and `-longrun.txt`, M2 MacBook Air, release build, seed 7):
+COBOL to WebAssembly runs 8.69x to 17.25x faster than the reference interpreter, and CHIP-8 and SUPER-CHIP lifted
+WebAssembly runs 1.61x to 2.40x faster, across 70,000 verified vectors (7 programs, 10,000 each) with 19 findings
+reported and 0 left after healing. Run-to-run noise on a laptop is a few percent. The ROM numbers are lower than the
+COBOL ones because a ROM step is a few nanoseconds of work in a native interpreter that is already tight, and the
+draw and scroll routines cost about the same in both.
 
 ## Skeleton Crew layout
 

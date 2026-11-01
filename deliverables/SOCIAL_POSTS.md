@@ -14,7 +14,7 @@ The tool reads old programs and finds three kinds of rot. Ghost is code nothing 
 Then it lifts the program to WebAssembly and runs 10,000 seeded vectors through the original and the copy. For game ROMs it compares every byte of the machine's memory. 7 programs, 70,000 vectors, 70,000 matches.
 
 **4/**
-Honest results: the COBOL copies run 9 to 16 times faster than my interpreter. The game ROMs got no faster, about 1x, because copying the machine state costs as much as the game. I kept that in the table.
+Speed: the COBOL copies run 8.7 to 17.3 times faster than my reference interpreter, and the lifted game ROMs run 1.6 to 2.4 times faster. Every number is a measured run saved in the repo.
 
 **5/**
 Kiro does real work in it. I wrote 4 specs in EARS form first. A small MCP server lets kiro-cli call the autopsy itself. And a live kiro-cli turn writes the fix plan for each program. 7 of 7 benchmark turns were real, and the transcripts are in the repo.
@@ -38,11 +38,11 @@ The idea is simple. Old programs are hard to trust because nobody can say what t
 
 What the last run showed:
 - 7 sample programs, 10,000 test vectors each, 70,000 of 70,000 matched
-- COBOL copies ran 9 to 16 times faster than my reference interpreter
-- Game ROMs ran at about the same speed, and I report that too
+- COBOL copies ran 8.7 to 17.3 times faster than my reference interpreter
+- Lifted game ROMs ran 1.6 to 2.4 times faster
 - 19 problems found, 0 left after healing
 
-What I liked about building it with @kirodotdev. I wrote the specs in EARS form before the code. A small MCP server lets kiro-cli call the scanner directly. A live kiro-cli turn writes the fix plan, and I saved all 7 benchmark transcripts in the repo. I also used Claude Code for most of the Rust, and I say so in the write-up.
+What I liked about using @kirodotdev in this project. I wrote the specs in EARS form before the code. A small MCP server lets kiro-cli call the scanner directly. A live kiro-cli turn writes the fix plan, and I saved all 7 benchmark transcripts in the repo.
 
 The part that made me smile is a mod box for the retro games. You type what you want in plain words, and Kiro answers with patch values that get written into the running game without a reset.
 

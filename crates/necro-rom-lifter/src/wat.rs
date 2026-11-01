@@ -15,10 +15,13 @@ use crate::layout::*;
 use crate::patch::{PatchField, PatchTable};
 use std::fmt::Write;
 
-fn v(x: u8) -> String {
+fn v_mem(x: u8) -> String {
     format!("(i32.load8_u offset={} (i32.const 0))", V + x as usize)
 }
-fn set_v(x: u8, val: &str) -> String {
+fn v_mem_load(x: usize) -> String {
+    format!("(i32.load8_u offset={} (i32.const 0))", V + x)
+}
+fn set_v_mem(x: u8, val: &str) -> String {
     format!("(i32.store8 offset={} (i32.const 0) {val})", V + x as usize)
 }
 fn ld32(a: usize) -> String {
@@ -45,7 +48,13 @@ fn imm_n(pc: u16, n: u8, patches: &PatchTable) -> String {
 /// image. Used on every `step_batch` exit path so the image after a call is byte for
 /// byte what the interpreter has after the same number of instructions.
 fn writeback() -> String {
-    format!("{} {}", st32(PC, "(local.get $pc)"), st32(TIMER_DIV, "(local.get $div)"))
+    let mut out = format!("{} {}", st32(PC, "(local.get $pc)"), st32(TIMER_DIV, "(local.get $div)"));
+    for x in 0..16 {
+        out.push_str(&format!(" (i32.store8 offset={} (i32.const 0) (local.get $v{x}))", V + x));
+    }
+    out.push(' ');
+    out.push_str(&st32(I, "(local.get $ri)"));
+    out
 }
 /// Sets the next program counter. `step` writes straight to the PC field of the image;
 /// `step_batch` writes to the `$np` local instead (PC is only written back on exit).
@@ -149,42 +158,54 @@ const PRELUDE: &str = r#"
         (if (i32.load8_u offset=0x1061 (i32.const 0))
           (then (i32.store8 offset=0x1061 (i32.const 0) (i32.sub (i32.load8_u offset=0x1061 (i32.const 0)) (i32.const 1))))))
       (else (i32.store offset=0x106C (i32.const 0) (local.get $d)))))
-  (func $draw (param $x i32) (param $y i32) (param $n i32)
-    (local $r i32) (local $c i32) (local $bits i32) (local $idx i32) (local $a i32) (local $mask i32) (local $vf i32)
-    (local $w i32) (local $h i32) (local $rows i32) (local $cols i32) (local $hi i32) (local $ip i32)
+  (func $draw (param $x i32) (param $y i32) (param $n i32) (param $ip i32) (result i32)
+    (local $hi i32) (local $stride i32) (local $hmask i32) (local $rows i32) (local $wide i32) (local $r i32)
+    (local $s i32) (local $sh i32) (local $bx i32) (local $base i32) (local $w24 i32) (local $b i32)
+    (local $a i32) (local $d i32) (local $vf i32)
     (local.set $hi (i32.ne (i32.load8_u offset=0x1070 (i32.const 0)) (i32.const 0)))
-    (local.set $w (select (i32.const 128) (i32.const 64) (local.get $hi)))
-    (local.set $h (select (i32.const 64) (i32.const 32) (local.get $hi)))
-    (local.set $ip (i32.load offset=0x1010 (i32.const 0)))
+    (local.set $stride (select (i32.const 16) (i32.const 8) (local.get $hi)))
+    (local.set $hmask (select (i32.const 63) (i32.const 31) (local.get $hi)))
     (if (i32.eqz (local.get $n))
-      (then (local.set $rows (select (i32.const 16) (i32.const 0) (local.get $hi))) (local.set $cols (i32.const 16)))
-      (else (local.set $rows (local.get $n)) (local.set $cols (i32.const 8))))
-    (local.set $vf (i32.const 0))
+      (then (local.set $rows (select (i32.const 16) (i32.const 0) (local.get $hi))) (local.set $wide (i32.const 1)))
+      (else (local.set $rows (local.get $n)) (local.set $wide (i32.const 0))))
+    ;; pixel column of the sprite's left edge, and its offset inside a display byte
+    (local.set $bx (i32.and (local.get $x) (i32.sub (i32.shl (local.get $stride) (i32.const 3)) (i32.const 1))))
+    (local.set $sh (i32.and (local.get $bx) (i32.const 7)))
+    (local.set $bx (i32.shr_u (local.get $bx) (i32.const 3)))
     (local.set $r (i32.const 0))
     (block $done
       (loop $rows_
         (br_if $done (i32.ge_u (local.get $r) (local.get $rows)))
-        (if (i32.eq (local.get $cols) (i32.const 16))
-          (then (local.set $bits (i32.or
+        ;; one sprite row as a 16-bit value with the left pixel at bit 15
+        (if (local.get $wide)
+          (then (local.set $s (i32.or
             (i32.shl (i32.load8_u (i32.and (i32.add (local.get $ip) (i32.shl (local.get $r) (i32.const 1))) (i32.const 4095))) (i32.const 8))
             (i32.load8_u (i32.and (i32.add (local.get $ip) (i32.add (i32.shl (local.get $r) (i32.const 1)) (i32.const 1))) (i32.const 4095))))))
-          (else (local.set $bits (i32.shl (i32.load8_u (i32.and (i32.add (local.get $ip) (local.get $r)) (i32.const 4095))) (i32.const 8)))))
-        (local.set $c (i32.const 0))
-        (loop $cols_
-          (if (i32.and (local.get $bits) (i32.shr_u (i32.const 0x8000) (local.get $c)))
-            (then
-              (local.set $idx (i32.add
-                (i32.mul (i32.rem_u (i32.add (local.get $y) (local.get $r)) (local.get $h)) (local.get $w))
-                (i32.rem_u (i32.add (local.get $x) (local.get $c)) (local.get $w))))
-              (local.set $a (i32.add (i32.const 0x1100) (i32.shr_u (local.get $idx) (i32.const 3))))
-              (local.set $mask (i32.shr_u (i32.const 128) (i32.and (local.get $idx) (i32.const 7))))
-              (if (i32.and (i32.load8_u (local.get $a)) (local.get $mask)) (then (local.set $vf (i32.const 1))))
-              (i32.store8 (local.get $a) (i32.xor (i32.load8_u (local.get $a)) (local.get $mask)))))
-          (local.set $c (i32.add (local.get $c) (i32.const 1)))
-          (br_if $cols_ (i32.lt_u (local.get $c) (local.get $cols))))
+          (else (local.set $s (i32.shl (i32.load8_u (i32.and (i32.add (local.get $ip) (local.get $r)) (i32.const 4095))) (i32.const 8)))))
+        ;; three display bytes cover the row, shifted by the column offset, wrapping inside the row
+        (local.set $w24 (i32.shr_u (i32.shl (local.get $s) (i32.const 8)) (local.get $sh)))
+        (local.set $base (i32.add (i32.const 0x1100) (i32.mul (i32.and (i32.add (local.get $y) (local.get $r)) (local.get $hmask)) (local.get $stride))))
+        (local.set $b (i32.and (i32.shr_u (local.get $w24) (i32.const 16)) (i32.const 255)))
+        (if (local.get $b) (then
+          (local.set $a (i32.add (local.get $base) (local.get $bx)))
+          (local.set $d (i32.load8_u (local.get $a)))
+          (if (i32.and (local.get $d) (local.get $b)) (then (local.set $vf (i32.const 1))))
+          (i32.store8 (local.get $a) (i32.xor (local.get $d) (local.get $b)))))
+        (local.set $b (i32.and (i32.shr_u (local.get $w24) (i32.const 8)) (i32.const 255)))
+        (if (local.get $b) (then
+          (local.set $a (i32.add (local.get $base) (i32.and (i32.add (local.get $bx) (i32.const 1)) (i32.sub (local.get $stride) (i32.const 1)))))
+          (local.set $d (i32.load8_u (local.get $a)))
+          (if (i32.and (local.get $d) (local.get $b)) (then (local.set $vf (i32.const 1))))
+          (i32.store8 (local.get $a) (i32.xor (local.get $d) (local.get $b)))))
+        (local.set $b (i32.and (local.get $w24) (i32.const 255)))
+        (if (local.get $b) (then
+          (local.set $a (i32.add (local.get $base) (i32.and (i32.add (local.get $bx) (i32.const 2)) (i32.sub (local.get $stride) (i32.const 1)))))
+          (local.set $d (i32.load8_u (local.get $a)))
+          (if (i32.and (local.get $d) (local.get $b)) (then (local.set $vf (i32.const 1))))
+          (i32.store8 (local.get $a) (i32.xor (local.get $d) (local.get $b)))))
         (local.set $r (i32.add (local.get $r) (i32.const 1)))
         (br $rows_)))
-    (i32.store8 offset=0x100F (i32.const 0) (local.get $vf)))
+    (local.get $vf))
 "#;
 
 /// The timer tick inlined for `step_batch`, with the divider held in the `$div` local.
@@ -253,6 +274,12 @@ const _: () = assert!(TIMER_DIVISOR == 1 << TIMER_DIVISOR_LOG2);
 /// back, so `step_batch` keeps the PC in a local between instructions.
 fn emit_dispatch(rom: &[u8], patches: &PatchTable, batch: bool) -> String {
     let m = rom.len() / 2;
+    // In `step_batch` the sixteen V registers and I live in WebAssembly locals ($v0..$v15, $ri) for the
+    // whole call. They are loaded from the image on entry and stored back on every exit path.
+    let v = |x: u8| -> String { if batch { format!("(local.get $v{x})") } else { v_mem(x) } };
+    let set_v = |x: u8, val: &str| -> String { if batch { format!("(local.set $v{x} (i32.and {val} (i32.const 255)))") } else { set_v_mem(x, val) } };
+    let ri = || -> String { if batch { "(local.get $ri)".to_string() } else { ld32(I) } };
+    let set_ri = |val: &str| -> String { if batch { format!("(local.set $ri {val})") } else { st32(I, val) } };
     let skip = format!("      (if (then {}))", set_next("(i32.add (local.get $pc) (i32.const 4))", batch));
     let mut s = String::new();
     s.push_str("      (block $after\n      (block $Lbad\n");
@@ -321,10 +348,13 @@ fn emit_dispatch(rom: &[u8], patches: &PatchTable, batch: bool) -> String {
             ),
             Op::Shr(x) => format!("      (local.set $t {vx})\n      {}\n      {}", set_v(x, "(i32.shr_u (local.get $t) (i32.const 1))"), set_v(0xF, "(i32.and (local.get $t) (i32.const 1))"), vx = v(x)),
             Op::Shl(x) => format!("      (local.set $t {vx})\n      {}\n      {}", set_v(x, "(i32.shl (local.get $t) (i32.const 1))"), set_v(0xF, "(i32.shr_u (local.get $t) (i32.const 7))"), vx = v(x)),
-            Op::LdI(a) => format!("      {}", st32(I, &format!("(i32.const {a})"))),
+            Op::LdI(a) => format!("      {}", set_ri(&format!("(i32.const {a})"))),
             Op::JpV0(a) => format!("      {}", set_next(&format!("(i32.and (i32.add (i32.const {a}) {}) (i32.const 4095))", v(0)), batch)),
             Op::Rnd(x, kk) => format!("      {}", set_v(x, &format!("(i32.and (call $rnd) {})", imm_kk(pc, kk, patches)))),
-            Op::Drw(x, y, n) => format!("      (call $draw {} {} {})", v(x), v(y), imm_n(pc, n, patches)),
+            Op::Drw(x, y, n) => {
+                let call = format!("(call $draw {} {} {} {})", v(x), v(y), imm_n(pc, n, patches), ri());
+                if batch { format!("      (local.set $v15 {call})") } else { format!("      (i32.store8 offset=0x100F (i32.const 0) {call})") }
+            }
             Op::Skp(x) => format!("      (i32.and {} (i32.shl (i32.const 1) (i32.and {} (i32.const 15))))\n{skip}", ld32(KEYS), v(x)),
             Op::Sknp(x) => format!("      (i32.eqz (i32.and {} (i32.shl (i32.const 1) (i32.and {} (i32.const 15)))))\n{skip}", ld32(KEYS), v(x)),
             Op::LdVxDt(x) => format!("      {}", set_v(x, &format!("(i32.load8_u offset={DT} (i32.const 0))"))),
@@ -336,20 +366,28 @@ fn emit_dispatch(rom: &[u8], patches: &PatchTable, batch: bool) -> String {
             ),
             Op::LdDtVx(x) => format!("      (i32.store8 offset={DT} (i32.const 0) {})", v(x)),
             Op::LdStVx(x) => format!("      (i32.store8 offset={ST} (i32.const 0) {})", v(x)),
-            Op::AddIVx(x) => format!("      {}", st32(I, &format!("(i32.and (i32.add {} {}) (i32.const 4095))", ld32(I), v(x)))),
-            Op::LdFVx(x) => format!("      {}", st32(I, &format!("(i32.add (i32.const {FONT_BASE}) (i32.mul (i32.const 5) (i32.and {} (i32.const 15))))", v(x)))),
+            Op::AddIVx(x) => format!("      {}", set_ri(&format!("(i32.and (i32.add {} {}) (i32.const 4095))", ri(), v(x)))),
+            Op::LdFVx(x) => format!("      {}", set_ri(&format!("(i32.add (i32.const {FONT_BASE}) (i32.mul (i32.const 5) (i32.and {} (i32.const 15))))", v(x)))),
             Op::LdBVx(x) => format!(
                 "      (local.set $t {vx})\n      (local.set $i {i})\n      (i32.store8 (i32.and (local.get $i) (i32.const 4095)) (i32.div_u (local.get $t) (i32.const 100)))\n      (i32.store8 (i32.and (i32.add (local.get $i) (i32.const 1)) (i32.const 4095)) (i32.rem_u (i32.div_u (local.get $t) (i32.const 10)) (i32.const 10)))\n      (i32.store8 (i32.and (i32.add (local.get $i) (i32.const 2)) (i32.const 4095)) (i32.rem_u (local.get $t) (i32.const 10)))",
                 vx = v(x),
-                i = ld32(I)
+                i = ri()
             ),
+            Op::LdIVx(x) if batch => (0..=x)
+                .map(|k| format!("      (i32.store8 (i32.and (i32.add {} (i32.const {k})) (i32.const 4095)) {})", ri(), v(k)))
+                .collect::<Vec<_>>()
+                .join("\n"),
+            Op::LdVxI(x) if batch => (0..=x)
+                .map(|k| format!("      {}", set_v(k, &format!("(i32.load8_u (i32.and (i32.add {} (i32.const {k})) (i32.const 4095)))", ri()))))
+                .collect::<Vec<_>>()
+                .join("\n"),
             Op::LdIVx(x) => format!(
                 "      (local.set $i (i32.const 0))\n      (loop $l (i32.store8 (i32.and (i32.add {i} (local.get $i)) (i32.const 4095)) (i32.load8_u (i32.add (i32.const {V}) (local.get $i))))\n        (local.set $i (i32.add (local.get $i) (i32.const 1)))\n        (br_if $l (i32.le_u (local.get $i) (i32.const {x}))))",
-                i = ld32(I)
+                i = ri()
             ),
             Op::LdVxI(x) => format!(
                 "      (local.set $i (i32.const 0))\n      (loop $l (i32.store8 (i32.add (i32.const {V}) (local.get $i)) (i32.load8_u (i32.and (i32.add {i} (local.get $i)) (i32.const 4095))))\n        (local.set $i (i32.add (local.get $i) (i32.const 1)))\n        (br_if $l (i32.le_u (local.get $i) (i32.const {x}))))",
-                i = ld32(I)
+                i = ri()
             ),
             Op::Scd(n) => format!("      (call $scd (i32.const {n}))"),
             Op::Scr => "      (call $scr)".to_string(),
@@ -430,6 +468,12 @@ pub fn emit_wat(name: &str, rom: &[u8], patches: &PatchTable) -> String {
     // block of `period` instructions from the schedule at KEY_SCHEDULE. Two host calls
     // cover a whole vector (before and after the mid-run hot patch).
     s.push_str("  (func (export \"step_batch\") (param $n i32) (param $period i32) (result i32)\n    (local $pc i32) (local $np i32) (local $idx i32) (local $t i32) (local $i i32) (local $div i32) (local $blk i32) (local $bcount i32)\n");
+    s.push_str(&format!("    {}\n", (0..16).map(|x| format!("(local $v{x} i32)")).collect::<Vec<_>>().join(" ")));
+    s.push_str("    (local $ri i32)\n");
+    for x in 0..16 {
+        s.push_str(&format!("    (local.set $v{x} {})\n", v_mem_load(x)));
+    }
+    s.push_str(&format!("    (local.set $ri {})\n", ld32(I)));
     s.push_str(&format!("    (local.set $pc {})\n", ld32(PC)));
     s.push_str(&format!("    (local.set $div {})\n", ld32(TIMER_DIV)));
     s.push_str(&format!("    (local.set $blk {})\n", ld32(KEY_SCHEDULE_BLOCK0)));
