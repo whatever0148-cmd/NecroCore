@@ -73,3 +73,14 @@ that the lifted ROM is clearly faster than the interpreter and not just equal to
 5. WHEN `step` is called THE SYSTEM SHALL behave exactly as before, so every existing test keeps its meaning.
 6. WHEN `prove_chip8` runs THE SYSTEM SHALL use `step_batch` for the module side, two host calls per vector
    (before and after the mid-run hot patch), and compare the whole image and status as in requirement 4.
+
+## Requirement 7: fused basic blocks
+1. WHEN `step_batch` reaches an address that starts a run of straight-line instructions THE SYSTEM SHALL
+   run the whole run, up to six instructions plus the instruction that ends it, after one dispatch, but only
+   when at least that many instructions remain in `n` and in the current key block. Otherwise THE SYSTEM
+   SHALL execute one instruction as before.
+2. WHEN a run is fused THE SYSTEM SHALL apply the timer ticks of its instructions together so that the
+   divider, DT and ST equal what per-instruction ticking gives.
+3. WHEN an instruction can fault, reads or writes DT or ST, reads the key mask, or changes the program counter
+   THE SYSTEM SHALL not place it inside the run, only at its end.
+4. WHEN a patch point lies inside a fused run THE SYSTEM SHALL still read its value from the machine image.

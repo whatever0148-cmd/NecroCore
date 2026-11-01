@@ -239,6 +239,26 @@ host boundary was not the main cost. The program counter and registers still liv
 goes through a `br_table`, so the next step is fused basic blocks. Kiro stopped with a free-plan usage limit before the
 `on-legacy-drop` turn, so that hook has only been run by the daemon and the notch pill, not by Kiro.
 
+## Fused basic blocks
+
+`step_batch` now runs a straight-line run of up to six instructions after one dispatch, ticks the timers once for
+the whole run, and falls back to one instruction at a time near the end of `n` and of a key block (spec 03
+requirement 7). Patch points are still read from memory. This was written with Claude Code, not Kiro, because
+Kiro's free plan was at its monthly limit.
+
+| Result | Before fusion | After fusion |
+|---|---|---|
+| Parity | 70,000 of 70,000 | 70,000 of 70,000 (`benchmarks/2026-11-01-fused-blocks.txt`) |
+| ROM wasm vs interpreter, 300 steps per vector | 0.94x to 1.13x | 1.00x to 1.41x |
+| ROM wasm vs interpreter, 30,000 steps per vector | 1.38x to 1.74x | 1.51x to 1.89x (`benchmarks/2026-11-01-fused-blocks-longrun.txt`) |
+| Tests, clippy | 33 passed, 0 warnings | 33 passed, 0 warnings |
+
+The 10x goal was not met and I do not think it can be met this way. The interpreter is native Rust and already
+spends about 6 to 8 ns per instruction. The lifted module spends 3 to 5 ns. Registers, PC-relative state and the
+display still live in linear memory, and the draw and scroll helpers are loops that cost the same in both. Reaching
+a large multiple would take register promotion into WebAssembly locals and specialised draw code, which I have not
+written. The WAT for PONG-STYLE doubled in size (1,736 to 3,519 lines).
+
 ## Skeleton Crew layout
 
 The engine crates and `necro-daemon` are the template. The two apps are separate folders with their own

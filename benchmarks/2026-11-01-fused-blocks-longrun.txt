@@ -1,0 +1,25 @@
+NecroCore benchmark: 300 vectors per target, seed 7, COBOL fuel 10000 blocks, ROM 30000 steps per vector
+host: macos aarch64, necro-cli 0.1.0, wasmtime 50 (Cranelift), release build
+
+| target | kind | lift us | blocks | edges | ghosts | vampires | zombies | warnings | left after heal | parity | interp us/vec | wasm us/vec | speedup | compile us | non-halting vecs | bridge |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| BANK-INTEREST-1978 | cobol | 97.8 | 26 | 23 | 1 | 1 | 0 | 4 | 0 | 100.00% (300/300) | 57.75 | 6.40 | 9.03x | 1801 | 80 | offline (2 patches, 0 ms) |
+| PAYROLL-BATCH-1982 | cobol | 74.0 | 15 | 11 | 1 | 1 | 1 | 2 | 0 | 100.00% (300/300) | 460.86 | 27.84 | 16.55x | 1118 | 300 | offline (3 patches, 0 ms) |
+| WIRE-CLEARING-1985 | cobol | 62.9 | 22 | 16 | 1 | 1 | 0 | 2 | 0 | 100.00% (300/300) | 51.69 | 3.01 | 17.16x | 1290 | 39 | offline (2 patches, 0 ms) |
+| BREAKOUT-STYLE | chip8 | 235.5 | 62 | 164 | 0 | 0 | 2 | 0 | 0 | 100.00% (300/300) | 174.71 | 92.35 | 1.89x | 10722 | 0 | offline (2 patches, 0 ms) |
+| INVADERS-STYLE | chip8 | 274.3 | 61 | 113 | 0 | 2 | 2 | 0 | 0 | 100.00% (300/300) | 255.55 | 141.63 | 1.80x | 11464 | 0 | offline (4 patches, 0 ms) |
+| NECRORUNNER-1991 | chip8 | 250.9 | 46 | 96 | 1 | 1 | 2 | 0 | 0 | 100.00% (300/300) | 191.84 | 127.35 | 1.51x | 11234 | 0 | offline (4 patches, 0 ms) |
+| PONG-STYLE | chip8 | 296.5 | 86 | 364 | 1 | 0 | 1 | 0 | 0 | 100.00% (300/300) | 233.32 | 150.62 | 1.55x | 13239 | 0 | offline (2 patches, 0 ms) |
+
+pathologies found: 19, remaining after heal: 0, healed: 19
+vectors: 2100, matched: 2100, overall parity: 100.000%
+  BANK-INTEREST-1978: FuelExhausted x 80
+  BANK-INTEREST-1978: Halted x 220
+  PAYROLL-BATCH-1982: FuelExhausted x 300
+  WIRE-CLEARING-1985: FuelExhausted x 39
+  WIRE-CLEARING-1985: Halted x 261
+  BREAKOUT-STYLE: Ok x 300
+  INVADERS-STYLE: Ok x 300
+  NECRORUNNER-1991: Ok x 300
+  PONG-STYLE: Ok x 300
+wrote benchmarks/2026-11-01-fused-blocks-longrun.json

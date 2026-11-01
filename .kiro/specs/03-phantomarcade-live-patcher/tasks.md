@@ -24,3 +24,5 @@
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 - [x] 12. Prover uses `step_batch`, two host calls per vector, parity unchanged (`necro-prover`)
   - _Requirements: 6.6_
+- [x] 13. Fused basic blocks in `step_batch` (`wat.rs`: `is_straight_line`, `bulk_tick`, `FUSE_MAX`). Written with Claude Code, not Kiro, because Kiro's free plan was at its monthly limit
+  - _Requirements: 7.1, 7.2, 7.3, 7.4_

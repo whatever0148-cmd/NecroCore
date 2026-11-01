@@ -24,12 +24,12 @@ For each program it does the following.
 5. **Spec.** It writes the findings as EARS requirements into `.kiro/specs/` and asks kiro-cli for a fix plan.
 6. **Hot patch.** A ROM can be changed while it runs. Pong gets a second ball, a faster pace or wider paddles by writing one byte into the module. The score and the screen stay.
 
-### Measured results (from `benchmarks/2026-11-01-phase4.txt` and `benchmarks/2026-11-01-phase4-longrun.txt`)
+### Measured results (from `benchmarks/2026-11-01-fused-blocks.txt` and `benchmarks/2026-11-01-fused-blocks-longrun.txt`)
 | What | Result |
 |---|---|
 | Differential vectors | 70,000 of 70,000 matched (7 programs, 10,000 each, seed 7) |
 | COBOL, WebAssembly vs interpreter | 9.12x, 16.53x and 17.14x faster per vector |
-| ROMs, WebAssembly vs interpreter | 0.94x to 1.13x at 300 steps per vector, and 1.38x to 1.74x at 30,000 steps. The Kiro-written `step_batch` helped only a little. Copying the machine image and the one-instruction-at-a-time design cost most of the time |
+| ROMs, WebAssembly vs interpreter | 1.00x to 1.41x at 300 steps per vector, and 1.51x to 1.89x at 30,000 steps. A Kiro-written `step_batch` and my fused basic blocks helped, but not by a large multiple |
 | Problems found and left after healing | 19 found, 0 left |
 | Real kiro-cli turns in the live benchmark (earlier run, `benchmarks/2026-10-31-phase3.txt`) | 7 of 7, 142 s in total |
 | Tests | 33 passed, 0 failed. Clippy shows 0 warnings |
@@ -79,7 +79,7 @@ Kiro could only read and write files in these sessions, so I ran `cargo build` a
 
 **Property-based testing.** The COBOL lifter has `proptest` tests, and the prover is a seeded differential test of its own with 70,000 vectors.
 
-**Who wrote what.** The first version of the engine, the lifters, the daemon and the apps was written with Claude Code, with me deciding and reviewing. The superblock feature, its test and the hook runs above are Kiro's. I did not use Kiro Powers, custom agents or Kiro Crew.
+**Who wrote what.** The first version of the engine, the lifters, the daemon and the apps was written with Claude Code, with me deciding and reviewing. The superblock feature, its test and the hook runs above are Kiro's. The fused basic blocks that came after it are mine, written with Claude Code while Kiro's free plan was paused. I did not use Kiro Powers, custom agents or Kiro Crew.
 
 ## How I built the rest
 - **Rust workspace.** Five library crates and one CLI. Rust stable, wasmtime 50, tokio, clap, serde and proptest.
@@ -91,7 +91,7 @@ Kiro could only read and write files in these sessions, so I ran `cargo build` a
 ## Challenges
 - My first control-flow graph let a PERFORMed paragraph fall through into the next one, which made every loop look like it had an exit. I rebuilt it so that it tracks the call context.
 - The static scanner cannot see that BANK-INTEREST fails to finish on 2,845 of 10,000 inputs. Two loops share one paragraph and merge. The prover catches it. I wrote this limit into the spec instead of hiding it.
-- ROM speedups stayed small. I asked Kiro for a faster execution path and it delivered one that keeps parity at 70,000 of 70,000, but the gain is 1.4x to 1.7x on long runs and about 1x on short ones. A real fix needs fused basic blocks with registers in locals. I kept the honest numbers in the table.
+- ROM speedups stayed small. Kiro wrote a faster execution path that keeps parity at 70,000 of 70,000, and I then added fused basic blocks myself, but the gain is 1.5x to 1.9x on long runs and 1.0x to 1.4x on short ones. The interpreter is native Rust and already quick, so a large multiple would need registers kept in WebAssembly locals. I kept the honest numbers in the table.
 - Kiro once answered the mod box with valid JSON that was missing its last closing brace. The bridge now repairs that, labels the source as repaired, and has tests for it.
 
 ## What I learned

@@ -68,3 +68,13 @@ change the key mask. The batch entry point removes both costs.
 - The key mask word at KEYS is rewritten at the start of each block, so SKP, SKNP and LD Vx,K read it as before.
 - `prove_chip8_at` writes the whole key schedule once per vector, calls `step_batch` for the first half, applies
   the hot patch, and calls it again for the second half. Parity is checked exactly as before.
+
+## Fused basic blocks (requirement 7)
+Each ROM address gets, besides its single-instruction case, a fused case when the instructions that follow it
+are straight-line (arithmetic, loads and stores, I and font ops, draws, scrolls, mode switches, RPL flags). The
+fused case checks that `n` and the key block `bcount` both have room, runs up to six such instructions back to
+back, ticks the timers once for all of them (the divider is at most 7, six ticks wrap it at most once), then
+sets `$pc` to the ending instruction and runs that instruction's normal code. Branches, calls, returns, skips,
+key reads, DT and ST instructions and unknown opcodes can only end a run, so faults, key reads and PC changes
+happen exactly where `step` would have them. Patch points are read from memory inside the fused code, so a hot
+patch inside a run takes effect on the next execution.

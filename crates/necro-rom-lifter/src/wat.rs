@@ -201,6 +201,52 @@ const INLINE_TICK: &str = r#"      (local.set $div (i32.add (local.get $div) (i3
             (then (i32.store8 offset=0x1061 (i32.const 0) (i32.sub (i32.load8_u offset=0x1061 (i32.const 0)) (i32.const 1))))))
         (else (local.set $div (local.get $div))))"#;
 
+/// Longest run of straight-line instructions fused in front of the instruction that ends it.
+const FUSE_MAX: usize = 6;
+
+/// True for instructions that run the same way in any position of a fused run: they cannot fault,
+/// do not touch DT or ST, do not read the key mask and do not change the program counter.
+fn is_straight_line(op: &Op) -> bool {
+    !matches!(
+        op,
+        Op::Ret
+            | Op::Jp(_)
+            | Op::Call(_)
+            | Op::JpV0(_)
+            | Op::SeKk(..)
+            | Op::SneKk(..)
+            | Op::SeVy(..)
+            | Op::SneVy(..)
+            | Op::Skp(_)
+            | Op::Sknp(_)
+            | Op::LdVxDt(_)
+            | Op::LdVxK(_)
+            | Op::LdDtVx(_)
+            | Op::LdStVx(_)
+            | Op::Unknown(_)
+    )
+}
+
+/// The timer ticks of `p` instructions at once (p is at most 6, so the divider wraps at most once).
+/// Per-instruction ticking resets the divider at every wrap, so after p ticks the divider is
+/// (div + p) mod 8 and DT and ST have lost one count per wrap, never going below zero.
+fn bulk_tick(p: usize) -> String {
+    format!(
+        "      (local.set $t (i32.add (local.get $div) (i32.const {p})))
+      (local.set $div (i32.and (local.get $t) (i32.const 7)))
+      (local.set $t (i32.shr_u (local.get $t) (i32.const {TIMER_DIVISOR_LOG2})))
+      (if (local.get $t)
+        (then
+          (if (i32.load8_u offset=0x1060 (i32.const 0))
+            (then (i32.store8 offset=0x1060 (i32.const 0) (i32.sub (i32.load8_u offset=0x1060 (i32.const 0)) (i32.const 1)))))
+          (if (i32.load8_u offset=0x1061 (i32.const 0))
+            (then (i32.store8 offset=0x1061 (i32.const 0) (i32.sub (i32.load8_u offset=0x1061 (i32.const 0)) (i32.const 1)))))))
+"
+    )
+}
+const TIMER_DIVISOR_LOG2: u32 = 3;
+const _: () = assert!(TIMER_DIVISOR == 1 << TIMER_DIVISOR_LOG2);
+
 /// Emits the `br_table` dispatch and one compiled case per even ROM address. When
 /// `batch` is false the output is exactly the dispatch `step` used before; when true the
 /// program-counter effects go to the `$np` local and the fault resets write the divider
@@ -218,11 +264,13 @@ fn emit_dispatch(rom: &[u8], patches: &PatchTable, batch: bool) -> String {
         write!(s, " $L{i}").unwrap();
     }
     s.push_str(" $Lbad (local.get $idx))\n");
+    let mut codes: Vec<String> = Vec::with_capacity(m);
+    let mut ops: Vec<Op> = Vec::with_capacity(m);
     for i in 0..m {
         let pc = (ROM_BASE + 2 * i) as u16;
         let w = ((rom[2 * i] as u16) << 8) | rom[2 * i + 1] as u16;
         let op = decode(w);
-        writeln!(s, "      ) ;; {pc:#05X} {}", op.mnemonic()).unwrap();
+        ops.push(op);
         let code = match op {
             Op::Cls => "      (call $cls)".to_string(),
             Op::Ret => format!(
@@ -312,7 +360,39 @@ fn emit_dispatch(rom: &[u8], patches: &PatchTable, batch: bool) -> String {
             Op::LdRpl(x) => (0..=x.min(7)).map(|k| format!("      {}", set_v(k, &format!("(i32.load8_u offset={} (i32.const 0))", RPL + k as usize)))).collect::<Vec<_>>().join("\n"),
             Op::Unknown(_) => format!("      {} (return (i32.const 5))", fault_reset(batch)),
         };
-        s.push_str(&code);
+        codes.push(code);
+    }
+    for i in 0..m {
+        let pc = (ROM_BASE + 2 * i) as u16;
+        writeln!(s, "      ) ;; {pc:#05X} {}", ops[i].mnemonic()).unwrap();
+        // Fused basic block (step_batch only): a run of up to FUSE_MAX straight-line instructions
+        // that cannot fault, touch the timers or change the PC, followed by the instruction that ends
+        // the run. One dispatch, one bounds check and one bulk timer tick cover the whole run.
+        let mut p = 0usize;
+        if batch {
+            while p < FUSE_MAX && i + p < m && is_straight_line(&ops[i + p]) {
+                p += 1;
+            }
+            if i + p >= m {
+                p = p.saturating_sub(1);
+            }
+        }
+        if p >= 1 {
+            let need = p + 1;
+            writeln!(s, "      (if (i32.and (i32.ge_u (local.get $n) (i32.const {need})) (i32.ge_u (local.get $bcount) (i32.const {need})))\n        (then").unwrap();
+            for c in &codes[i..i + p] {
+                s.push_str(c);
+                s.push('\n');
+            }
+            s.push_str(&bulk_tick(p));
+            writeln!(s, "      (local.set $n (i32.sub (local.get $n) (i32.const {p})))").unwrap();
+            writeln!(s, "      (local.set $bcount (i32.sub (local.get $bcount) (i32.const {p})))").unwrap();
+            writeln!(s, "      (local.set $pc (i32.add (local.get $pc) (i32.const {})))", 2 * p).unwrap();
+            writeln!(s, "      (local.set $np (i32.add (local.get $pc) (i32.const 2)))").unwrap();
+            s.push_str(&codes[i + p]);
+            s.push_str("\n      (br $after)))\n");
+        }
+        s.push_str(&codes[i]);
         s.push_str("\n      (br $after)\n");
     }
     s.push_str("      ) ;; Lbad\n");

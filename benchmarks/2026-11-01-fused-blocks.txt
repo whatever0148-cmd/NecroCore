@@ -1,0 +1,25 @@
+NecroCore benchmark: 10000 vectors per target, seed 7, COBOL fuel 10000 blocks, ROM 300 steps per vector
+host: macos aarch64, necro-cli 0.1.0, wasmtime 50 (Cranelift), release build
+
+| target | kind | lift us | blocks | edges | ghosts | vampires | zombies | warnings | left after heal | parity | interp us/vec | wasm us/vec | speedup | compile us | non-halting vecs | bridge |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| BANK-INTEREST-1978 | cobol | 407.2 | 26 | 23 | 1 | 1 | 0 | 4 | 0 | 100.00% (10000/10000) | 62.83 | 6.93 | 9.07x | 10353 | 2845 | offline (2 patches, 0 ms) |
+| PAYROLL-BATCH-1982 | cobol | 97.6 | 15 | 11 | 1 | 1 | 1 | 2 | 0 | 100.00% (10000/10000) | 458.80 | 27.69 | 16.57x | 1541 | 10000 | offline (3 patches, 0 ms) |
+| WIRE-CLEARING-1985 | cobol | 71.6 | 22 | 16 | 1 | 1 | 0 | 2 | 0 | 100.00% (10000/10000) | 45.90 | 2.67 | 17.20x | 1370 | 1138 | offline (2 patches, 0 ms) |
+| BREAKOUT-STYLE | chip8 | 286.2 | 62 | 164 | 0 | 0 | 2 | 0 | 0 | 100.00% (10000/10000) | 2.80 | 1.98 | 1.41x | 10930 | 0 | offline (2 patches, 0 ms) |
+| INVADERS-STYLE | chip8 | 240.4 | 61 | 113 | 0 | 2 | 2 | 0 | 0 | 100.00% (10000/10000) | 2.87 | 2.19 | 1.31x | 11624 | 0 | offline (4 patches, 0 ms) |
+| NECRORUNNER-1991 | chip8 | 248.7 | 46 | 96 | 1 | 1 | 2 | 0 | 0 | 100.00% (10000/10000) | 5.65 | 5.68 | 1.00x | 11278 | 0 | offline (4 patches, 0 ms) |
+| PONG-STYLE | chip8 | 297.2 | 86 | 364 | 1 | 0 | 1 | 0 | 0 | 100.00% (10000/10000) | 2.38 | 1.84 | 1.30x | 13444 | 0 | offline (2 patches, 0 ms) |
+
+pathologies found: 19, remaining after heal: 0, healed: 19
+vectors: 70000, matched: 70000, overall parity: 100.000%
+  BANK-INTEREST-1978: FuelExhausted x 2845
+  BANK-INTEREST-1978: Halted x 7155
+  PAYROLL-BATCH-1982: FuelExhausted x 10000
+  WIRE-CLEARING-1985: FuelExhausted x 1138
+  WIRE-CLEARING-1985: Halted x 8862
+  BREAKOUT-STYLE: Ok x 10000
+  INVADERS-STYLE: Ok x 10000
+  NECRORUNNER-1991: Ok x 10000
+  PONG-STYLE: Ok x 10000
+wrote benchmarks/2026-11-01-fused-blocks.json
