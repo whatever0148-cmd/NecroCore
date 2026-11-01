@@ -55,3 +55,21 @@ high-resolution game lifts and proves the same way as the 64x32 ones.
 4. WHEN Fx75 or Fx85 runs THE SYSTEM SHALL copy V0 to Vmin(x,7) into or out of the RPL user flags.
 5. WHEN `prove_chip8` runs a SUPER-CHIP ROM THE SYSTEM SHALL compare the whole image, including the
    mode byte and the RPL flags, exactly as for CHIP-8.
+
+## Requirement 6: multi-cycle superblock execution
+User story: as a user of the lifted games, I want the module to run many instructions per host call so
+that the lifted ROM is clearly faster than the interpreter and not just equal to it.
+
+1. WHEN a ROM is lifted THE SYSTEM SHALL also export `step_batch(n: i32, period: i32) -> i32` that executes
+   up to n instructions inside WebAssembly and returns the same status codes as `step`.
+2. WHEN `step_batch` runs THE SYSTEM SHALL read the key mask for each block of `period` instructions from a
+   key schedule table in module memory outside the compared machine image, so that one host call can cover
+   a whole test vector.
+3. WHEN `step_batch` runs THE SYSTEM SHALL keep the program counter and the timer divider in locals between
+   instructions and write them back to the machine image before it returns, so that the image after the call
+   is byte for byte what the interpreter has after the same number of instructions.
+4. WHEN an instruction stops with a non-zero status THE SYSTEM SHALL stop `step_batch` at once and leave the
+   image exactly as `step` would leave it.
+5. WHEN `step` is called THE SYSTEM SHALL behave exactly as before, so every existing test keeps its meaning.
+6. WHEN `prove_chip8` runs THE SYSTEM SHALL use `step_batch` for the module side, two host calls per vector
+   (before and after the mid-run hot patch), and compare the whole image and status as in requirement 4.

@@ -7,7 +7,7 @@
       "trigger": "Stop",
       "action": {
         "type": "command",
-        "command": "cargo run --quiet --release --bin necro-cli -- benchmark --vectors 1000 --rom-steps 200 | tail -n 20"
+        "command": "in=$(cat); echo \"$(date -u +%FT%TZ) on-parity-verify stdin=$(printf %s \"$in\" | tr -d \"\\n\" | head -c 500)\" >> benchmarks/hook-firings.log; cargo run --quiet --release --bin necro-cli -- benchmark --vectors 1000 --rom-steps 200 | tail -n 20"
       },
       "timeout": 900
     }

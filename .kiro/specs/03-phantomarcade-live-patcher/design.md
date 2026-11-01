@@ -54,3 +54,17 @@ now holds 1024 bytes. Low-res mode uses the first 256 bytes at 8 bytes per row, 
 all 1024 at 16 bytes per row. The mode byte sits at 0x1070 and the 8 RPL flags at 0x1078. The
 interpreter and the WebAssembly helpers ($draw, $scd, $scr, $scl, $setres) read the same mode byte,
 so a mode change needs no recompilation. The Observatory reads the mode byte to size its canvas.
+
+## Superblock execution (requirement 6)
+Today `step(n)` already loops inside WebAssembly, but it reloads the program counter from memory and calls a
+`$tick` helper on every instruction, and the prover crosses the host boundary about twelve times per vector to
+change the key mask. The batch entry point removes both costs.
+- Memory map: the key schedule table lives at 0x2000 as consecutive u32 key masks, one per `period`
+  instructions. 0x2000 is outside the 0x1500-byte machine image, so the image comparison is unchanged.
+- `step_batch` keeps `$pc` and the timer divider in locals. Each case still writes its own effects to memory.
+  Control-flow cases update the local `$pc`. The locals are stored back to PC and TIMER_DIV on every exit path,
+  including the early returns for bad PC, stack fault, unknown opcode and wait-for-key.
+- The timers DT and ST still live in the image and are decremented when the divider wraps, inline, with no call.
+- The key mask word at KEYS is rewritten at the start of each block, so SKP, SKNP and LD Vx,K read it as before.
+- `prove_chip8_at` writes the whole key schedule once per vector, calls `step_batch` for the first half, applies
+  the hot patch, and calls it again for the second half. Parity is checked exactly as before.

@@ -20,3 +20,7 @@
   - _Requirements: 5.1, 5.2, 5.3, 5.4_
 - [x] 10. NECRORUNNER-1991 sample with three patch points and two deliberate defects, proved over 10,000 vectors
   - _Requirements: 5.5_
+- [ ] 11. WASM multi-cycle superblock execution: `step_batch(n, period)` in the generated module with PC and the timer divider in locals and a key schedule table at 0x2000 (`wat.rs`)
+  - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
+- [ ] 12. Prover uses `step_batch`, two host calls per vector, parity unchanged (`necro-prover`)
+  - _Requirements: 6.6_
