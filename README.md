@@ -178,6 +178,10 @@ notch pill was checked by launching it (it appears under the notch) and by the h
 dragging a file with a mouse. The mod box depends on what kiro-cli answers, and on one live run it left
 the zero-gravity request out until the prompt got a hint. 
 
+## Why it matters
+
+A 2017 Thomson Reuters graphic, reported by [The Next Web on April 10, 2017](http://thenextweb.com/news/ancient-programming-language-cobol-can-make-you-bank-literally), says about 80 percent of in-person transactions and 95 percent of ATM swipes in the US run on programs written in COBOL. The same Reuters work is widely quoted for 43 percent of banking systems and about 220 billion lines of COBOL in production. I only found those two second hand and their scope is not consistent across articles, so treat them as widely quoted, not verified. I could not trace any yearly maintenance cost figure to a primary study, so none is quoted. NecroCore targets the part that blocks a rewrite, which is proof that the new program computes what the old one did.
+
 ## Phase 3: SUPER-CHIP and 70,000 vectors
 
 `necro-rom-lifter` now handles SUPER-CHIP: `00FF` and `00FE` (128x64 and 64x32), `00Cn`, `00FB`
@@ -212,6 +216,28 @@ Other real Kiro evidence in `benchmarks/`: `live-kiro-mcp-trace.json` (kiro-cli 
 mod-box turns for "double ball speed, widen paddles, and enable zero-gravity bounce", both answered with
 FRAME_DELAY 1, PADDLE_H 8 and BALL_DY 0). The Observatory switches its canvas between 64x32 and 128x64
 from the machine's mode byte. Written submission text is in `deliverables/`.
+
+## Phase 4: step_batch written by kiro-cli
+
+Spec 03 requirement 6 asks for `step_batch(n, period)` in the lifted ROM module: PC and the timer divider live in
+WebAssembly locals, key masks come from a schedule table at 0x2000, and the prover makes two host calls per vector.
+I wrote the requirement, the design and tasks 11 and 12. `kiro-cli` (V3 engine, `.kiro/` loaded) wrote the code in
+real coding turns. It could only read and write files, so I ran cargo between turns and pasted the errors back. One
+turn failed and I added one missing `)` myself. The log marks it. Everything is in
+`benchmarks/kiro-coding-sessions.json`, and the hook payloads Kiro sent are in `benchmarks/hook-firings.log`.
+
+| Result | Value |
+|---|---|
+| Parity with `step_batch` | 70,000 of 70,000 (`benchmarks/2026-11-01-phase4.txt`) |
+| ROM wasm vs interpreter, 300 steps per vector | 0.94x to 1.13x |
+| ROM wasm vs interpreter, 30,000 steps per vector | 1.38x to 1.74x (`benchmarks/2026-11-01-phase4-longrun.txt`) |
+| Hooks fired by Kiro | `on-exorcise-defect` 18 times, `on-parity-verify` twice, `on-legacy-drop` not yet |
+| Tests, clippy | 33 passed, 0 failed, 0 warnings |
+
+The target of 5x to 15x was not reached. The module already looped inside WebAssembly before this change, so the
+host boundary was not the main cost. The program counter and registers still live in memory and every instruction
+goes through a `br_table`, so the next step is fused basic blocks. Kiro stopped with a free-plan usage limit before the
+`on-legacy-drop` turn, so that hook has only been run by the daemon and the notch pill, not by Kiro.
 
 ## Skeleton Crew layout
 

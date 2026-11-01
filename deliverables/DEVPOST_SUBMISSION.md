@@ -24,15 +24,15 @@ For each program it does the following.
 5. **Spec.** It writes the findings as EARS requirements into `.kiro/specs/` and asks kiro-cli for a fix plan.
 6. **Hot patch.** A ROM can be changed while it runs. Pong gets a second ball, a faster pace or wider paddles by writing one byte into the module. The score and the screen stay.
 
-### Measured results (from `benchmarks/2026-10-31-phase3.txt`)
+### Measured results (from `benchmarks/2026-11-01-phase4.txt` and `benchmarks/2026-11-01-phase4-longrun.txt`)
 | What | Result |
 |---|---|
 | Differential vectors | 70,000 of 70,000 matched (7 programs, 10,000 each, seed 7) |
-| COBOL, WebAssembly vs interpreter | 9.07x, 16.49x and 16.48x faster per vector |
-| ROMs, WebAssembly vs interpreter | 0.92x to 1.06x, so no real speedup. Copying the machine image costs about as much as the work |
+| COBOL, WebAssembly vs interpreter | 9.12x, 16.53x and 17.14x faster per vector |
+| ROMs, WebAssembly vs interpreter | 0.94x to 1.13x at 300 steps per vector, and 1.38x to 1.74x at 30,000 steps. The Kiro-written `step_batch` helped only a little. Copying the machine image and the one-instruction-at-a-time design cost most of the time |
 | Problems found and left after healing | 19 found, 0 left |
-| Real kiro-cli turns in the benchmark | 7 of 7, 142 s in total |
-| Tests | 32 passed, 0 failed. Clippy shows 0 warnings |
+| Real kiro-cli turns in the live benchmark (earlier run, `benchmarks/2026-10-31-phase3.txt`) | 7 of 7, 142 s in total |
+| Tests | 33 passed, 0 failed. Clippy shows 0 warnings |
 
 ## How it fits the four tracks
 **Resurrection.** This is the main entry. A 1978 style interest program and a 1991 style SUPER-CHIP game come back as live WebAssembly, and the proof is a number, not a promise.
@@ -44,40 +44,42 @@ For each program it does the following.
 **Costume Contest.** The interface treats bugs as monsters, and the monsters are the function. A Ghost row is dead code, a Zombie row is a loop that never ends. The notch pill takes a file dropped on it and shows the three counts. The page is dark and quiet. The Impeccable detector reports 0 findings, and I measured it at 1920 by 1080 and at 375 pixels wide with no sideways scrolling.
 
 ## Best Startup pitch
-The paid part of legacy modernization is trust. Banks and insurers do not lack tools that translate code. They lack evidence that the translated program does what the old one did. NecroCore's prover produces that evidence as a table of vectors and a list of exact divergences, which is something a reviewer or auditor can read.
+The paid part of legacy modernization is trust. Banks and insurers do not lack tools that translate code. They lack evidence that the translated program does what the old one did. NecroCore's prover produces that evidence as a table of vectors and a list of exact divergences, which a reviewer or an auditor can read.
 
-The path from here is narrow on purpose. Start with batch programs that are small and well defined. Sell the autopsy report and the parity proof as a service for one program at a time. Grow the COBOL subset from the real programs customers bring. I am a first-year student and this is a hackathon build, so I am not quoting a market size. I did not want to paste a number I cannot source. The need is real and the proof step is the part I can already demonstrate.
+**How big is the problem.** I checked these numbers and I want to be clear about how well each one is backed.
+- A 2017 Thomson Reuters graphic, reported by [The Next Web on April 10, 2017](http://thenextweb.com/news/ancient-programming-language-cobol-can-make-you-bank-literally), says that in the US about 80 percent of in-person transactions and 95 percent of ATM swipes run on programs written in COBOL. I read this sentence in the article. I could not open the Reuters page itself.
+- The same Reuters work is widely quoted as saying that 43 percent of banking systems are built on COBOL and that about 220 billion lines of COBOL are still in production. Many articles repeat both figures, but I only found them second hand, and they disagree about whether 43 percent means the US or the world. I list them as widely quoted, not as verified.
+- [Reuters, April 11, 2017](https://www.cnbc.com/2017/04/11/banks-scramble-to-fix-old-systems-as-it-cowboys-ride-into-sunset.html) also reports that banks struggle to find people who can maintain these systems as the engineers who wrote them retire.
+- What the industry spends each year on legacy systems is quoted anywhere from tens of billions to a few hundred billion dollars, depending on the scope and the year. I could not trace any single figure to a primary study, so I do not quote one.
+
+**What NecroCore changes.** A manual rewrite of a batch job takes months or years, and the risk that scares people is silent drift in rounding and truncation. NecroCore lifts the program and compares fixed-point results against a reference interpreter, 10,000 seeded vectors per program, in about a second on a laptop. It also lists the dead code and the loops that cannot end before anyone changes a line.
+
+**The path.** Start with small, well-defined batch programs. Sell the autopsy report and the parity proof as a service, one program at a time. Grow the COBOL subset from the real programs customers bring. I am a first-year student and this is a hackathon build, so these are plans and not traction.
 
 ## How we built it with Kiro
-I want to be exact about this, so here is what is real and what is not.
+Kiro is in this project at three levels: it shaped the plan, it wrote a real feature, and it runs inside the product. Everything below is backed by a file in the repo.
 
-**Spec-driven development.** Before writing the Rust I wrote four specs in `.kiro/specs/`, each with `requirements.md` in EARS form (WHEN something happens THE SYSTEM SHALL do something), `design.md` and `tasks.md`.
-- `01-core-resurrection-engine`
-- `02-cryptledger-cobol-prover`
-- `03-phantomarcade-live-patcher`
-- `04-observatory-and-notch-ui`
+**Spec-driven development.** Before writing the Rust I wrote four specs in `.kiro/specs/`, each with `requirements.md` in EARS form (WHEN something happens THE SYSTEM SHALL do something), `design.md` and `tasks.md`: the core engine, the COBOL prover, the ROM live patcher, and the Observatory with the notch UI. I worked down the task lists and ticked them off. The Spec button also writes new specs of the same shape from a real scan, for example `.kiro/specs/autopsy-PAYROLL-BATCH-1982/`.
 
-I then worked down the task lists and ticked them off. Late in the build I added a SUPER-CHIP requirement to spec 03 before writing the code for it. The Spec button in CryptLedger also writes new specs of the same shape. For example, `.kiro/specs/autopsy-PAYROLL-BATCH-1982/` is generated from a real scan.
+**Steering.** `.kiro/steering/product.md`, `tech.md` and `structure.md` are marked `inclusion: always`. They fix the vocabulary, the rule that numbers come from real runs, and the layout of the crates and apps.
 
-**Steering.** `.kiro/steering/product.md`, `tech.md` and `structure.md` are marked `inclusion: always`. They fix the vocabulary (Ghost, Vampire and Zombie are UI labels, the technical terms are dead code, resource leaks and non-terminating loops), the rule that numbers come from real runs, and the layout of the crates.
+**Kiro wrote a feature from a spec.** Requirement 6 of spec 03 asks for a faster way to run a ROM, `step_batch(n, period)`, that keeps the program counter and the timer divider in WebAssembly locals and reads its key presses from a schedule table, so that one host call covers a whole test vector. I wrote the requirement, the design and two tasks. Then I drove `kiro-cli` (the V3 engine, with `.kiro/steering`, the hooks and `.kiro/settings/mcp.json` loaded) through real coding turns. In those turns Kiro:
+- wrote the `step_batch` export, the inlined timer and the shared dispatch in `crates/necro-rom-lifter/src/wat.rs`,
+- added the key schedule layout in `layout.rs`,
+- rewrote the prover in `crates/necro-prover/src/lib.rs` to make two host calls per vector,
+- wrote a new test, `step_batch_matches_step_with_no_keys`, and ticked tasks 11 and 12.
 
-**Hooks.** Three hooks use the Kiro v1 hook schema.
-- `on-legacy-drop.json` runs the autopsy and writes EARS text when a `.cob` or `.ch8` file lands under `samples/`.
-- `on-exorcise-defect.json` reruns the lifter tests after an edit to the scanner or the healer.
-- `on-parity-verify.json` runs the prover with 1,000 vectors per sample when a session stops.
+Kiro could only read and write files in these sessions, so I ran `cargo build` and `cargo test` between turns and pasted the compiler errors back to it. It fixed the two prover errors that way. After one turn that exited with an error, I added the single missing closing parenthesis myself, and the log marks that turn as a human edit. The full transcript of every turn is in `benchmarks/kiro-coding-sessions.json`.
 
-The notch pill and the daemon actually run the command from `on-legacy-drop.json` on every drop. I tested that and it took 811 ms. I have not watched the Kiro IDE fire the other two hooks, so I will not claim that.
+**Hooks that Kiro fired.** The three hooks use the Kiro v1 hook schema. During the coding turns, Kiro fired `on-exorcise-defect` 18 times (a PostToolUse hook that runs the lifter tests when the scanner or the healer is edited) and `on-parity-verify` twice (a Stop hook that runs the prover). The exact payloads it received are in `benchmarks/hook-firings.log`. The third hook, `on-legacy-drop`, is not fired by Kiro yet. The turn meant to do that failed because my free Kiro plan hit its monthly limit, and I have requested the hackathon credits. The notch pill and the daemon do run the same command on every file dropped on them, and that works, but it is not Kiro.
 
-**MCP.** `.kiro/settings/mcp.json` defines `necro-mcp`, a small MCP server I wrote in Rust that speaks JSON-RPC over stdio. It offers `necro_autopsy`, `necro_parity` and `necro_hotpatch`. I ran a real `kiro-cli` turn in the repo. It read the config, started the server, called `necro_autopsy` on the payroll program and reported the Zombie, the Vampire and the Ghost with their lines. The transcript is in `benchmarks/live-kiro-mcp-trace.json`.
+**MCP.** `.kiro/settings/mcp.json` defines `necro-mcp`, a small MCP server I wrote in Rust that speaks JSON-RPC over stdio, with `necro_autopsy`, `necro_parity` and `necro_hotpatch`. A real `kiro-cli` turn read the config, started the server, called `necro_autopsy` on the payroll program and reported the Zombie, the Vampire and the Ghost with their lines. The transcript is in `benchmarks/live-kiro-mcp-trace.json`.
 
-**Kiro CLI in the product.** The `necro-kiro-bridge` crate runs `kiro-cli chat --no-interactive` with tools switched off and a timeout, and falls back to a deterministic offline answer if the CLI is missing or fails. Three buttons use it for real.
-- Exorcise asks Kiro for requirements and a patch plan.
-- The benchmark with `--live-kiro` asked for a plan for each of the 7 programs. Every one of the 7 turns was live. The full prompts and answers are in `benchmarks/live-kiro-trace.json`.
-- The mod box in PhantomArcade sends a sentence such as "double ball speed, widen paddles, and enable zero-gravity bounce" and gets patch values back. Kiro answered with `FRAME_DELAY 1`, `PADDLE_H 8` and `BALL_DY 0`. The page wrote those three bytes into the running game with no reset. Two such turns, 13.5 s and 16.1 s, are saved in `benchmarks/live-mod-trace.json`.
+**Kiro CLI inside the product.** The `necro-kiro-bridge` crate runs `kiro-cli chat --no-interactive` with tools switched off and a timeout, and falls back to a deterministic offline answer if the CLI is missing or fails. The Exorcise button, the `--live-kiro` benchmark and the mod box in PhantomArcade all use it. All 7 turns of the live benchmark were real (142 s in total, `benchmarks/live-kiro-trace.json`). In the mod box, "double ball speed, widen paddles, and enable zero-gravity bounce" came back from Kiro as `FRAME_DELAY 1`, `PADDLE_H 8` and `BALL_DY 0`, and the page wrote those three bytes into the running game with no reset (`benchmarks/live-mod-trace.json`).
 
 **Property-based testing.** The COBOL lifter has `proptest` tests, and the prover is a seeded differential test of its own with 70,000 vectors.
 
-**What I did not use.** I did not use Kiro Powers, custom agents or Kiro Crew. I wrote most of the Rust with Claude Code as my coding partner, and I used Kiro for the specs, steering, hooks, MCP, CLI integration and the evidence above.
+**Who wrote what.** The first version of the engine, the lifters, the daemon and the apps was written with Claude Code, with me deciding and reviewing. The superblock feature, its test and the hook runs above are Kiro's. I did not use Kiro Powers, custom agents or Kiro Crew.
 
 ## How I built the rest
 - **Rust workspace.** Five library crates and one CLI. Rust stable, wasmtime 50, tokio, clap, serde and proptest.
@@ -89,7 +91,7 @@ The notch pill and the daemon actually run the command from `on-legacy-drop.json
 ## Challenges
 - My first control-flow graph let a PERFORMed paragraph fall through into the next one, which made every loop look like it had an exit. I rebuilt it so that it tracks the call context.
 - The static scanner cannot see that BANK-INTEREST fails to finish on 2,845 of 10,000 inputs. Two loops share one paragraph and merge. The prover catches it. I wrote this limit into the spec instead of hiding it.
-- ROM speedups are about 1x. I kept that in the results table.
+- ROM speedups stayed small. I asked Kiro for a faster execution path and it delivered one that keeps parity at 70,000 of 70,000, but the gain is 1.4x to 1.7x on long runs and about 1x on short ones. A real fix needs fused basic blocks with registers in locals. I kept the honest numbers in the table.
 - Kiro once answered the mod box with valid JSON that was missing its last closing brace. The bridge now repairs that, labels the source as repaired, and has tests for it.
 
 ## What I learned

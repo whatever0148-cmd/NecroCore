@@ -16,6 +16,13 @@ pub const RPL: usize = 0x1078; // 8 bytes, SUPER-CHIP user flags (Fx75 and Fx85)
 pub const DISPLAY: usize = 0x1100;
 pub const DISPLAY_BYTES: usize = 1024;
 pub const IMAGE_SIZE: usize = 0x1500;
+/// `step_batch` reads one u32 key mask per `period` instructions from this table.
+/// It sits outside the 0x1500-byte machine image, so parity comparison is unchanged.
+pub const KEY_SCHEDULE: usize = 0x2000;
+/// u32: the schedule block index `step_batch` starts reading from. The prover sets it
+/// so the second per-vector call (after the hot patch) resumes mid-table without
+/// rewriting the schedule. Outside the compared machine image.
+pub const KEY_SCHEDULE_BLOCK0: usize = 0x1FFC;
 pub const ROM_BASE: usize = 0x200;
 pub const FONT_BASE: usize = 0x50;
 /// Timers decrement once every this many steps.

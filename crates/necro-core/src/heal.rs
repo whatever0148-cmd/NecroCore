@@ -12,6 +12,10 @@ pub const HEAL_CAP: i64 = 1_000_000;
 ///
 /// Healing never changes behaviour below the guard limits; the prover can confirm
 /// that by replaying the same vectors through the healed module.
+///
+/// Each affected loop gets exactly one merged guard: the Zombie fuel counter and every
+/// Vampire cap are AND-combined into a single branch, so one guard block covers the
+/// whole loop.
 pub fn heal(ir: &NecroIR, report: &NecroAutopsyReport) -> NecroIR {
     let mut out = ir.clone();
 

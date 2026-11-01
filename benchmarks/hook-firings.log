@@ -1,0 +1,88 @@
+2026-11-01T01:50:23Z on-exorcise-defect stdin={"session_id":"sess_4fb20988-d4b0-4e82-a157-4fbbd2139201","hook_event_name":"PostToolUse","cwd":"/Users/ahmed/NecroCore","tool_name":"str_replace","tool_input":{"path":"/Users/ahmed/NecroCore/crates/necro-rom-lifter/src/layout.rs","oldStr":"/// Low-res uses the first 256 bytes (64x32, 8 bytes per row); high-res uses all 1024 (128x64, 16 bytes per row).
+pub const DISPLAY: usize = 0x1100;
+pub const DISPLAY_BYTES: usize = 1024;
+pub const IMAGE_SIZE: usize = 0x1500;","newStr":"/// Low-res uses th
+2026-11-01T01:50:29Z on-exorcise-defect stdin={"session_id":"sess_4fb20988-d4b0-4e82-a157-4fbbd2139201","hook_event_name":"PostToolUse","cwd":"/Users/ahmed/NecroCore","tool_name":"str_replace","tool_input":{"path":"/Users/ahmed/NecroCore/crates/necro-rom-lifter/src/layout.rs","oldStr":"/// Low-res uses the first 256 bytes (64x32, 8 bytes per row); high-res uses all 1024 (128x64, 16 bytes per row).
+pub const DISPLAY: usize = 0x1100;
+pub const DISPLAY_BYTES: usize = 1024;
+pub const IMAGE_SIZE: usize = 0x1500;","newStr":"/// Low-res uses th
+2026-11-01T01:50:59Z on-exorcise-defect stdin={"session_id":"sess_4fb20988-d4b0-4e82-a157-4fbbd2139201","hook_event_name":"PostToolUse","cwd":"/Users/ahmed/NecroCore","tool_name":"fs_write","tool_input":{"path":"/Users/ahmed/NecroCore/.kiro/specs/03-phantomarcade-live-patcher/NOTES_step_batch.md","text":"# Implementation notes: step_batch (requirements 6, design \"Superblock execution\")
+
+## Goal
+- Add `step_batch(n: i32, period: i32) -> i32` export to `wat.rs`, keep `step` unchanged (req 6.5).
+- Make `prove_chip8_at` use `step_batch` f
+2026-11-01T01:51:06Z on-exorcise-defect stdin={"session_id":"sess_4fb20988-d4b0-4e82-a157-4fbbd2139201","hook_event_name":"PostToolUse","cwd":"/Users/ahmed/NecroCore","tool_name":"str_replace","tool_input":{"path":"/Users/ahmed/NecroCore/crates/necro-rom-lifter/src/layout.rs","oldStr":"/// Low-res uses the first 256 bytes (64x32, 8 bytes per row); high-res uses all 1024 (128x64, 16 bytes per row).
+pub const DISPLAY: usize = 0x1100;
+pub const DISPLAY_BYTES: usize = 1024;
+pub const IMAGE_SIZE: usize = 0x1500;","newStr":"/// Low-res uses th
+2026-11-01T01:51:14Z on-exorcise-defect stdin={"session_id":"sess_4fb20988-d4b0-4e82-a157-4fbbd2139201","hook_event_name":"PostToolUse","cwd":"/Users/ahmed/NecroCore","tool_name":"str_replace","tool_input":{"path":"/Users/ahmed/NecroCore/crates/necro-rom-lifter/src/layout.rs","oldStr":"pub const DISPLAY_BYTES: usize = 1024;
+pub const IMAGE_SIZE: usize = 0x1500;","newStr":"pub const DISPLAY_BYTES: usize = 1024;
+pub const IMAGE_SIZE: usize = 0x1500;
+/// `step_batch` reads one u32 key mask per `period` instructions from this table.
+/// It 
+2026-11-01T01:51:22Z on-exorcise-defect stdin={"session_id":"sess_4fb20988-d4b0-4e82-a157-4fbbd2139201","hook_event_name":"PostToolUse","cwd":"/Users/ahmed/NecroCore","tool_name":"str_replace","tool_input":{"path":"/Users/ahmed/NecroCore/crates/necro-rom-lifter/src/layout.rs","oldStr":"pub const IMAGE_SIZE: usize = 0x1500;
+pub const ROM_BASE: usize = 0x200;","newStr":"pub const IMAGE_SIZE: usize = 0x1500;
+/// `step_batch` reads one u32 key mask per `period` instructions from this table.
+/// It sits outside the 0x1500-byte machine image, 
+2026-11-01T01:51:38Z on-exorcise-defect stdin={"session_id":"sess_4fb20988-d4b0-4e82-a157-4fbbd2139201","hook_event_name":"PostToolUse","cwd":"/Users/ahmed/NecroCore","tool_name":"fs_write","tool_input":{"path":"/Users/ahmed/NecroCore/crates/necro-rom-lifter/src/layout.rs","text":"//! Byte layout of the machine image shared by the interpreter and the WAT module.
+pub const RAM: usize = 0x0000; // 4096 bytes
+pub const V: usize = 0x1000; // 16 bytes
+pub const I: usize = 0x1010; // i32
+pub const PC: usize = 0x1014; // i32
+pub const SP: usi
+2026-11-01T01:52:44Z on-exorcise-defect stdin={"session_id":"sess_4fb20988-d4b0-4e82-a157-4fbbd2139201","hook_event_name":"PostToolUse","cwd":"/Users/ahmed/NecroCore","tool_name":"fs_write","tool_input":{"path":"/Users/ahmed/NecroCore/crates/necro-rom-lifter/src/wat.rs","text":"//! CHIP-8 -> WebAssembly text. One compiled case per even rom address; patchable
+//! immediates are loaded from the machine image at run time so a hot patch takes
+//! effect on the next instruction without touching any other state.
+//!
+//! Two exports:
+//! * `s
+2026-11-01T01:58:16Z on-exorcise-defect stdin={"session_id":"sess_4fb20988-d4b0-4e82-a157-4fbbd2139201","hook_event_name":"PostToolUse","cwd":"/Users/ahmed/NecroCore","tool_name":"fs_write","tool_input":{"path":"/Users/ahmed/NecroCore/crates/necro-prover/src/lib.rs","text":"//! necro-prover: differential shadow execution.
+//!
+//! Every vector is derived from one seed, runs through the reference interpreter
+//! and the lifted WebAssembly module (wasmtime, Cranelift), and the complete
+//! observable state is compared. Timings are wall-clo
+2026-11-01T01:58:26Z on-exorcise-defect stdin={"session_id":"sess_4fb20988-d4b0-4e82-a157-4fbbd2139201","hook_event_name":"PostToolUse","cwd":"/Users/ahmed/NecroCore","tool_name":"str_replace","tool_input":{"path":"/Users/ahmed/NecroCore/crates/necro-prover/src/lib.rs","oldStr":"            let code2 = step_batch.call(&mut store, rest as i32, KEY_PERIOD as i32).map_err(|e| e.to_string())?;
+            if code2 != 0 {
+                b_status = StepStep(code2);
+            }
+        }","newStr":"            let code2 = step_batch.call(&m
+2026-11-01T02:04:00Z on-exorcise-defect stdin={"session_id":"sess_4fb20988-d4b0-4e82-a157-4fbbd2139201","hook_event_name":"PostToolUse","cwd":"/Users/ahmed/NecroCore","tool_name":"fs_write","tool_input":{"path":"/Users/ahmed/NecroCore/crates/necro-prover/src/lib.rs","text":"//! necro-prover: differential shadow execution.
+//!
+//! Every vector is derived from one seed, runs through the reference interpreter
+//! and the lifted WebAssembly module (wasmtime, Cranelift), and the complete
+//! observable state is compared. Timings are wall-clo
+2026-11-01T02:04:06Z on-exorcise-defect stdin={"session_id":"sess_4fb20988-d4b0-4e82-a157-4fbbd2139201","hook_event_name":"PostToolUse","cwd":"/Users/ahmed/NecroCore","tool_name":"fs_write","tool_input":{"path":"/Users/ahmed/NecroCore/.kiro/specs/03-phantomarcade-live-patcher/tasks.md","text":"# Tasks: retro bytecode emulation and live patcher
+
+- [x] 1. Decoder for all 35 opcodes with mnemonics (`decode.rs`)
+  - _Requirements: 1.1_
+- [x] 2. Flat-image interpreter with status codes (`interp.rs`, `layout.rs`)
+  - _Requirements: 1.2, 1.3,
+2026-11-01T02:05:56Z on-exorcise-defect stdin={"session_id":"sess_4fb20988-d4b0-4e82-a157-4fbbd2139201","hook_event_name":"PostToolUse","cwd":"/Users/ahmed/NecroCore","tool_name":"str_replace","tool_input":{"path":"/Users/ahmed/NecroCore/crates/necro-rom-lifter/src/wat.rs","oldStr":"        (else (local.set $div (local.get $div)))))\"#;","newStr":"        (else (local.set $div (local.get $div))))\"#;","replace_all":false},"tool_response":"The permission request failed before it was answered, so this call did not run; the user did not reject
+2026-11-01T02:06:54Z on-exorcise-defect stdin={"session_id":"sess_4fb20988-d4b0-4e82-a157-4fbbd2139201","hook_event_name":"PostToolUse","cwd":"/Users/ahmed/NecroCore","tool_name":"fs_write","tool_input":{"path":"/Users/ahmed/NecroCore/crates/necro-rom-lifter/src/wat.rs","text":"//! CHIP-8 -> WebAssembly text. One compiled case per even rom address; patchable
+//! immediates are loaded from the machine image at run time so a hot patch takes
+//! effect on the next instruction without touching any other state.
+//!
+//! Two exports:
+//! * `s
+2026-11-01T02:17:07Z on-exorcise-defect stdin={"session_id":"sess_4fb20988-d4b0-4e82-a157-4fbbd2139201","hook_event_name":"PostToolUse","cwd":"/Users/ahmed/NecroCore","tool_name":"fs_write","tool_input":{"path":"/Users/ahmed/NecroCore/crates/necro-prover/src/lib.rs","text":"//! necro-prover: differential shadow execution.
+//!
+//! Every vector is derived from one seed, runs through the reference interpreter
+//! and the lifted WebAssembly module (wasmtime, Cranelift), and the complete
+//! observable state is compared. Timings are wall-clo
+2026-11-01T02:17:43Z on-parity-verify stdin={"session_id":"sess_4fb20988-d4b0-4e82-a157-4fbbd2139201","hook_event_name":"Stop","cwd":"/Users/ahmed/NecroCore"}
+2026-11-01T02:23:40Z on-exorcise-defect stdin={"session_id":"sess_4fb20988-d4b0-4e82-a157-4fbbd2139201","hook_event_name":"PostToolUse","cwd":"/Users/ahmed/NecroCore","tool_name":"str_replace","tool_input":{"path":"/Users/ahmed/NecroCore/crates/necro-rom-lifter/src/wat.rs","oldStr":"    // n exhausted: write PC and the timer divider back, return Ok.
+    s.push_str(&format!(\"    {}\n\", writeback()));
+    s.push_str(\"    (i32.const 0)\n  )\n\");
+}","newStr":"    // n exhausted: write PC and the timer divider back, return Ok.
+    s.p
+2026-11-01T02:28:36Z on-exorcise-defect stdin={"session_id":"sess_4fb20988-d4b0-4e82-a157-4fbbd2139201","hook_event_name":"PostToolUse","cwd":"/Users/ahmed/NecroCore","tool_name":"fs_write","tool_input":{"path":"/Users/ahmed/NecroCore/crates/necro-rom-lifter/tests/rom.rs","text":"use necro_core::{scan, PathologyKind};
+use necro_rom_lifter::{asm, decode, layout, lift::lift_rom, wat, Chip8, PatchTable, StepStatus};
+
+fn rom(name: &str) -> (Vec<u8>, PatchTable) {
+    let dir = format!(\"{}/../../samples/roms\", env!(\"CARGO_MANIFEST_DIR\"))
+2026-11-01T02:29:09Z on-exorcise-defect stdin={"session_id":"sess_4fb20988-d4b0-4e82-a157-4fbbd2139201","hook_event_name":"PostToolUse","cwd":"/Users/ahmed/NecroCore","tool_name":"fs_write","tool_input":{"path":"/Users/ahmed/NecroCore/crates/necro-core/src/heal.rs","text":"use crate::ir::{BinOp, Block, BlockId, Expr, Inst, NecroIR, Span, StoreMode, Terminator, VarDecl};
+use crate::report::{NecroAutopsyReport, PathologyKind};
+
+/// Default fuel given to a healed Zombie loop and the cap applied to a Vampire.
+pub const HEAL_FUEL: i64 = 100_
+2026-11-01T02:34:56Z on-parity-verify stdin={"session_id":"sess_4fb20988-d4b0-4e82-a157-4fbbd2139201","hook_event_name":"Stop","cwd":"/Users/ahmed/NecroCore"}

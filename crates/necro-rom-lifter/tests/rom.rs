@@ -256,3 +256,32 @@ fn necrorunner_runs_in_high_res_and_jumps() {
     assert_eq!(st, rs);
     assert_eq!(r.image, img);
 }
+
+#[test]
+fn step_batch_matches_step_with_no_keys() {
+    for name in ["PONG-STYLE", "INVADERS-STYLE", "BREAKOUT-STYLE", "NECRORUNNER-1991"] {
+        let (bytes, patches) = rom(name);
+        // Interpreter: 400 steps with keys held at 0 (the all-zero key schedule).
+        let mut m = Chip8::new(&bytes, 1);
+        m.set_keys(0);
+        m.run(400);
+        // Module: step_batch(400, 25) with a 16-block schedule of zero masks at KEY_SCHEDULE.
+        let text = wat::emit_wat(name, &bytes, &patches);
+        let engine = wasmtime::Engine::default();
+        let module = wasmtime::Module::new(&engine, &text).expect("valid wat");
+        let mut store = wasmtime::Store::new(&engine, ());
+        let inst = wasmtime::Instance::new(&mut store, &module, &[]).unwrap();
+        let mem = inst.get_memory(&mut store, "mem").unwrap();
+        let fresh = Chip8::new(&bytes, 1);
+        mem.write(&mut store, 0, &fresh.image).unwrap();
+        for i in 0..16 {
+            mem.write(&mut store, layout::KEY_SCHEDULE + 4 * i, &0u32.to_le_bytes()).unwrap();
+        }
+        mem.write(&mut store, layout::KEY_SCHEDULE_BLOCK0, &0u32.to_le_bytes()).unwrap();
+        let step_batch = inst.get_typed_func::<(i32, i32), i32>(&mut store, "step_batch").unwrap();
+        let _ = step_batch.call(&mut store, (400, 25)).unwrap();
+        let mut img = vec![0u8; layout::IMAGE_SIZE];
+        mem.read(&store, 0, &mut img).unwrap();
+        assert_eq!(m.image, img, "{name}: step_batch image differs from interpreter after 400 steps");
+    }
+}

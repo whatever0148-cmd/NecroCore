@@ -39,7 +39,7 @@ SUPER-CHIP added the 128 by 64 mode, scrolling, a 16 by 16 sprite instruction an
 
 The prover runs 10,000 seeded vectors per program. For a COBOL program a vector is a set of input values with a bias toward edge cases such as zero, one and the largest value that fits. For a ROM a vector is a random number seed, a key schedule that changes every 25 steps, and a hot patch of every patch point halfway through. Both machines run, and I compare the full state at the end. For a ROM that means every byte of the machine image.
 
-Seven programs, 10,000 vectors each, gives 70,000 vectors. All 70,000 matched. The COBOL programs ran 9 to 16 times faster as WebAssembly than in my interpreter. The ROMs did not get faster at all, between 0.92 and 1.06 times, because copying the machine image in and out costs about as much as the little program does. I left that in the results.
+Seven programs, 10,000 vectors each, gives 70,000 vectors. All 70,000 matched. The COBOL programs ran 9 to 17 times faster as WebAssembly than in my interpreter. The ROMs barely got faster, between 0.94 and 1.13 times at 300 steps per vector and up to 1.7 times at 30,000 steps, because copying the machine image in and out and running one instruction at a time cost about as much as the little program does. I left that in the results.
 
 ## Healing
 
@@ -47,17 +47,19 @@ The healer detaches the Ghosts and puts a fuel counter on every loop that cannot
 
 ## How Kiro fits in
 
-Kiro shows up in three ways.
+Kiro shows up at three levels.
 
-**It shaped the work.** I wrote four specs in EARS form before the Rust, plus three steering files and three hooks in Kiro's v1 hook format. The task lists in `.kiro/specs/` are the real to-do list. The Spec button writes new specs of the same shape from a live scan.
+**It shaped the work.** I wrote four specs in EARS form before the Rust, plus three steering files and three hooks in Kiro's v1 hook format. The task lists in `.kiro/specs/` are the real to-do list.
 
-**It runs inside the product.** A small crate drives `kiro-cli chat --no-interactive` with tools off and a timeout. The Exorcise button asks Kiro for a plan. The benchmark has a `--live-kiro` mode, and in the last run all 7 of 7 turns were real, 142 seconds in total. The transcripts are saved in the repo.
+**It wrote a feature.** Late in the build I added a requirement to spec 03: a `step_batch` entry point for the lifted ROMs that keeps the program counter and the timer divider in WebAssembly locals and reads key presses from a table, so one host call covers a whole test vector. Then I ran `kiro-cli` on it in real coding turns. It wrote the new export, the layout constants, the prover change and a parity test. It could only read and write files, so I ran the compiler between turns and pasted the errors back. It fixed two of them. One turn ended in an error and I added a single missing parenthesis myself, and the log says so. While it worked, Kiro fired my `on-exorcise-defect` hook 18 times and my `on-parity-verify` hook twice, and I saved the payloads it received. Every turn is in `benchmarks/kiro-coding-sessions.json`.
 
-**It is also a tool for the tool.** I wrote a small MCP server so Kiro can call the autopsy itself. In a real run, kiro-cli read the config, started the server, called `necro_autopsy` on the payroll program and listed the Zombie, the Vampire and the Ghost with their line numbers.
+The result is a modest speedup and I want to say so. Parity stayed at 70,000 of 70,000. But the ROMs ran 1.4 to 1.7 times faster than my interpreter on long runs and about the same on short ones. I had hoped for much more. The module already looped inside WebAssembly, and the program counter and registers still live in memory, so the instruction by instruction design is the real limit. Fusing basic blocks would be the next step.
 
-I should also say that I wrote most of the Rust with Claude Code as my coding partner. Kiro did the spec, steering, hooks, MCP and CLI parts above. I did not use Kiro Powers or Crew.
+**It runs inside the product.** A small crate drives `kiro-cli chat --no-interactive` with tools off and a timeout. The Exorcise button asks Kiro for a plan. The benchmark has a `--live-kiro` mode, and in one run all 7 of 7 turns were real, 142 seconds in total. I also wrote a small MCP server so Kiro can call the autopsy itself. In a real run, kiro-cli read the config, started the server, called `necro_autopsy` on the payroll program and listed the Zombie, the Vampire and the Ghost with their line numbers.
 
-One small story from the mod box. You type a sentence like "double ball speed, widen paddles, and enable zero-gravity bounce". Kiro turns it into patch values, and the page writes them into the running game. The first time I tried it, Kiro skipped the zero-gravity part, so I added a hint to the prompt about which patch point controls vertical movement. On another run, Kiro's answer came back as valid JSON that was missing its final closing brace. The parser now repairs that case, labels the answer as repaired, and has a test for it. The last run answered with clean JSON, set three bytes, and the Pong game kept its score.
+Two more honest notes. My free Kiro plan ran out of credits during the coding turns, so the third hook, `on-legacy-drop`, has not been fired by Kiro yet. And the first version of the engine was written with Claude Code, with me deciding and reviewing. I did not use Kiro Powers or Crew.
+
+One small story from the mod box. You type a sentence like "double ball speed, widen paddles, and enable zero-gravity bounce". Kiro turns it into patch values, and the page writes them into the running game. The first time I tried it, Kiro skipped the zero-gravity part, so I added a hint to the prompt about which patch point controls vertical movement. On another run, Kiro's answer came back as valid JSON that was missing its final closing brace. The parser now repairs that case, labels the answer as repaired, and has a test for it. The last runs answered with clean JSON, set three bytes, and the Pong game kept its score.
 
 ## A notch you can drop files on
 

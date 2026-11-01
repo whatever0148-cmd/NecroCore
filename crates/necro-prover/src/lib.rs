@@ -215,7 +215,10 @@ pub fn prove_chip8_at(name: &str, rom: &[u8], patches: &PatchTable, wat: &str, s
     let mut store = wasmtime::Store::new(&engine, ());
     let inst = wasmtime::Instance::new(&mut store, &module, &[]).map_err(|e| e.to_string())?;
     let mem = inst.get_memory(&mut store, "mem").ok_or("no memory export")?;
-    let step = inst.get_typed_func::<i32, i32>(&mut store, "step").map_err(|e| e.to_string())?;
+    // step_batch runs many instructions per host call, keeping the PC and the timer
+    // divider in locals and reading the key mask for each block of KEY_PERIOD steps
+    // from the schedule table, so the module rarely crosses the host boundary.
+    let step_batch = inst.get_typed_func::<(i32, i32), i32>(&mut store, "step_batch").map_err(|e| e.to_string())?;
     let mut matched = 0usize;
     let mut divergences = Vec::new();
     let mut interp_us = 0f64;
@@ -229,17 +232,21 @@ pub fn prove_chip8_at(name: &str, rom: &[u8], patches: &PatchTable, wat: &str, s
         let rng_seed = rng.next_u64() as u32;
         let keys: Vec<u16> = (0..steps.div_ceil(KEY_PERIOD)).map(|_| (rng.next_u64() & 0xFFFF) as u16).collect();
         let patch_vals: Vec<u8> = patches.entries.iter().map(|_| (rng.next_u64() & 0xFF) as u8).collect();
-        let patch_at = steps / 2;
+        // The hot patch lands halfway through, snapped to a key-schedule block boundary
+        // (a multiple of KEY_PERIOD) so the second step_batch call resumes exactly where
+        // the first left the schedule and its key changes stay aligned with the
+        // interpreter's keys[done / KEY_PERIOD].
+        let patch_at = (((steps / 2 + KEY_PERIOD / 2) / KEY_PERIOD) * KEY_PERIOD).min(steps);
 
-        // Interpreter.
+        // Interpreter: keys change every KEY_PERIOD steps, the patch is applied at patch_at.
         let mut a = Chip8::new(rom, rng_seed);
         let t = Instant::now();
         let mut a_status = StepStatus::Ok;
         let mut done = 0usize;
         'outer: while done < steps {
             if done == patch_at {
-                for (e, v) in patches.entries.iter().zip(&patch_vals) {
-                    patches.apply(&mut a.image, &e.name, *v);
+                for (e, val) in patches.entries.iter().zip(&patch_vals) {
+                    patches.apply(&mut a.image, &e.name, *val);
                 }
             }
             a.set_keys(keys[done / KEY_PERIOD]);
@@ -256,33 +263,42 @@ pub fn prove_chip8_at(name: &str, rom: &[u8], patches: &PatchTable, wat: &str, s
         }
         interp_us += t.elapsed().as_secs_f64() * 1e6;
 
-        // WebAssembly: same schedule, applied to the module's memory.
+        // WebAssembly: the same schedule and hot patch, run as two step_batch calls
+        // (before and after the mid-run patch). The whole key schedule is written once
+        // at KEY_SCHEDULE; step_batch reads each block's mask from there. The block the
+        // second call starts from is set via KEY_SCHEDULE_BLOCK0 so the schedule is not
+        // rewritten between calls.
         let fresh = Chip8::new(rom, rng_seed);
         let t = Instant::now();
         mem.write(&mut store, 0, &fresh.image).map_err(|e| e.to_string())?;
+        for (i, mask) in keys.iter().enumerate() {
+            mem.write(&mut store, layout::KEY_SCHEDULE + 4 * i, &(*mask as u32).to_le_bytes()).map_err(|e| e.to_string())?;
+        }
         let mut b_status = StepStatus::Ok;
-        let mut done = 0usize;
-        while done < steps {
-            if done == patch_at {
-                mem.read(&store, 0, &mut wasm_image).map_err(|e| e.to_string())?;
-                for (e, v) in patches.entries.iter().zip(&patch_vals) {
-                    if let Some(addr) = patches.apply(&mut wasm_image, &e.name, *v) {
-                        mem.write(&mut store, addr, &wasm_image[addr..addr + 1]).map_err(|e| e.to_string())?;
-                    }
+        // First half: before the hot patch, start reading the schedule at block 0.
+        mem.write(&mut store, layout::KEY_SCHEDULE_BLOCK0, &0u32.to_le_bytes()).map_err(|e| e.to_string())?;
+        let code = step_batch.call(&mut store, (patch_at as i32, KEY_PERIOD as i32)).map_err(|e| e.to_string())?;
+        if code != 0 {
+            b_status = StepStatus::from_code(code);
+        } else {
+            // Hot-patch the module image exactly as the interpreter was patched: change
+            // only the patched byte in the ROM region, then keep running.
+            mem.read(&mut store, 0, &mut wasm_image).map_err(|e| e.to_string())?;
+            for (e, val) in patches.entries.iter().zip(&patch_vals) {
+                if let Some(addr) = patches.apply(&mut wasm_image, &e.name, *val) {
+                    mem.write(&mut store, addr, &wasm_image[addr..addr + 1]).map_err(|e| e.to_string())?;
                 }
             }
-            mem.write(&mut store, layout::KEYS, &(keys[done / KEY_PERIOD] as u32).to_le_bytes()).map_err(|e| e.to_string())?;
-            let chunk = KEY_PERIOD.min(steps - done);
-            let chunk = if done < patch_at { chunk.min(patch_at - done) } else { chunk };
-            let code = step.call(&mut store, chunk as i32).map_err(|e| e.to_string())?;
-            if code != 0 {
-                b_status = StepStatus::from_code(code);
-                // the module does not report how many steps ran; recover it from the interpreter side
-                break;
+            // Second half: after the hot patch, resume the schedule at block patch_at / KEY_PERIOD.
+            let blk0 = (patch_at / KEY_PERIOD) as u32;
+            mem.write(&mut store, layout::KEY_SCHEDULE_BLOCK0, &blk0.to_le_bytes()).map_err(|e| e.to_string())?;
+            let rest = steps - patch_at;
+            let code2 = step_batch.call(&mut store, (rest as i32, KEY_PERIOD as i32)).map_err(|e| e.to_string())?;
+            if code2 != 0 {
+                b_status = StepStatus::from_code(code2);
             }
-            done += chunk;
         }
-        mem.read(&store, 0, &mut wasm_image).map_err(|e| e.to_string())?;
+        mem.read(&mut store, 0, &mut wasm_image).map_err(|e| e.to_string())?;
         wasm_us += t.elapsed().as_secs_f64() * 1e6;
 
         statuses.push(format!("{a_status:?}"));
