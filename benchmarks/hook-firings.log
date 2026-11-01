@@ -86,3 +86,4 @@ use crate::report::{NecroAutopsyReport, PathologyKind};
 /// Default fuel given to a healed Zombie loop and the cap applied to a Vampire.
 pub const HEAL_FUEL: i64 = 100_
 2026-11-01T02:34:56Z on-parity-verify stdin={"session_id":"sess_4fb20988-d4b0-4e82-a157-4fbbd2139201","hook_event_name":"Stop","cwd":"/Users/ahmed/NecroCore"}
+2026-11-01T03:51:01Z on-legacy-drop stdin={"hook_event_name":"PostFileSave","cwd":"/Users/ahmed/NecroCore","file_path":"samples/dropped/HOOK-TEST-1985.cob","simulated_by":"harness (hook command run by hand, NOT fired by Kiro; Kiro usage limit reached)"}

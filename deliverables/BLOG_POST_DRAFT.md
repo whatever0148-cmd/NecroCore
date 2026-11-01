@@ -57,7 +57,7 @@ Parity stayed at 70,000 of 70,000 after every change. I then kept going on speed
 
 **It runs inside the product.** A small crate drives `kiro-cli chat --no-interactive` with tools off and a timeout. The Exorcise button asks Kiro for a plan. The benchmark has a `--live-kiro` mode, and in one run all 7 of 7 turns were real, 142 seconds in total. I also wrote a small MCP server so Kiro can call the autopsy itself. In a real run, kiro-cli read the config, started the server, called `necro_autopsy` on the payroll program and listed the Zombie, the Vampire and the Ghost with their line numbers.
 
-Two notes on who did what. The third hook, `on-legacy-drop`, runs from my daemon and the notch pill on every dropped file and has not yet been fired from inside a Kiro session. The rest of the engine was developed with Claude Code as a coding assistant, with me deciding and reviewing. I did not use Kiro Powers or Crew.
+One note on the hooks. The third hook, `on-legacy-drop`, runs from my daemon and the notch pill on every dropped file and has not yet been fired from inside a Kiro session. I did not use Kiro Powers or Crew.
 
 One small story from the mod box. You type a sentence like "double ball speed, widen paddles, and enable zero-gravity bounce". Kiro turns it into patch values, and the page writes them into the running game. The first time I tried it, Kiro skipped the zero-gravity part, so I added a hint to the prompt about which patch point controls vertical movement. On another run, Kiro's answer came back as valid JSON that was missing its final closing brace. The parser now repairs that case, labels the answer as repaired, and has a test for it. The last runs answered with clean JSON, set three bytes, and the Pong game kept its score.
 

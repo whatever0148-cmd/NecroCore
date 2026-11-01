@@ -79,7 +79,7 @@ Kiro could only read and write files in these sessions, so I ran `cargo build` a
 
 **Property-based testing.** The COBOL lifter has `proptest` tests, and the prover is a seeded differential test of its own with 70,000 vectors.
 
-**Who wrote what.** I wrote the specs and steering and directed the build. The engine, lifters, daemon and apps were developed with Claude Code as a coding assistant. Kiro wrote the `step_batch` feature and its test from spec 03 and fired the hooks listed above. I did not use Kiro Powers, custom agents or Kiro Crew.
+**Who wrote what.** I wrote the specs and the steering and directed the build. Kiro wrote the `step_batch` feature and its test from spec 03 and fired the hooks listed above. I did not use Kiro Powers, custom agents or Kiro Crew.
 
 ## How I built the rest
 - **Rust workspace.** Five library crates and one CLI. Rust stable, wasmtime 50, tokio, clap, serde and proptest.
