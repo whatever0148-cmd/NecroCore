@@ -213,6 +213,10 @@ fn handle(mut stream: TcpStream, st: &State) -> std::io::Result<()> {
     let body: Value = if req.body.is_empty() { Value::Null } else { serde_json::from_slice(&req.body).unwrap_or(Value::Null) };
     match (req.method.as_str(), path.as_str()) {
         ("GET", "/") | ("GET", "/index.html") => respond(&mut stream, 200, "text/html; charset=utf-8", st.page.as_bytes()),
+        ("GET", f) if f.starts_with("/fonts/") => match FONTS.iter().find(|(n, _)| f == format!("/fonts/{n}")) {
+            Some((_, b)) => respond(&mut stream, 200, "font/woff2", b),
+            None => respond(&mut stream, 404, "text/plain; charset=utf-8", b"not found"),
+        },
         ("GET", "/api/bootstrap") => match bootstrap(st) {
             Ok(v) => json_resp(&mut stream, 200, &v),
             Err(e) => json_resp(&mut stream, 400, &json!({"error": e})),
@@ -238,6 +242,14 @@ fn handle(mut stream: TcpStream, st: &State) -> std::io::Result<()> {
         _ => json_resp(&mut stream, 404, &json!({"error": "no such route"})),
     }
 }
+
+/// The UI's typefaces (SIL OFL 1.1, see `fonts/LICENSES.md`), served from the binary so the page works offline.
+pub const FONTS: [(&str, &[u8]); 4] = [
+    ("VT323-400.woff2", include_bytes!("../fonts/VT323-400.woff2")),
+    ("IBM_Plex_Mono-400.woff2", include_bytes!("../fonts/IBM_Plex_Mono-400.woff2")),
+    ("IBM_Plex_Mono-500.woff2", include_bytes!("../fonts/IBM_Plex_Mono-500.woff2")),
+    ("IBM_Plex_Mono-600.woff2", include_bytes!("../fonts/IBM_Plex_Mono-600.woff2")),
+];
 
 fn reply(s: &mut TcpStream, r: Result<Value, String>) -> std::io::Result<()> {
     match r {

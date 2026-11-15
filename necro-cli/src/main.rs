@@ -150,7 +150,12 @@ fn real_main() -> Result<(), String> {
                 std::fs::create_dir_all(d).map_err(|e| e.to_string())?;
             }
             std::fs::write(&out, &html).map_err(|e| e.to_string())?;
-            println!("{}: {} bytes", out.display(), html.len());
+            let fdir = out.parent().unwrap_or(std::path::Path::new(".")).join("fonts");
+            std::fs::create_dir_all(&fdir).map_err(|e| e.to_string())?;
+            for (name, bytes) in necro_daemon::FONTS {
+                std::fs::write(fdir.join(name), bytes).map_err(|e| e.to_string())?;
+            }
+            println!("{}: {} bytes, fonts in {}", out.display(), html.len(), fdir.display());
         }
         Cmd::Mcp => mcp::serve()?,
         Cmd::Benchmark { vectors, seed, rom_steps, fuel, live_kiro, json, samples } => {

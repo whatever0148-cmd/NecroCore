@@ -2,9 +2,11 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="dark">
 <title>__TITLE__</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=VT323&display=swap" rel="stylesheet">
 <style>
+@font-face{font-family:"VT323";src:url(fonts/VT323-400.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"IBM Plex Mono";src:url(fonts/IBM_Plex_Mono-400.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"IBM Plex Mono";src:url(fonts/IBM_Plex_Mono-500.woff2) format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"IBM Plex Mono";src:url(fonts/IBM_Plex_Mono-600.woff2) format("woff2");font-weight:600;font-display:swap}
 :root{color-scheme:dark;
 --bg:#140d09;--bg2:#1a110b;--panel:#1d130c;--panel2:#26180f;--line:#3a2516;--line2:#5c3820;
 --rust:#b3602f;--rust2:#7d3d1c;--amber:#ffb22e;--amber2:#e0952a;--amberink:#1e1204;
@@ -29,10 +31,10 @@ h1{font:400 38px/1 var(--disp);margin:0;letter-spacing:.02em;color:var(--tx)}h1 
 .pill.on{color:var(--amber);border-color:var(--rust2)}.pill.off{color:var(--mut);border-color:var(--line2)}
 [role=tablist]{display:flex;gap:2px;margin-left:auto;overflow-x:auto;max-width:100%}
 [role=tab]{background:none;border:0;border-bottom:2px solid transparent;color:var(--mut);padding:10px 14px 8px;font:600 14.5px/1 var(--sans);cursor:pointer;white-space:nowrap;border-radius:0}
-[role=tab]:hover{color:var(--tx)}[role=tab][aria-selected=true]{color:var(--amber);border-bottom-color:var(--amber)}
+[role=tab]:hover{color:var(--tx)}[role=tab][aria-selected=true]{color:var(--tx);border-bottom-color:var(--rust)}
 main{max-width:1320px;margin:0 auto;padding:26px 20px 80px}
 h2{font:400 44px/1 var(--disp);margin:0 0 8px;letter-spacing:.01em;color:var(--tx)}
-h3{font:600 13px/1.2 var(--sans);margin:30px 0 10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+h3{font:400 24px/1 var(--disp);margin:32px 0 12px;letter-spacing:.03em;color:var(--tx)}
 .lead{color:var(--mut);margin:0 0 18px;max-width:68ch;font-size:16px}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px}
 .tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
@@ -41,24 +43,25 @@ select{font-family:var(--mono);font-size:14px}
 button{cursor:pointer;font-weight:600;transition:border-color .2s cubic-bezier(.16,1,.3,1),background-color .2s cubic-bezier(.16,1,.3,1)}
 button:hover:not(:disabled),select:hover{border-color:var(--rust)}
 button.go{background:var(--amber);color:var(--amberink);border-color:var(--amber)}button.go:hover:not(:disabled){background:#ffc354;border-color:#ffc354}
-button:disabled{opacity:.42;cursor:not-allowed}
+button:disabled{opacity:1;cursor:not-allowed;color:#8c735a;background:transparent;border-color:var(--line);border-style:dashed}button.go:disabled{background:transparent;color:#8c735a;border-color:var(--line2)}
 :focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 label.chk{display:inline-flex;gap:8px;align-items:center;color:var(--mut);font-size:14px}
 input[type=checkbox]{accent-color:var(--amber);width:16px;height:16px}
 input[type=range]{accent-color:var(--amber);width:100%}
 .drop{border:1px dashed var(--line2);border-radius:4px;padding:8px 12px;color:var(--mut);font-size:14px;cursor:pointer}
 .drop.over{border-color:var(--amber);color:var(--tx)}
-#staticnote{background:transparent;border:0;border-top:1px solid var(--rust2);border-radius:0;padding:12px 0 0;color:var(--mut);font-size:14px;max-width:96ch;margin:0 0 20px}
-.below{display:grid;grid-template-columns:minmax(300px,420px) minmax(0,1fr);gap:20px;align-items:start;margin-top:8px}@media(max-width:1020px){.below{grid-template-columns:minmax(0,1fr)}}
-.below .cfgwrap{max-height:560px}
+.below{display:grid;grid-template-columns:minmax(300px,480px) minmax(0,1fr);gap:20px;align-items:start;margin-top:8px}@media(max-width:1020px){.below{grid-template-columns:minmax(0,1fr)}}
+.deck .cfgwrap{max-height:640px}
 .crypt{display:grid;grid-template-columns:minmax(0,2fr) minmax(300px,1fr);gap:20px;align-items:start}
-@media(max-width:1020px){.crypt{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:1020px){.crypt{grid-template-columns:minmax(0,1fr)}.deck{display:contents}.deck>*{order:1}.rail{order:2}.deck>.graphbox{order:3}}
 .deckhead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 8px}
 .deckhead h3{margin:0}
 .rail{display:grid;gap:14px;position:sticky;top:76px}
 @media(max-width:1020px){.rail{position:static}}
-.rail .panel{padding:14px 16px}
+.rail .panel{padding:14px 0 16px;background:transparent;border:0;border-top:1px solid var(--rust2);border-radius:0}
 .rail h3{margin:0 0 10px}
+.rail{gap:6px}
+.statline{margin:10px 0 0;font-size:13px;color:var(--mut)}
 #counts{display:grid;gap:2px;margin:0}
 #counts>span{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
 #counts>span:last-child{border-bottom:0;color:var(--mut);font-size:13px;display:block;padding-top:9px}
@@ -80,18 +83,18 @@ input[type=range]{accent-color:var(--amber);width:100%}
 .ln{display:grid;grid-template-columns:52px 1fr;white-space:pre}.ln .no{color:#9a6a3c;text-align:right;padding-right:12px;user-select:none}.ln .tx{padding-right:14px}
 .ln.Ghost,.ln.Vampire,.ln.Zombie{cursor:pointer}
 .ln.Ghost{background:rgba(169,189,214,.13);box-shadow:inset 1px 0 0 var(--ghost)}.ln.Ghost .tx{color:var(--ghost);animation:ghost 5.5s steps(1,end) infinite}
-.ln.Vampire{background:rgba(255,106,69,.17);box-shadow:inset 1px 0 0 var(--vamp)}.ln.Vampire .tx{color:#ffb39e;animation:vamp 3.2s ease-in-out infinite}
+.ln.Vampire{background:linear-gradient(90deg,rgba(255,106,69,.30),rgba(255,106,69,.30)) 0 0/0% 100% no-repeat,rgba(255,106,69,.12);box-shadow:inset 1px 0 0 var(--vamp);animation:vamp 3.2s cubic-bezier(.16,1,.3,1) infinite}.ln.Vampire .tx{color:#ffb39e}
 .ln.Zombie{background:linear-gradient(90deg,transparent 0%,rgba(195,210,79,.26) 50%,transparent 100%) 0 0/220% 100% no-repeat,rgba(195,210,79,.11);box-shadow:inset 1px 0 0 var(--zomb);animation:zomb 3.4s linear infinite}.ln.Zombie .tx{color:#dbe58a}
 @keyframes ghost{0%,82%{opacity:.85}84%{opacity:.2}86%{opacity:.8}89%{opacity:.3}92%,100%{opacity:.85}}
-@keyframes vamp{0%,100%{text-shadow:0 0 0 rgba(255,106,69,0)}50%{text-shadow:0 0 12px rgba(255,106,69,.65)}}
+@keyframes vamp{0%{background-size:0% 100%,auto}70%{background-size:100% 100%,auto}100%{background-size:100% 100%,auto}}
 @keyframes zomb{from{background-position:220% 0,0 0}to{background-position:-120% 0,0 0}}
-.ln.sel{outline:1px solid var(--amber);outline-offset:-1px;background-color:rgba(255,178,46,.12)}
+.ln.sel{outline:1px solid var(--rust);outline-offset:-1px;background-color:rgba(179,96,47,.18)}
 .ln.detached .tx{text-decoration:line-through;color:#8d7a68;animation:none}
 .ln.note{background:var(--add)}.ln.note .tx{color:#ffd27a;white-space:pre-wrap}
 .cfgwrap{overflow:auto;max-height:620px;background:var(--bg2);border:1px solid var(--line);border-radius:6px}
 svg text{font:11px var(--mono);fill:var(--tx);pointer-events:none}
 .node rect{fill:var(--panel2);stroke:var(--line2);stroke-width:1}
-.node{cursor:pointer}.node:hover rect,.node:focus-visible rect,.node.sel rect{stroke:var(--amber);stroke-width:2}
+.node{cursor:pointer}.node:hover rect,.node.sel rect{stroke:var(--rust);stroke-width:2}.node:focus-visible rect{stroke:var(--amber);stroke-width:2}
 .node.Ghost rect{fill:#1d2129;stroke:var(--ghost)}.node.Vampire rect{fill:#34150d;stroke:var(--vamp)}.node.Zombie rect{fill:#262a0e;stroke:var(--zomb)}
 .edge{fill:none;stroke:#7a5a40;stroke-width:1.2}.edge.back{stroke:var(--rust);stroke-dasharray:4 3}
 .chip{display:inline-flex;align-items:center;gap:6px;font:600 13px/1 var(--sans);white-space:nowrap}
@@ -99,10 +102,10 @@ svg text{font:11px var(--mono);fill:var(--tx);pointer-events:none}
 .chip.Ghost{color:var(--ghost)}.chip.Vampire{color:var(--vamp)}.chip.Zombie{color:var(--zomb)}
 table{border-collapse:collapse;width:100%;font-size:14px}th,td{border-bottom:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
 th{color:var(--mut);font:600 12px/1.3 var(--sans);letter-spacing:.05em;text-transform:uppercase}
-td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:13.5px}.wrap{overflow-x:auto}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}td.n{font-family:var(--mono);font-size:13.5px}.wrap{overflow-x:auto}
 td.dt span{display:block;max-width:64ch;color:#e2cfae}
 #finds :is(th,td):nth-child(-n+4),#path :is(th,td):nth-child(-n+4){white-space:nowrap;padding-right:20px}
-tr.click{cursor:pointer}tr.click:hover td,tr.click:focus-visible td{background:var(--panel2)}
+tr.click{cursor:pointer}tr.click:hover td,tr.click:focus-visible td{background:rgba(179,96,47,.14)}
 .ok{color:var(--amber)}.bad{color:var(--oxide)}.mut{color:var(--mut)}
 code,pre{font-family:var(--mono);font-size:.92em}
 .stat{display:flex;gap:28px;flex-wrap:wrap;margin:8px 0}.stat div{min-width:96px}.stat b{display:block;font:400 34px/1 var(--disp);color:var(--amber);font-variant-numeric:tabular-nums}.stat span{color:var(--mut);font-size:13px}
@@ -124,7 +127,7 @@ footer{margin-top:48px;padding-top:14px;border-top:1px solid var(--line);color:v
 @media(pointer:coarse){button,select,[role=tab]{min-height:44px}}
 label.chk{min-height:44px}summary{padding:10px 0;cursor:pointer}
 @media(max-width:600px){.drop{min-height:44px;display:flex;align-items:center}main{padding:18px 14px 56px}.bar{padding:10px 14px}[role=tablist]{margin-left:0;width:100%}.stat{gap:16px}h2{font-size:36px}h1{font-size:32px}.readout{font-size:44px}}
-@media(max-width:600px){#finds thead,#path thead{display:none}#finds tr,#path tr{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 12px;padding:12px 0;border-bottom:1px solid var(--line)}#finds td,#path td{border:0;padding:0;white-space:normal!important}#finds td.dt,#path td.dt{grid-column:1/-1}#finds td.dt span,#path td.dt span{max-width:none}#path td:first-child{grid-column:1/-1;font-family:var(--mono);font-size:13px;color:var(--mut)}.wrap{overflow-x:visible}}
+@media(max-width:600px){#finds thead,#path thead{display:none}.wrap{overflow-x:visible}#finds tr,#path tr{display:grid;gap:6px 12px;padding:12px 0;border-bottom:1px solid var(--line)}#finds td,#path td{border:0;padding:0;white-space:normal!important;overflow-wrap:normal;word-break:normal}#finds tr{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:'lab term line' 'blk blk blk' 'det det det'}#finds td:nth-child(1){grid-area:lab}#finds td:nth-child(2){grid-area:term;color:var(--mut)}#finds td:nth-child(3){grid-area:blk;font-family:var(--mono);font-size:12.5px;color:var(--mut)}#finds td:nth-child(4){grid-area:line}#finds td:nth-child(5){grid-area:det}#path tr{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:'prog prog prog' 'lab term line' 'blk blk blk' 'det det det'}#path td:nth-child(1){grid-area:prog;font-family:var(--mono);font-size:13px;color:var(--tx)}#path td:nth-child(2){grid-area:lab}#path td:nth-child(3){grid-area:term;color:var(--mut)}#path td:nth-child(4){grid-area:blk;font-family:var(--mono);font-size:12.5px;color:var(--mut)}#path td:nth-child(5){grid-area:line}#path td:nth-child(6){grid-area:det}#finds td.dt span,#path td.dt span{max-width:none}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head><body>
@@ -141,8 +144,7 @@ label.chk{min-height:44px}summary{padding:10px 0;cursor:pointer}
 
 <section id="t-crypt" role="tabpanel" aria-labelledby="tab-crypt">
  <h2>CryptLedger</h2>
- <p class="lead">Old programs that still move money, read line by line. Find what is dead or never ends, let Kiro write the fix, then prove the fixed program gives the same answer as the original on every tested input.</p>
- <p id="staticnote" class="panel hide">This is the hosted copy. The listings, graphs, findings, proof figures and Kiro's plans below come from saved runs, and the <a href="#phantomarcade">PhantomArcade</a> games run live in your browser. The buttons need the local daemon, which calls the Kiro CLI and the prover: run <code>necro-cli observatory --serve</code> and open <a href="http://127.0.0.1:4300">127.0.0.1:4300</a> (steps in the README).</p>
+ <p class="lead">Old programs that still move money. Find what is dead or never ends, let Kiro write the fix, then prove the fixed program matches the original on every tested input.</p>
  <div class="crypt">
   <div class="deck">
    <div class="tools" id="ctools">
@@ -151,27 +153,25 @@ label.chk{min-height:44px}summary{padding:10px 0;cursor:pointer}
    </div>
    <div class="deckhead"><h3>Listing</h3><label class="chk"><input type="checkbox" id="plan"> show Kiro's patch plan</label></div>
    <div class="src" id="src" tabindex="0" aria-label="COBOL source. Haunted lines are highlighted; select one to jump to its block."></div>
+   <div class="graphbox"><h3>Control-flow graph</h3>
+   <div class="cfgwrap" id="cfg"></div><p class="mut" style="font-size:13px;margin:6px 0 0">Select a block to jump to its lines. Dashed edges loop back.</p></div>
   </div>
   <aside class="rail" aria-label="Findings and actions">
    <div class="panel"><h3>What is rotten</h3><div id="counts"></div></div>
-   <div class="panel"><h3>Do</h3><div class="acts">
+   <div class="panel" id="rail-do"><h3>Run it</h3><div class="acts">
     <button id="b-auto" class="go">Autopsy the program</button>
     <button id="b-exo">Exorcise with Kiro</button>
     <button id="b-prove">Prove on 10,000 inputs</button>
     <button id="b-spec">Write the .kiro spec</button>
     <label class="chk"><input type="checkbox" id="live" checked> Real kiro-cli turn (15 to 60 s)</label>
+    <p id="staticnote" class="statline hide">These buttons need the local daemon. Run <code>necro-cli observatory --serve</code> and open <a href="http://127.0.0.1:4300">127.0.0.1:4300</a> (steps in the README). Everything else here comes from saved runs, and the <a href="#phantomarcade">PhantomArcade</a> games run live.</p>
    </div></div>
    <div class="panel" id="rail-proof"></div>
    <div class="panel" id="rail-kiro"></div>
   </aside>
  </div>
- <div class="below">
-  <div><h3>Control-flow graph</h3>
-   <div class="cfgwrap" id="cfg"></div><p class="mut" style="font-size:13px;margin:6px 0 0">Select a block to jump to its lines. Dashed edges loop back.</p></div>
-  <div><h3>Findings</h3>
-   <div class="panel wrap"><table id="finds"><thead><tr><th>Label</th><th>Technical term</th><th>Block</th><th class="n">Lines</th><th>Detail</th></tr></thead><tbody></tbody></table></div></div>
- </div>
- <div id="out-exo" class="hide"><h3>Exorcise</h3><div class="panel" id="exo"></div></div>
+ <h3>Findings</h3>
+<div class="panel wrap"><table id="finds"><thead><tr><th>Label</th><th>Technical term</th><th>Block</th><th class="n">Lines</th><th>Detail</th></tr></thead><tbody></tbody></table></div> <div id="out-exo" class="hide"><h3>Exorcise</h3><div class="panel" id="exo"></div></div>
  <div id="out-prove" class="hide"><h3>Proof in wasmtime</h3><div class="panel" id="prove"></div></div>
  <div id="out-spec" class="hide"><h3>Kiro spec</h3><div class="panel" id="spec"></div></div>
 </section>
@@ -214,7 +214,7 @@ label.chk{min-height:44px}summary{padding:10px 0;cursor:pointer}
  <h3>Autopsy of every sample</h3>
  <div class="panel wrap"><table id="path"><thead><tr><th>Program</th><th>Label</th><th>Technical term</th><th>Block</th><th class="n">Line</th><th>Detail</th></tr></thead><tbody></tbody></table></div>
 </section>
-<footer>Every number on this page comes from a saved run. Nothing is typed in by hand.</footer>
+<footer>Findings, proof figures and Kiro plans come from saved runs in the repo. The arcade readouts are live from the running module. Nothing is typed in by hand.</footer>
 </main>
 <script id="data" type="application/json">__DATA__</script>
 <script>
@@ -283,14 +283,18 @@ function renderRail(){
   pf.append(ro,el('p','meta','inputs gave the same result in WebAssembly as in the reference interpreter, '+fx(p.speedup,1)+'x faster. Saved run: '+(B.bench_source||'').split('/').pop()+'.'))}
  else pf.appendChild(el('p','meta','No saved proof for this program yet. Run the prover locally.'));
  const t=((B.live_trace||{}).turns||[]).find(x=>x.program===cur.name);kp.appendChild(el('h3',null,"Kiro's fix plan"));
- if(t){kp.appendChild(el('p','meta','Recorded kiro-cli '+((B.live_trace||{}).kiro_cli_version||'')+' turn, '+fx(t.elapsed_ms/1000,1)+' s. Saved in benchmarks/live-kiro-trace.json.'));
-  if(t.response){const pp=el('div','paper');pp.textContent=String(t.response).trim().slice(0,1400);pp.tabIndex=0;pp.setAttribute('aria-label',"Kiro's recorded answer");kp.appendChild(pp)}}
+ if(t){const ver=String((B.live_trace||{}).kiro_cli_version||'').replace(/^kiro-cli\s*/,'');kp.appendChild(el('p','meta','A recording of a real kiro-cli '+ver+' turn that took '+fx(t.elapsed_ms/1000,1)+' s, from benchmarks/live-kiro-trace.json.'));
+  if(t.response){const full=String(t.response).trim().slice(0,1400),pp=el('div','paper');pp.tabIndex=0;pp.setAttribute('aria-label',"Kiro's recorded answer");kp.appendChild(pp);const rb=el('button',null,'Replay the recording');rb.style.marginTop='8px';kp.appendChild(rb);playKiro(pp,full,t.elapsed_ms);rb.onclick=()=>playKiro(pp,full,t.elapsed_ms)}}
  else kp.appendChild(el('p','meta','No recorded Kiro turn for this program yet.'));
 }
 $('src').addEventListener('click',e=>{const row=e.target.closest('.ln[data-n]');if(!row||!cur.res)return;const n=+row.dataset.n;
  const p=cur.res.pathologies.find(q=>n>=q.span.line&&n<=q.line_end);if(!p)return;hiLines(p.span.line,p.line_end,false);markNode(p.block);
  const nd=document.querySelector('#cfg .node.sel');if(nd&&nd.scrollIntoView)nd.scrollIntoView({block:'nearest',inline:'center',behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'})});
 $('src').addEventListener('keydown',e=>{if(e.key!=='Enter')return;const row=e.target.closest('.ln[data-n]');if(row)row.click()});
+let kiroTimer=null;
+function playKiro(box,text,ms){clearInterval(kiroTimer);if(matchMedia('(prefers-reduced-motion:reduce)').matches){box.textContent=text;return}
+ let i=0;const step=Math.max(4,Math.ceil(text.length/Math.min(240,Math.max(60,ms/90))));box.textContent='';
+ kiroTimer=setInterval(()=>{i=Math.min(text.length,i+step);box.textContent=text.slice(0,i);box.scrollTop=box.scrollHeight;if(i>=text.length)clearInterval(kiroTimer)},40)}
 function renderCounts(c,after){
  const o=$('counts');o.replaceChildren();
  for(const k of ['Ghost','Vampire','Zombie']){const s=el('span');const n=el('b',null,c[k.toLowerCase()]+(after?' \u2192 '+after[k.toLowerCase()]:''));s.append(chip(k),el('span','term',TERM[k]),n);o.appendChild(s)}
@@ -332,19 +336,19 @@ function renderCfg(r){
  while(q.length){const a=q.shift();adj[a].forEach(b=>{if(layer[b]<0){layer[b]=layer[a]+1;q.push(b)}})}
  let mx=Math.max(0,...layer);if(layer.some(l=>l<0)){mx++;layer.forEach((l,i)=>{if(l<0)layer[i]=mx})}
  const rows=[];layer.forEach((l,i)=>(rows[l]=rows[l]||[]).push(i));
- const W0=164,NW=150,NH=28,GY=56,maxRow=Math.max(...rows.filter(Boolean).map(r=>r.length));
- const W=Math.max(300,maxRow*W0+60),H=rows.length*GY+20;const pos=[];
- rows.forEach((row,l)=>{if(row)row.forEach((i,k)=>{pos[i]={x:W/2-(row.length-1)*W0/2+k*W0,y:10+NH/2+l*GY}})});
+ const NH=28,GY=56,colW=Math.max(280,(box.clientWidth||460)-24),perLine=Math.max(1,Math.floor((colW-40)/125)),lines=[];rows.forEach(row=>{if(!row)return;for(let k=0;k<row.length;k+=perLine)lines.push(row.slice(k,k+perLine))});const CH=6.7,need=i=>Math.ceil(N[i].id.length*CH+18),lw=lines.map(row=>Math.max(...row.map(need)));
+ const W=colW,H=lines.length*GY+20;const pos=[];
+ lines.forEach((row,l)=>{const w=Math.min(lw[l],Math.floor((colW-40)/row.length)-14),gap=w+14;row.forEach((i,k)=>{pos[i]={x:W/2-(row.length-1)*gap/2+k*gap,y:10+NH/2+l*GY,w}})});
  const svg=sv('svg',{viewBox:`0 0 ${W} ${H}`,width:W,height:H,role:'img','aria-label':'Control-flow graph with '+N.length+' blocks'});
  const defs=sv('defs',{});const mk=sv('marker',{id:'ar',viewBox:'0 0 8 8',refX:7,refY:4,markerWidth:7,markerHeight:7,orient:'auto'});mk.appendChild(sv('path',{d:'M0 0L8 4L0 8z',fill:'#7a5a40'}));defs.appendChild(mk);svg.appendChild(defs);
  r.edges.forEach(([a,b])=>{if(!idx.has(a)||!idx.has(b))return;const i=idx.get(a),j=idx.get(b),p=pos[i],s=pos[j];let d,cls='edge';
-  if(i===j){d=`M${p.x+NW/2} ${p.y} q 26 -2 0 -${NH/2+2}`;cls+=' back'}
+  if(i===j){d=`M${p.x+p.w/2} ${p.y} q 26 -2 0 -${NH/2+2}`;cls+=' back'}
   else if(layer[j]>layer[i]){const x1=p.x,y1=p.y+NH/2,x2=s.x,y2=s.y-NH/2;d=`M${x1} ${y1} C${x1} ${(y1+y2)/2} ${x2} ${(y1+y2)/2} ${x2} ${y2}`}
-  else{const x1=p.x+NW/2,y1=p.y,x2=s.x+NW/2,y2=s.y,bx=Math.max(x1,x2)+26+((i+j)%3)*8;d=`M${x1} ${y1} C${bx} ${y1} ${bx} ${y2} ${x2} ${y2}`;cls+=' back'}
+  else{const x1=p.x+p.w/2,y1=p.y,x2=s.x+s.w/2,y2=s.y,bx=Math.max(x1,x2)+26+((i+j)%3)*8;d=`M${x1} ${y1} C${bx} ${y1} ${bx} ${y2} ${x2} ${y2}`;cls+=' back'}
   svg.appendChild(sv('path',{d,class:cls,'marker-end':'url(#ar)'}))});
- N.forEach((n,i)=>{const p=pos[i];const k=n.kinds.length?n.kinds[0]:'';const g=sv('g',{class:'node '+k,tabindex:0,role:'button','data-id':n.id,'aria-label':n.id+(k?', '+k:'')+', line '+n.line,transform:`translate(${p.x-NW/2},${p.y-NH/2})`});
-  g.appendChild(sv('rect',{width:NW,height:NH,rx:6}));g.appendChild(sv('title',{},n.id+' (line '+n.line+')'+(n.kinds.length?' '+n.kinds.join(', '):'')));
-  g.appendChild(sv('text',{x:8,y:18},(n.id.length>21?n.id.slice(0,20)+'…':n.id)));
+ N.forEach((n,i)=>{const p=pos[i];const k=n.kinds.length?n.kinds[0]:'';const g=sv('g',{class:'node '+k,tabindex:0,role:'button','data-id':n.id,'aria-label':n.id+(k?', '+k:'')+', line '+n.line,transform:`translate(${p.x-p.w/2},${p.y-NH/2})`});
+  g.appendChild(sv('rect',{width:p.w,height:NH,rx:6}));const MAXC=Math.max(8,Math.floor((p.w-18)/CH));g.appendChild(sv('title',{},n.id+' (line '+n.line+')'+(n.kinds.length?' '+n.kinds.join(', '):'')));
+  g.appendChild(sv('text',{x:8,y:18},(n.id.length>MAXC?n.id.slice(0,Math.ceil((MAXC-1)/2))+'…'+n.id.slice(-Math.floor((MAXC-1)/2)):n.id)));
   const go=()=>{markNode(n.id);hiLines(n.line,n.line_end,true)};g.onclick=go;g.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}};svg.appendChild(g)});
  box.appendChild(svg);
 }
@@ -502,10 +506,10 @@ async function boot(){
  if(EMB){B=EMB;DAEMON=false;$('daemon').textContent='static copy';$('daemon').className='pill off'}
  else{try{B=await (await fetch('/api/bootstrap')).json();DAEMON=true;$('daemon').textContent='daemon on 127.0.0.1:'+location.port+(B.kiro_available?', kiro-cli ready':', kiro-cli not found');$('daemon').className='pill on';if(!B.kiro_available){$('live').checked=false;$('modlive').checked=false}}
   catch(e){$('daemon').textContent='daemon unreachable';$('daemon').className='pill off';return}}
- if(!DAEMON){$('staticnote').classList.remove('hide');B.cobol=B.cobol||[];setBusy(true)}
+ if(!DAEMON){$('staticnote').classList.remove('hide');B.cobol=B.cobol||[];setBusy(true);const rl=document.querySelector('.rail');if(rl)rl.append($('rail-do'))}
  fillPrograms();fillRoms();renderEvidence();
  const r=route();
- if(has('crypt')&&B.cobol.length){cur.name=(r.name&&B.cobol.some(c=>c.name===r.name))?r.name:B.cobol[0].name;progSel.value=cur.name;
+ if(has('crypt')&&B.cobol.length){cur.name=(r.name&&B.cobol.some(c=>c.name===r.name))?r.name:(B.cobol.find(c=>c.name==='PAYROLL-BATCH-1982')||B.cobol[0]).name;progSel.value=cur.name;
   await runAutopsy().catch(showErr);
   if(r.healed)$('b-exo').click()}
  if(has('arcade')&&B.roms.length){const i=Math.max(0,B.roms.findIndex(x=>x.name===r.name));$('rom').value=i;await loadRom(i)}
