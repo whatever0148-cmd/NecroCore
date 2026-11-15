@@ -3,3 +3,6 @@
 .DS_Store
 # .kiro/ is tracked on purpose: judges inspect it. Never ignore it.
 apps/macos-notch/necro_notch
+
+# local preview config
+.claude/

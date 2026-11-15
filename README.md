@@ -92,6 +92,28 @@ Test run on the same day (`cargo test --release --workspace`): tests passed 23 f
   `kiro-cli` by default; `--live-kiro` does, with a 120 s timeout and no tool
   access.
 
+## Live demo
+
+Hosted copy, no install: https://whatever0148-cmd.github.io/NecroCore/
+
+It opens on PhantomArcade, where the four lifted games run as WebAssembly in your
+browser and the patch sliders write into the running module. The CryptLedger and
+Evidence tabs show the real scan results and benchmark. The buttons that call
+`kiro-cli` and the prover need the local daemon (below).
+
+## Run the full apps
+
+Needs Rust stable. `kiro-cli` is optional: without it the bridge uses its offline
+fallback and says so.
+
+```bash
+git clone https://github.com/whatever0148-cmd/NecroCore && cd NecroCore
+cargo build --release
+./target/release/cryptledger        # COBOL studio on http://127.0.0.1:4301
+./target/release/phantomarcade      # ROM lifter and live modder on http://127.0.0.1:4302
+./target/release/necro-cli observatory --serve   # both together on http://127.0.0.1:4300
+```
+
 ## Try it
 
 ```bash
@@ -260,6 +282,21 @@ cargo build --release
 Each app main is about 25 lines. It names the app, picks which views of the shared UI shell to show and
 sets a port. Everything else comes from the shared crates, so every button runs the same tested code in all
 three. The notch pill still talks to the combined daemon on 4300.
+
+## Built during Kiroween 2026, and what came before
+
+- The repository starts on 2026-10-31 at 06:43 Pacific, after the submission
+  period opened on 2026-10-30 at 09:00 Pacific. Every line of code here, the
+  three COBOL sample programs and the four ROMs were written for this hackathon.
+- No code was copied from my earlier projects.
+- Third-party code is limited to the Rust crates in the `Cargo.toml` files
+  (wasmtime, wat, tokio, clap, serde, serde_json, proptest), used under their
+  licences. COBOL and the CHIP-8 and SUPER-CHIP instruction sets are public
+  specifications. No historical program or ROM is included
+  (`samples/roms/LICENSES.md`).
+- AI tools: Kiro for the steering, specs, hooks, MCP server and the coding turns
+  logged in `benchmarks/kiro-coding-sessions.json`. Besides Kiro, I used Claude
+  Code as a second assistant for reviews and test runs.
 
 ## Licence
 MIT. The sample programs and ROMs are original work written for this project.

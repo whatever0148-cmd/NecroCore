@@ -90,7 +90,7 @@ label.chk{min-height:44px}summary{padding:10px 0;cursor:pointer}
 <section id="t-crypt" role="tabpanel" aria-labelledby="tab-crypt">
  <h2>CryptLedger: COBOL banking programs, resurrected</h2>
  <p class="lead">Pick a program or drop your own .cob file. The daemon runs the static scan, asks Kiro for a fix plan, heals the program, and proves the WebAssembly version against the reference interpreter.</p>
- <p id="staticnote" class="panel hide">This page was saved without the daemon, so the buttons are off. Start it with <code>necro-cli observatory --serve</code> and open <a href="http://127.0.0.1:4300">127.0.0.1:4300</a>.</p>
+ <p id="staticnote" class="panel hide">This is the hosted copy. The scan results, control-flow graphs and benchmark below are real, and the <a href="#phantomarcade">PhantomArcade</a> games run live in your browser. The buttons here need the local daemon, which calls the Kiro CLI and the prover: run <code>necro-cli observatory --serve</code> and open <a href="http://127.0.0.1:4300">127.0.0.1:4300</a> (steps in the README).</p>
  <div class="tools" id="ctools">
   <label for="prog" class="mut">Program</label><select id="prog"></select>
   <label class="drop" id="drop" tabindex="0">Drop a .cob file here or click to choose<input id="file" type="file" accept=".cob,.cbl,.txt" hidden></label>
@@ -416,7 +416,7 @@ function renderEvidence(){
 
 /* ---------- start ---------- */
 function route(){
- const h=location.hash.slice(1).split('/');let tab={cryptledger:'crypt',phantomarcade:'arcade',evidence:'proof'}[h[0]]||APP.tabs[0];if(!has(tab))tab=APP.tabs[0];showTab(tab,false);
+ const h=location.hash.slice(1).split('/');let tab={cryptledger:'crypt',phantomarcade:'arcade',evidence:'proof'}[h[0]]||(EMB&&!h[0]&&has('arcade')?'arcade':APP.tabs[0]);if(!has(tab))tab=APP.tabs[0];showTab(tab,false);
  return {tab,name:h[1]||null,healed:h[2]==='healed'};
 }
 async function boot(){

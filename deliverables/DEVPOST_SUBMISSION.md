@@ -103,6 +103,12 @@ A bigger COBOL subset (the REDEFINES clause and file handling) and a Kiro Power 
 ## Built with
 Rust, WebAssembly, wasmtime, Swift, AppKit, tokio, serde, proptest, Kiro CLI, Kiro specs, steering, hooks and MCP.
 
+## Live demo
+https://whatever0148-cmd.github.io/NecroCore/ opens on PhantomArcade, where the lifted games run as WebAssembly in the browser and the patch sliders write into the running module. The Kiro and prover buttons need the local daemon: `cargo build --release` then `./target/release/necro-cli observatory --serve` (steps in the README).
+
+## What existed before
+Nothing. The repository starts on 2026-10-31, after the submission period opened. The sample COBOL programs and ROMs were written for this entry. Third-party code is limited to the Rust crates in `Cargo.toml` (wasmtime, wat, tokio, clap, serde, serde_json, proptest). Besides Kiro, I used Claude Code as a second assistant for reviews and test runs.
+
 ## Try it
 ```
 cargo build --release
