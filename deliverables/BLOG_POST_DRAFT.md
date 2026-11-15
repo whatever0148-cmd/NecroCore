@@ -61,6 +61,11 @@ One note on the hooks. The third hook, `on-legacy-drop`, runs from my daemon and
 
 One small story from the mod box. You type a sentence like "double ball speed, widen paddles, and enable zero-gravity bounce". Kiro turns it into patch values, and the page writes them into the running game. The first time I tried it, Kiro skipped the zero-gravity part, so I added a hint to the prompt about which patch point controls vertical movement. On another run, Kiro's answer came back as valid JSON that was missing its final closing brace. The parser now repairs that case, labels the answer as repaired, and has a test for it. The last runs answered with clean JSON, set three bytes, and the Pong game kept its score.
 
+## Why it looks like a 1978 machine room
+My first interface was a dark dashboard with green buttons, and it looked like every other developer tool. Before redoing it I did two things. I read the pages of last year's Kiroween winners, and the ones that won on design made you feel something in the first ten seconds: a flashlight cursor in a haunted cabin, a folklore book whose pages turn. Then I made mood boards on Pinterest from retro CRT terminals, 1970s mainframe rooms and haunted computer interfaces.
+
+The mainframe rooms won. COBOL banking programs from 1978 ran in exactly those rooms, on amber screens, so the look tells the story without a word. Now the listing glows amber on warm black, Kiro's fix plans print on bone paper, and the arcade games sit in green phosphor. The haunting does a job: a Ghost line flickers because nothing reaches it, a Zombie loop keeps shimmering because it never ends, and a Vampire line pulses because its counter only grows. Click one and the graph jumps to that block.
+
 ## A notch you can drop files on
 
 I wanted one more thing that felt like a haunted house. There is a small dark pill that sits under the MacBook notch. Drop a `.cob` or `.ch8` file on it and it posts the file to the local daemon. The daemon runs the command from my `on-legacy-drop` hook and the pill shows the three counts, for example Ghost 1, Vampire 1, Zombie 0, then 0 left after healing. Then it opens the healed result in the browser. It is about 300 lines of Swift and AppKit.
