@@ -37,7 +37,21 @@ pub fn build(samples: &Path, bench: Option<&Path>) -> Result<String, String> {
         Some(p) => serde_json::from_str(&std::fs::read_to_string(p).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?,
         None => Value::Null,
     };
-    let data = json!({"reports": reports, "roms": roms, "bench": bench_val, "bench_source": bench.map(|p| p.display().to_string())});
+    let mut cobol = Vec::new();
+    let mut autopsies = serde_json::Map::new();
+    for f in files(&samples.join("cobol"), "cob")? {
+        let name = f.file_stem().unwrap().to_string_lossy().to_string();
+        let src = std::fs::read_to_string(&f).map_err(|e| e.to_string())?;
+        autopsies.insert(name.clone(), necro_daemon::cobol_autopsy(&name, &src)?);
+        cobol.push(json!({"name": name, "dropped": false, "source": src}));
+    }
+    let root = samples.parent().unwrap_or(Path::new("."));
+    let trace = std::fs::read_to_string(root.join("benchmarks/live-kiro-trace.json")).ok().and_then(|s| serde_json::from_str::<Value>(&s).ok());
+    let live_trace = trace.map(|t| {
+        json!({"live_turns": t["live_turns"], "kiro_cli_version": t["kiro_cli_version"], "recorded": true,
+            "turns": t["turns"].as_array().map(|a| a.iter().map(|x| json!({"program": x["program"], "elapsed_ms": x["trace"]["elapsed_ms"], "response": x["trace"]["response"]})).collect::<Vec<_>>())})
+    });
+    let data = json!({"reports": reports, "roms": roms, "cobol": cobol, "autopsies": autopsies, "live_trace": live_trace, "bench": bench_val, "bench_source": bench.map(|p| p.display().to_string())});
     let text = serde_json::to_string(&data).map_err(|e| e.to_string())?.replace("</", "<\\/");
     Ok(necro_daemon::render_page(&necro_daemon::AppSpec::observatory(), &text))
 }

@@ -376,6 +376,12 @@ fn autopsy_json(p: &Prog) -> Result<Value, String> {
     }))
 }
 
+/// The autopsy view for one COBOL program, exactly as `/api/autopsy` returns it.
+/// The static Observatory embeds these so the hosted copy shows the real analysis.
+pub fn cobol_autopsy(name: &str, src: &str) -> Result<Value, String> {
+    autopsy_json(&Prog::Cobol { name: name.to_string(), src: src.to_string() })
+}
+
 fn autopsy(st: &State, body: &Value) -> Result<Value, String> {
     autopsy_json(&load_prog(st, body)?)
 }

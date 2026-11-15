@@ -208,8 +208,8 @@ drop.ondragover=e=>{e.preventDefault();drop.classList.add('over')};drop.ondragle
 drop.ondrop=e=>{e.preventDefault();drop.classList.remove('over');e.dataTransfer.files[0]&&loadFile(e.dataTransfer.files[0])};
 
 async function runAutopsy(){
- if(!DAEMON||!cur.name)return;
- setBusy(true);const r=await api('/api/autopsy',reqBody());cur.res=r;cur.plan=null;cur.sel=null;
+ if(!cur.name)return;
+ setBusy(true);const r=DAEMON?await api('/api/autopsy',reqBody()):(B.autopsies||{})[cur.name];if(!r){setBusy(!DAEMON);return}cur.res=r;cur.plan=null;cur.sel=null;
  renderCounts(r.counts,null);renderSource();renderCfg(r);renderFinds(r);
  ['out-exo','out-prove','out-spec'].forEach(i=>$(i).classList.add('hide'));setBusy(false);return r;
 }
@@ -423,10 +423,10 @@ async function boot(){
  if(EMB){B=EMB;DAEMON=false;$('daemon').textContent='static copy';$('daemon').className='pill off'}
  else{try{B=await (await fetch('/api/bootstrap')).json();DAEMON=true;$('daemon').textContent='daemon on 127.0.0.1:'+location.port+(B.kiro_available?', kiro-cli ready':', kiro-cli not found');$('daemon').className='pill on';if(!B.kiro_available){$('live').checked=false;$('modlive').checked=false}}
   catch(e){$('daemon').textContent='daemon unreachable';$('daemon').className='pill off';return}}
- if(!DAEMON){$('staticnote').classList.remove('hide');$('ctools').classList.add('hide');B.cobol=[];setBusy(true)}
+ if(!DAEMON){$('staticnote').classList.remove('hide');B.cobol=B.cobol||[];setBusy(true)}
  fillPrograms();fillRoms();renderEvidence();
  const r=route();
- if(DAEMON&&has('crypt')&&B.cobol.length){cur.name=(r.name&&B.cobol.some(c=>c.name===r.name))?r.name:B.cobol[0].name;progSel.value=cur.name;
+ if(has('crypt')&&B.cobol.length){cur.name=(r.name&&B.cobol.some(c=>c.name===r.name))?r.name:B.cobol[0].name;progSel.value=cur.name;
   await runAutopsy().catch(showErr);
   if(r.healed)$('b-exo').click()}
  if(has('arcade')&&B.roms.length){const i=Math.max(0,B.roms.findIndex(x=>x.name===r.name));$('rom').value=i;await loadRom(i)}
