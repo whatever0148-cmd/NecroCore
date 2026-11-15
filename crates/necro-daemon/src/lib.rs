@@ -444,7 +444,7 @@ fn bootstrap(st: &State) -> Result<Value, String> {
         "bench": bench.as_ref().map(|b| b.1.clone()),
         "bench_source": bench.map(|b| b.0),
         "kiro_available": KiroBridge::offline().cli_available(),
-        "live_trace": trace.map(|t| json!({"live_turns": t["live_turns"], "kiro_cli_version": t["kiro_cli_version"], "turns": t["turns"].as_array().map(|a| a.iter().map(|x| json!({"program": x["program"], "elapsed_ms": x["trace"]["elapsed_ms"]})).collect::<Vec<_>>())})),
+        "live_trace": trace.map(|t| json!({"live_turns": t["live_turns"], "kiro_cli_version": t["kiro_cli_version"], "turns": t["turns"].as_array().map(|a| a.iter().map(|x| json!({"program": x["program"], "elapsed_ms": x["trace"]["elapsed_ms"], "response": x["trace"]["response"]})).collect::<Vec<_>>())})),
     }))
 }
 

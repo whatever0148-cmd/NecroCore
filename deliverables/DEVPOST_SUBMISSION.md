@@ -3,6 +3,9 @@
 ## Tagline
 Bring dead programs back as WebAssembly, then prove they still behave.
 
+## Try it in ten seconds
+Open https://whatever0148-cmd.github.io/NecroCore/ . It starts on PhantomArcade, where four lifted games run as WebAssembly in your browser. Drag a slider and the running game changes without a reset. The CryptLedger tab shows a 1978 interest program with its dead code and its endless loop lit up on their own lines, Kiro's recorded fix plan, and the proof that 10,000 of 10,000 inputs match the original. Running it locally adds the live buttons (steps under "Try it" below).
+
 ## Category
 Resurrection. The project also touches the other three tracks, and the sections below say how.
 
@@ -41,7 +44,7 @@ For each program it does the following.
 
 **Skeleton Crew.** The template is one shared engine (the intermediate form, the scanner, the healer, the prover and the Kiro bridge) plus `crates/necro-daemon`, a small server and UI shell. Two apps sit on it in separate folders. `apps/cryptledger` is the COBOL studio and `apps/phantomarcade` is the ROM lifter and live modder. Each has its own Cargo package, its own binary and its own port, and its `main.rs` is about 25 lines. A third app would cost one more folder.
 
-**Costume Contest.** The interface treats bugs as monsters, and the monsters are the function. A Ghost row is dead code, a Zombie row is a loop that never ends. The notch pill takes a file dropped on it and shows the three counts. The page is dark and quiet. The Impeccable detector reports 0 findings, and I measured it at 1920 by 1080 and at 375 pixels wide with no sideways scrolling.
+**Costume Contest.** The interface is a 1978 bank machine room after midnight: warm black, amber phosphor for live text and the proof readout, rust for structure, bone paper for Kiro's printed plans, and green phosphor only inside the arcade cabinet. The haunting is the function. A Ghost line in the listing flickers because nothing ever reaches it, a Zombie loop keeps a slow shimmer because it never ends, and a Vampire line pulses because its counter only grows. Selecting one jumps to its block in the graph. I built the look from research, not from habit: the 2025 winners' pages and four Pinterest boards (retro CRT terminals, 1970s mainframe rooms, haunted computer interfaces, terminal type), saved in `research/`. It works at 1440 and 390 pixels wide with no sideways scrolling, and every motion turns off with reduced motion.
 
 ## Best Startup pitch
 The paid part of legacy modernization is trust. Banks and insurers do not lack tools that translate code. They lack evidence that the translated program does what the old one did. NecroCore's prover produces that evidence as a table of vectors and a list of exact divergences, which a reviewer or an auditor can read.
@@ -79,7 +82,7 @@ Kiro could only read and write files in these sessions, so I ran `cargo build` a
 
 **Property-based testing.** The COBOL lifter has `proptest` tests, and the prover is a seeded differential test of its own with 70,000 vectors.
 
-**Who wrote what.** I wrote the specs and the steering and directed the build. Kiro wrote the `step_batch` feature and its test from spec 03 and fired the hooks listed above. I did not use Kiro Powers, custom agents or Kiro Crew.
+**Who wrote what.** I directed the build with two AI assistants. Kiro wrote the `step_batch` feature and its test from spec 03, answered the seven live benchmark turns and the mod box, used the MCP server, and fired the hooks listed above. Claude Code wrote much of the rest of the Rust, the specs and steering text, and the interface, and ran the tests and benchmarks. I chose what to build, read and checked the results, and decided what ships. I did not use Kiro Powers, custom agents or Kiro Crew.
 
 ## How I built the rest
 - **Rust workspace.** Five library crates and one CLI. Rust stable, wasmtime 50, tokio, clap, serde and proptest.
@@ -107,7 +110,7 @@ Rust, WebAssembly, wasmtime, Swift, AppKit, tokio, serde, proptest, Kiro CLI, Ki
 https://whatever0148-cmd.github.io/NecroCore/ opens on PhantomArcade, where the lifted games run as WebAssembly in the browser and the patch sliders write into the running module. The Kiro and prover buttons need the local daemon: `cargo build --release` then `./target/release/necro-cli observatory --serve` (steps in the README).
 
 ## What existed before
-Nothing. The repository starts on 2026-10-31, after the submission period opened. The sample COBOL programs and ROMs were written for this entry. Third-party code is limited to the Rust crates in `Cargo.toml` (wasmtime, wat, tokio, clap, serde, serde_json, proptest). Besides Kiro, I used Claude Code as a second assistant for reviews and test runs.
+Nothing. The repository starts on 2026-10-31, after the submission period opened. The sample COBOL programs and ROMs were written for this entry. Third-party code is limited to the Rust crates in `Cargo.toml` (wasmtime, wat, tokio, clap, serde, serde_json, proptest). AI help came from Kiro and Claude Code, as described under "Who wrote what".
 
 ## Try it
 ```

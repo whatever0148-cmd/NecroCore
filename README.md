@@ -295,8 +295,9 @@ three. The notch pill still talks to the combined daemon on 4300.
   specifications. No historical program or ROM is included
   (`samples/roms/LICENSES.md`).
 - AI tools: Kiro for the steering, specs, hooks, MCP server and the coding turns
-  logged in `benchmarks/kiro-coding-sessions.json`. Besides Kiro, I used Claude
-  Code as a second assistant for reviews and test runs.
+  logged in `benchmarks/kiro-coding-sessions.json`. Claude Code wrote much of
+  the remaining Rust, the spec and steering text and the interface, and ran the
+  tests. I directed the build and checked the results.
 
 ## Licence
 MIT. The sample programs and ROMs are original work written for this project.

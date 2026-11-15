@@ -2,80 +2,132 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="dark">
 <title>__TITLE__</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=VT323&display=swap" rel="stylesheet">
 <style>
-:root{color-scheme:dark;--bg:#0c0e11;--panel:#13171c;--panel2:#181d23;--line:#252d37;--line2:#364250;--tx:#e7ecf1;--mut:#9aa6b4;--acc:#34d399;--accink:#04140d;--ghost:#c4b5fd;--vamp:#fb7185;--zomb:#fbbf24;--add:#10331f;--del:#3a1620;
---mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;--sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+:root{color-scheme:dark;
+--bg:#140d09;--bg2:#1a110b;--panel:#1d130c;--panel2:#26180f;--line:#3a2516;--line2:#5c3820;
+--rust:#b3602f;--rust2:#7d3d1c;--amber:#ffb22e;--amber2:#e0952a;--amberink:#1e1204;
+--tx:#f2e2c4;--mut:#bba184;--oxide:#ff6a45;
+--ghost:#a9bdd6;--vamp:#ff6a45;--zomb:#c3d24f;
+--screen:#0e0805;--paper:#efe2c6;--ink:#2a1b10;--phos:#3dff8e;
+--acc:var(--amber);--accink:var(--amberink);
+--add:#2a2410;--del:#3a160f;
+--disp:"VT323",ui-monospace,Menlo,monospace;
+--mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+--sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
 *{box-sizing:border-box}
 html{scrollbar-color:var(--line2) var(--bg)}
-body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 var(--sans);caret-color:var(--acc);overflow-wrap:break-word}
-::selection{background:#1f5d46;color:#fff}
-::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line2);border-radius:6px;border:2px solid var(--bg)}::-webkit-scrollbar-track{background:var(--bg)}
-a{color:var(--acc);text-underline-offset:3px}
-header{border-bottom:1px solid var(--line);background:var(--bg);position:sticky;top:0;z-index:5}
-.bar{max-width:1280px;margin:0 auto;padding:12px 16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
-h1{font-size:28px;margin:0;letter-spacing:0;font-weight:700}h1 b{color:var(--acc);font-weight:700}
-.pill{font-size:12px;padding:3px 10px;border-radius:99px;border:1px solid var(--line2);color:var(--mut);white-space:nowrap}
-.pill.on{color:var(--acc);border-color:#1d6a4e}.pill.off{color:var(--zomb);border-color:#6b4d0e}
-[role=tablist]{display:flex;gap:4px;margin-left:auto;overflow-x:auto;max-width:100%}
-[role=tab]{background:none;border:1px solid transparent;color:var(--mut);padding:9px 14px;border-radius:8px;font:inherit;font-weight:600;cursor:pointer;white-space:nowrap}
-[role=tab]:hover{color:var(--tx)}[role=tab][aria-selected=true]{color:var(--tx);background:var(--panel2);border-color:var(--line2)}
-main{max-width:1280px;margin:0 auto;padding:20px 16px 72px}
-h2{font-size:22px;margin:0 0 6px;font-weight:700}h3{font-size:17px;margin:28px 0 10px;font-weight:700}
-.lead{color:var(--mut);margin:0 0 16px;max-width:64ch}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
-.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
-select,button,textarea,input[type=text]{background:var(--panel2);color:var(--tx);border:1px solid var(--line2);border-radius:8px;padding:9px 12px;font:inherit;min-height:40px}
-button{cursor:pointer;font-weight:600}button:hover:not(:disabled),select:hover{border-color:var(--acc)}
-button.go{background:var(--acc);color:var(--accink);border-color:var(--acc)}button.go:hover:not(:disabled){filter:brightness(1.08)}
-button:disabled{opacity:.5;cursor:not-allowed}
-:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
-label.chk{display:inline-flex;gap:6px;align-items:center;color:var(--mut);font-size:14px}
-input[type=checkbox]{accent-color:var(--acc);width:16px;height:16px}
-input[type=range]{accent-color:var(--acc);width:100%}
-.drop{border:1px dashed var(--line2);border-radius:8px;padding:8px 12px;color:var(--mut);font-size:14px;cursor:pointer}
-.drop.over{border-color:var(--acc);color:var(--tx)}
+body{margin:0;background:radial-gradient(120% 70% at 30% -10%,#2a170b 0%,var(--bg) 55%) fixed,var(--bg);color:var(--tx);font:15px/1.55 var(--sans);caret-color:var(--amber);overflow-wrap:break-word}
+::selection{background:#5a3412;color:#fff6e4}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line2);border-radius:5px;border:2px solid var(--bg)}::-webkit-scrollbar-track{background:var(--bg)}
+a{color:var(--amber);text-underline-offset:3px;text-decoration-thickness:1px}a:hover{color:#ffd27a}
+header{border-bottom:1px solid var(--line);background:rgba(20,13,9,.94);position:sticky;top:0;z-index:5}
+.bar{max-width:1320px;margin:0 auto;padding:10px 20px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+h1{font:400 38px/1 var(--disp);margin:0;letter-spacing:.02em;color:var(--tx)}h1 b{color:var(--amber);font-weight:400}
+.pill{font:500 12px/1 var(--mono);padding:5px 10px;border-radius:3px;border:1px solid var(--line2);color:var(--mut);white-space:nowrap;letter-spacing:.02em}
+.pill.on{color:var(--amber);border-color:var(--rust2)}.pill.off{color:var(--mut);border-color:var(--line2)}
+[role=tablist]{display:flex;gap:2px;margin-left:auto;overflow-x:auto;max-width:100%}
+[role=tab]{background:none;border:0;border-bottom:2px solid transparent;color:var(--mut);padding:10px 14px 8px;font:600 14.5px/1 var(--sans);cursor:pointer;white-space:nowrap;border-radius:0}
+[role=tab]:hover{color:var(--tx)}[role=tab][aria-selected=true]{color:var(--amber);border-bottom-color:var(--amber)}
+main{max-width:1320px;margin:0 auto;padding:26px 20px 80px}
+h2{font:400 44px/1 var(--disp);margin:0 0 8px;letter-spacing:.01em;color:var(--tx)}
+h3{font:600 13px/1.2 var(--sans);margin:30px 0 10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.lead{color:var(--mut);margin:0 0 18px;max-width:68ch;font-size:16px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+select,button,textarea,input[type=text]{background:var(--panel2);color:var(--tx);border:1px solid var(--line2);border-radius:4px;padding:9px 12px;font:inherit;min-height:40px}
+select{font-family:var(--mono);font-size:14px}
+button{cursor:pointer;font-weight:600;transition:border-color .2s cubic-bezier(.16,1,.3,1),background-color .2s cubic-bezier(.16,1,.3,1)}
+button:hover:not(:disabled),select:hover{border-color:var(--rust)}
+button.go{background:var(--amber);color:var(--amberink);border-color:var(--amber)}button.go:hover:not(:disabled){background:#ffc354;border-color:#ffc354}
+button:disabled{opacity:.42;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+label.chk{display:inline-flex;gap:8px;align-items:center;color:var(--mut);font-size:14px}
+input[type=checkbox]{accent-color:var(--amber);width:16px;height:16px}
+input[type=range]{accent-color:var(--amber);width:100%}
+.drop{border:1px dashed var(--line2);border-radius:4px;padding:8px 12px;color:var(--mut);font-size:14px;cursor:pointer}
+.drop.over{border-color:var(--amber);color:var(--tx)}
+#staticnote{background:transparent;border:0;border-top:1px solid var(--rust2);border-radius:0;padding:12px 0 0;color:var(--mut);font-size:14px;max-width:96ch;margin:0 0 20px}
+.below{display:grid;grid-template-columns:minmax(300px,420px) minmax(0,1fr);gap:20px;align-items:start;margin-top:8px}@media(max-width:1020px){.below{grid-template-columns:minmax(0,1fr)}}
+.below .cfgwrap{max-height:560px}
+.crypt{display:grid;grid-template-columns:minmax(0,2fr) minmax(300px,1fr);gap:20px;align-items:start}
+@media(max-width:1020px){.crypt{grid-template-columns:minmax(0,1fr)}}
+.deckhead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 8px}
+.deckhead h3{margin:0}
+.rail{display:grid;gap:14px;position:sticky;top:76px}
+@media(max-width:1020px){.rail{position:static}}
+.rail .panel{padding:14px 16px}
+.rail h3{margin:0 0 10px}
+#counts{display:grid;gap:2px;margin:0}
+#counts>span{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+#counts>span:last-child{border-bottom:0;color:var(--mut);font-size:13px;display:block;padding-top:9px}
+#counts .term{color:var(--mut);font-size:13px}
+#counts b{font:600 22px/1 var(--mono);color:var(--tx);font-variant-numeric:tabular-nums}
+.acts{display:grid;gap:8px}.acts button{width:100%;text-align:left}
+.readout{font:400 52px/0.95 var(--disp);color:var(--amber);letter-spacing:.01em;font-variant-numeric:tabular-nums}
+.readout small{font-size:26px;color:var(--amber2);text-shadow:none}
+.meta{color:var(--mut);font-size:13px;margin:6px 0 0}
+.paper{background:var(--paper);color:var(--ink);border-radius:2px;padding:12px 14px;font:12.5px/1.6 var(--mono);white-space:pre-wrap;max-height:260px;overflow:auto;box-shadow:0 10px 24px -14px rgba(0,0,0,.8)}
+.paper::selection{background:#e7b45a}
 .split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
 @media(max-width:960px){.split{grid-template-columns:minmax(0,1fr)}}
-.src{font:12.5px/1.55 var(--mono);max-height:560px;overflow:auto;background:#0f1216;border:1px solid var(--line);border-radius:8px}
-.ln{display:grid;grid-template-columns:44px 1fr;white-space:pre}.ln .no{color:#8a97a6;text-align:right;padding-right:10px;user-select:none}.ln .tx{padding-right:12px}
-.ln.Ghost{background:#2a2142}.ln.Vampire{background:#3a1822}.ln.Zombie{background:#3a2c0b}
-.ln.sel{outline:1px solid var(--acc);outline-offset:-1px}
-.ln.detached .tx{text-decoration:line-through;color:#8c7fb3}
-.ln.note{background:var(--add)}.ln.note .tx{color:#86efac;white-space:pre-wrap}
-.cfgwrap{overflow:auto;max-height:560px;background:#0f1216;border:1px solid var(--line);border-radius:8px}
+.src{font:13px/1.6 var(--mono);max-height:620px;overflow:auto;color:#f0c27a;
+ background:radial-gradient(140% 120% at 50% 0%,#1d1108 0%,var(--screen) 70%);
+ border:1px solid var(--line2);border-radius:8px;box-shadow:inset 0 0 0 1px #0a0603,inset 0 0 60px rgba(0,0,0,.65),0 18px 40px -24px rgba(0,0,0,.9)}
+.src.on{animation:power .9s cubic-bezier(.16,1,.3,1)}
+@keyframes power{from{filter:brightness(.25) saturate(.6)}to{filter:none}}
+.ln{display:grid;grid-template-columns:52px 1fr;white-space:pre}.ln .no{color:#9a6a3c;text-align:right;padding-right:12px;user-select:none}.ln .tx{padding-right:14px}
+.ln.Ghost,.ln.Vampire,.ln.Zombie{cursor:pointer}
+.ln.Ghost{background:rgba(169,189,214,.13);box-shadow:inset 1px 0 0 var(--ghost)}.ln.Ghost .tx{color:var(--ghost);animation:ghost 5.5s steps(1,end) infinite}
+.ln.Vampire{background:rgba(255,106,69,.17);box-shadow:inset 1px 0 0 var(--vamp)}.ln.Vampire .tx{color:#ffb39e;animation:vamp 3.2s ease-in-out infinite}
+.ln.Zombie{background:linear-gradient(90deg,transparent 0%,rgba(195,210,79,.26) 50%,transparent 100%) 0 0/220% 100% no-repeat,rgba(195,210,79,.11);box-shadow:inset 1px 0 0 var(--zomb);animation:zomb 3.4s linear infinite}.ln.Zombie .tx{color:#dbe58a}
+@keyframes ghost{0%,82%{opacity:.85}84%{opacity:.2}86%{opacity:.8}89%{opacity:.3}92%,100%{opacity:.85}}
+@keyframes vamp{0%,100%{text-shadow:0 0 0 rgba(255,106,69,0)}50%{text-shadow:0 0 12px rgba(255,106,69,.65)}}
+@keyframes zomb{from{background-position:220% 0,0 0}to{background-position:-120% 0,0 0}}
+.ln.sel{outline:1px solid var(--amber);outline-offset:-1px;background-color:rgba(255,178,46,.12)}
+.ln.detached .tx{text-decoration:line-through;color:#8d7a68;animation:none}
+.ln.note{background:var(--add)}.ln.note .tx{color:#ffd27a;white-space:pre-wrap}
+.cfgwrap{overflow:auto;max-height:620px;background:var(--bg2);border:1px solid var(--line);border-radius:6px}
 svg text{font:11px var(--mono);fill:var(--tx);pointer-events:none}
 .node rect{fill:var(--panel2);stroke:var(--line2);stroke-width:1}
-.node{cursor:pointer}.node:hover rect,.node:focus-visible rect,.node.sel rect{stroke:var(--acc);stroke-width:2}
-.node.Ghost rect{fill:#2a2142;stroke:var(--ghost)}.node.Vampire rect{fill:#3a1822;stroke:var(--vamp)}.node.Zombie rect{fill:#3a2c0b;stroke:var(--zomb)}
-.edge{fill:none;stroke:#5b6a7b;stroke-width:1.2}.edge.back{stroke:#8a7440;stroke-dasharray:4 3}
-.chip{display:inline-block;padding:1px 9px;border-radius:99px;font-size:12.5px;font-weight:600;border:1px solid;white-space:nowrap}
-.chip.Ghost{color:var(--ghost);border-color:#6d4bb0}.chip.Vampire{color:var(--vamp);border-color:#9b3049}.chip.Zombie{color:var(--zomb);border-color:#8f640f}
-table{border-collapse:collapse;width:100%;font-size:13.5px}th,td{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}th{color:var(--mut);font-weight:600}
-td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}.wrap{overflow-x:auto}
-td.dt span{display:block;max-width:62ch}
+.node{cursor:pointer}.node:hover rect,.node:focus-visible rect,.node.sel rect{stroke:var(--amber);stroke-width:2}
+.node.Ghost rect{fill:#1d2129;stroke:var(--ghost)}.node.Vampire rect{fill:#34150d;stroke:var(--vamp)}.node.Zombie rect{fill:#262a0e;stroke:var(--zomb)}
+.edge{fill:none;stroke:#7a5a40;stroke-width:1.2}.edge.back{stroke:var(--rust);stroke-dasharray:4 3}
+.chip{display:inline-flex;align-items:center;gap:6px;font:600 13px/1 var(--sans);white-space:nowrap}
+.chip svg{width:16px;height:16px;flex:none}
+.chip.Ghost{color:var(--ghost)}.chip.Vampire{color:var(--vamp)}.chip.Zombie{color:var(--zomb)}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{border-bottom:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{color:var(--mut);font:600 12px/1.3 var(--sans);letter-spacing:.05em;text-transform:uppercase}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:13.5px}.wrap{overflow-x:auto}
+td.dt span{display:block;max-width:64ch;color:#e2cfae}
 #finds :is(th,td):nth-child(-n+4),#path :is(th,td):nth-child(-n+4){white-space:nowrap;padding-right:20px}
-tr.click{cursor:pointer}tr.click:hover td{background:var(--panel2)}
-.ok{color:var(--acc)}.bad{color:var(--vamp)}.mut{color:var(--mut)}
-code,pre{font-family:var(--mono)}
-.stat{display:flex;gap:28px;flex-wrap:wrap;margin:8px 0}.stat div{min-width:96px}.stat b{display:block;font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}.stat span{color:var(--mut);font-size:13px}
-progress{width:100%;height:8px;accent-color:var(--acc);margin:8px 0}
-.log{font:13px/1.6 var(--mono);color:var(--mut);margin:8px 0}.log div::before{content:"> ";color:var(--acc)}
-.diff{font:12px/1.5 var(--mono);max-height:420px;overflow:auto;background:#0f1216;border:1px solid var(--line);border-radius:8px}
-.diff div{white-space:pre;padding:0 10px}.diff .p{background:var(--add);color:#a7f3d0}.diff .m{background:var(--del);color:#fecdd3}.diff .s{color:#8a97a6;font-style:italic}
-.md{white-space:pre-wrap;font:13px/1.55 var(--mono);background:#0f1216;border:1px solid var(--line);border-radius:8px;padding:12px;max-height:340px;overflow:auto}
+tr.click{cursor:pointer}tr.click:hover td,tr.click:focus-visible td{background:var(--panel2)}
+.ok{color:var(--amber)}.bad{color:var(--oxide)}.mut{color:var(--mut)}
+code,pre{font-family:var(--mono);font-size:.92em}
+.stat{display:flex;gap:28px;flex-wrap:wrap;margin:8px 0}.stat div{min-width:96px}.stat b{display:block;font:400 34px/1 var(--disp);color:var(--amber);font-variant-numeric:tabular-nums}.stat span{color:var(--mut);font-size:13px}
+progress{width:100%;height:8px;accent-color:var(--amber);margin:8px 0}
+.log{font:13px/1.6 var(--mono);color:var(--mut);margin:8px 0}.log div::before{content:"> ";color:var(--amber)}
+.diff{font:12.5px/1.55 var(--mono);max-height:420px;overflow:auto;background:var(--screen);border:1px solid var(--line);border-radius:6px}
+.diff div{white-space:pre;padding:0 10px}.diff .p{background:var(--add);color:#ffd27a}.diff .m{background:var(--del);color:#ffb39e}.diff .s{color:#9a6a3c;font-style:italic}
+.md{white-space:pre-wrap;font:13px/1.6 var(--mono);background:var(--paper);color:var(--ink);border-radius:2px;padding:14px;max-height:360px;overflow:auto}
 .hide,.gone{display:none!important}
-.arc{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px}@media(max-width:960px){.arc{grid-template-columns:minmax(0,1fr)}}
-canvas{width:100%;image-rendering:pixelated;background:#000;border:1px solid var(--line);border-radius:6px;display:block}
-.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px;max-width:360px}.pad button{padding:12px 0;font-family:var(--mono)}.pad button.on{background:var(--acc);color:var(--accink);border-color:var(--acc)}
-.patch{margin-bottom:12px}.patch label{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:600}.patch small{color:var(--mut);display:block}
-.regs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font:12px var(--mono);color:var(--mut)}.regs b{color:var(--tx);font-weight:500}
-textarea{width:100%;min-height:72px;resize:vertical}
-footer{margin-top:40px;color:var(--mut);font-size:13px}
+.arc{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px}@media(max-width:960px){.arc{grid-template-columns:minmax(0,1fr)}}
+.cab{background:linear-gradient(180deg,#22170f,#170f0a);border:1px solid var(--line2)}
+canvas{width:100%;image-rendering:pixelated;background:#020a05;border:1px solid #123b22;border-radius:10px;display:block;box-shadow:inset 0 0 40px rgba(0,0,0,.8),0 0 0 6px #0b0805,0 0 0 7px var(--line2),0 14px 30px -18px rgba(0,0,0,.9)}
+#heat{border-color:var(--line2);box-shadow:none;border-radius:4px}
+.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px;max-width:360px}.pad button{padding:12px 0;font-family:var(--mono)}.pad button.on{background:var(--phos);color:#02140a;border-color:var(--phos)}
+.patch{margin-bottom:12px}.patch label{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:600;font-family:var(--mono)}.patch small{color:var(--mut);display:block;font-family:var(--sans)}
+.regs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font:12.5px var(--mono);color:var(--mut)}.regs b{color:var(--tx);font-weight:500}
+textarea{width:100%;min-height:72px;resize:vertical;font-family:var(--mono);font-size:13.5px}
+footer{margin-top:48px;padding-top:14px;border-top:1px solid var(--line);color:var(--mut);font-size:13px}
 @media(pointer:coarse){button,select,[role=tab]{min-height:44px}}
 label.chk{min-height:44px}summary{padding:10px 0;cursor:pointer}
-@media(max-width:600px){.drop{min-height:44px;display:flex;align-items:center}main{padding:16px 12px 56px}.bar{padding:10px 12px}[role=tablist]{margin-left:0;width:100%}.stat{gap:16px}}
+@media(max-width:600px){.drop{min-height:44px;display:flex;align-items:center}main{padding:18px 14px 56px}.bar{padding:10px 14px}[role=tablist]{margin-left:0;width:100%}.stat{gap:16px}h2{font-size:36px}h1{font-size:32px}.readout{font-size:44px}}
+@media(max-width:600px){#finds thead,#path thead{display:none}#finds tr,#path tr{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 12px;padding:12px 0;border-bottom:1px solid var(--line)}#finds td,#path td{border:0;padding:0;white-space:normal!important}#finds td.dt,#path td.dt{grid-column:1/-1}#finds td.dt span,#path td.dt span{max-width:none}#path td:first-child{grid-column:1/-1;font-family:var(--mono);font-size:13px;color:var(--mut)}.wrap{overflow-x:visible}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-</style></head><body>
+</style>
+</head><body>
 <header><div class="bar">
  <h1 id="apptitle">Necro<b>Core</b></h1><span id="daemon" class="pill">connecting</span>
  <div role="tablist" aria-label="Views">
@@ -88,37 +140,47 @@ label.chk{min-height:44px}summary{padding:10px 0;cursor:pointer}
 <noscript>The Observatory needs JavaScript to run the lifted WebAssembly modules.</noscript>
 
 <section id="t-crypt" role="tabpanel" aria-labelledby="tab-crypt">
- <h2>CryptLedger: COBOL banking programs, resurrected</h2>
- <p class="lead">Pick a program or drop your own .cob file. The daemon runs the static scan, asks Kiro for a fix plan, heals the program, and proves the WebAssembly version against the reference interpreter.</p>
- <p id="staticnote" class="panel hide">This is the hosted copy. The scan results, control-flow graphs and benchmark below are real, and the <a href="#phantomarcade">PhantomArcade</a> games run live in your browser. The buttons here need the local daemon, which calls the Kiro CLI and the prover: run <code>necro-cli observatory --serve</code> and open <a href="http://127.0.0.1:4300">127.0.0.1:4300</a> (steps in the README).</p>
- <div class="tools" id="ctools">
-  <label for="prog" class="mut">Program</label><select id="prog"></select>
-  <label class="drop" id="drop" tabindex="0">Drop a .cob file here or click to choose<input id="file" type="file" accept=".cob,.cbl,.txt" hidden></label>
+ <h2>CryptLedger</h2>
+ <p class="lead">Old programs that still move money, read line by line. Find what is dead or never ends, let Kiro write the fix, then prove the fixed program gives the same answer as the original on every tested input.</p>
+ <p id="staticnote" class="panel hide">This is the hosted copy. The listings, graphs, findings, proof figures and Kiro's plans below come from saved runs, and the <a href="#phantomarcade">PhantomArcade</a> games run live in your browser. The buttons need the local daemon, which calls the Kiro CLI and the prover: run <code>necro-cli observatory --serve</code> and open <a href="http://127.0.0.1:4300">127.0.0.1:4300</a> (steps in the README).</p>
+ <div class="crypt">
+  <div class="deck">
+   <div class="tools" id="ctools">
+    <label for="prog" class="mut">Program</label><select id="prog"></select>
+    <label class="drop" id="drop" tabindex="0">Drop a .cob file here or click to choose<input id="file" type="file" accept=".cob,.cbl,.txt" hidden></label>
+   </div>
+   <div class="deckhead"><h3>Listing</h3><label class="chk"><input type="checkbox" id="plan"> show Kiro's patch plan</label></div>
+   <div class="src" id="src" tabindex="0" aria-label="COBOL source. Haunted lines are highlighted; select one to jump to its block."></div>
+  </div>
+  <aside class="rail" aria-label="Findings and actions">
+   <div class="panel"><h3>What is rotten</h3><div id="counts"></div></div>
+   <div class="panel"><h3>Do</h3><div class="acts">
+    <button id="b-auto" class="go">Autopsy the program</button>
+    <button id="b-exo">Exorcise with Kiro</button>
+    <button id="b-prove">Prove on 10,000 inputs</button>
+    <button id="b-spec">Write the .kiro spec</button>
+    <label class="chk"><input type="checkbox" id="live" checked> Real kiro-cli turn (15 to 60 s)</label>
+   </div></div>
+   <div class="panel" id="rail-proof"></div>
+   <div class="panel" id="rail-kiro"></div>
+  </aside>
  </div>
- <div class="tools">
-  <button id="b-auto" class="go">Autopsy CFG</button>
-  <button id="b-exo">Exorcise via Kiro</button>
-  <button id="b-prove">Prove 10,000 vectors</button>
-  <button id="b-spec">Generate .kiro/specs/</button>
-  <label class="chk"><input type="checkbox" id="live" checked> Real kiro-cli turn (15 to 60 s)</label>
+ <div class="below">
+  <div><h3>Control-flow graph</h3>
+   <div class="cfgwrap" id="cfg"></div><p class="mut" style="font-size:13px;margin:6px 0 0">Select a block to jump to its lines. Dashed edges loop back.</p></div>
+  <div><h3>Findings</h3>
+   <div class="panel wrap"><table id="finds"><thead><tr><th>Label</th><th>Technical term</th><th>Block</th><th class="n">Lines</th><th>Detail</th></tr></thead><tbody></tbody></table></div></div>
  </div>
- <div id="counts" class="tools"></div>
- <div class="split">
-  <div><h3 style="margin-top:0">Source <label class="chk" style="font-weight:400;margin-left:8px"><input type="checkbox" id="plan"> show patch plan</label></h3><div class="src" id="src" tabindex="0" aria-label="COBOL source with findings highlighted"></div></div>
-  <div><h3 style="margin-top:0">Control-flow graph</h3><div class="cfgwrap" id="cfg"></div><p class="mut" style="font-size:13px;margin:6px 0 0">Click a block to jump to its lines. Dashed edges loop back.</p></div>
- </div>
- <h3>Findings</h3>
- <div class="panel wrap"><table id="finds"><thead><tr><th>Label</th><th>Technical term</th><th>Block</th><th class="n">Lines</th><th>Detail</th></tr></thead><tbody></tbody></table></div>
  <div id="out-exo" class="hide"><h3>Exorcise</h3><div class="panel" id="exo"></div></div>
  <div id="out-prove" class="hide"><h3>Proof in wasmtime</h3><div class="panel" id="prove"></div></div>
  <div id="out-spec" class="hide"><h3>Kiro spec</h3><div class="panel" id="spec"></div></div>
 </section>
 
 <section id="t-arcade" role="tabpanel" aria-labelledby="tab-arcade" class="hide">
- <h2>PhantomArcade: CHIP-8 and SUPER-CHIP games, lifted and modded live</h2>
- <p class="lead">These games run from the lifted WebAssembly modules. Every change below writes into the running module's memory. The score, the stack and the screen stay.</p>
+ <h2>PhantomArcade</h2>
+ <p class="lead">CHIP-8 and SUPER-CHIP games, lifted to WebAssembly and running in your browser. Every slider writes into the running module's memory, so the score, the stack and the screen stay.</p>
  <div class="arc">
-  <div class="panel">
+  <div class="panel cab">
    <div class="tools"><label for="rom" class="mut">ROM</label><select id="rom"></select><button id="reset">Reset</button><button id="pause">Pause</button>
     <label for="clock" class="mut">Clock</label><select id="clock"><option value="60">60 ticks/s</option><option value="120">120 ticks/s</option></select><span id="status" class="mut"></span><span id="res" class="pill">64x32</span></div>
    <canvas id="screen" width="64" height="32" aria-label="CHIP-8 display"></canvas>
@@ -152,7 +214,7 @@ label.chk{min-height:44px}summary{padding:10px 0;cursor:pointer}
  <h3>Autopsy of every sample</h3>
  <div class="panel wrap"><table id="path"><thead><tr><th>Program</th><th>Label</th><th>Technical term</th><th>Block</th><th class="n">Line</th><th>Detail</th></tr></thead><tbody></tbody></table></div>
 </section>
-<footer>Everything on this page comes from a run on this machine. Nothing is typed in by hand.</footer>
+<footer>Every number on this page comes from a saved run. Nothing is typed in by hand.</footer>
 </main>
 <script id="data" type="application/json">__DATA__</script>
 <script>
@@ -162,10 +224,10 @@ const EMB=JSON.parse($('data').textContent);
 let B=null,DAEMON=false;
 const APP=__APP__;const has=k=>APP.tabs.includes(k);
 if(APP.id!=='observatory'){document.getElementById('apptitle').textContent=APP.title}
-const GLYPH={Ghost:'\u{1F47B} Ghost',Vampire:'\u{1F9DB} Vampire',Zombie:'\u{1F9DF} Zombie'};
+const MARK={Ghost:'M8 1.5c-3 0-5 2.2-5 5.2V14l1.7-1.3L6.3 14 8 12.7 9.7 14l1.6-1.3L13 14V6.7c0-3-2-5.2-5-5.2Z M6 6.6h.01 M10 6.6h.01',Vampire:'M2.5 3.5h11 M5 3.5l1.2 5.2L7.4 3.5 M8.6 3.5l1.2 5.2 1.2-5.2 M8 11.5c0 1.6-.8 2.5-1.6 3',Zombie:'M4.6 5.2a3 3 0 1 0 0 5.6c1.6 0 2.4-1.4 3.4-2.8s1.8-2.8 3.4-2.8a3 3 0 1 1 0 5.6c-1.6 0-2.4-1.4-3.4-2.8S6.2 5.2 4.6 5.2Z'};
 const TERM={Ghost:'unreachable code',Vampire:'unbounded accumulator',Zombie:'non-terminating loop'};
 function dcell(t){const td=el('td','dt');td.appendChild(el('span',null,t));return td}
-const chip=k=>el('span','chip '+k,GLYPH[k]||k);
+const chip=k=>{const c=el('span','chip '+k);if(MARK[k]){const g=sv('svg',{viewBox:'0 0 16 16','aria-hidden':'true',fill:'none',stroke:'currentColor','stroke-width':'1.4','stroke-linecap':'round','stroke-linejoin':'round'});g.appendChild(sv('path',{d:MARK[k]}));c.appendChild(g)}c.append(k);return c};
 const fx=(x,d)=>Number(x).toFixed(d);
 async function api(path,body){const r=await fetch(path,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});const j=await r.json();if(!r.ok)throw new Error(j.error||r.statusText);return j}
 async function sse(path,body,on){
@@ -210,12 +272,28 @@ drop.ondrop=e=>{e.preventDefault();drop.classList.remove('over');e.dataTransfer.
 async function runAutopsy(){
  if(!cur.name)return;
  setBusy(true);const r=DAEMON?await api('/api/autopsy',reqBody()):(B.autopsies||{})[cur.name];if(!r){setBusy(!DAEMON);return}cur.res=r;cur.plan=null;cur.sel=null;
- renderCounts(r.counts,null);renderSource();renderCfg(r);renderFinds(r);
+ renderCounts(r.counts,null);renderSource();renderCfg(r);renderFinds(r);renderRail();const sc=$('src');sc.classList.remove('on');void sc.offsetWidth;sc.classList.add('on');const f0=sc.querySelector('.ln.Ghost,.ln.Vampire,.ln.Zombie');sc.scrollTop=f0?Math.max(0,f0.offsetTop-sc.clientHeight*0.3):0;
  ['out-exo','out-prove','out-spec'].forEach(i=>$(i).classList.add('hide'));setBusy(false);return r;
 }
+
+function renderRail(){
+ const pf=$('rail-proof'),kp=$('rail-kiro');if(!pf||!kp)return;pf.replaceChildren();kp.replaceChildren();
+ const b=(B.bench||[]).find(x=>x.target===cur.name);pf.appendChild(el('h3',null,'Proof'));
+ if(b){const p=b.parity,ro=el('div','readout');ro.append(Number(p.matched).toLocaleString('en-US'),el('small',null,' / '+Number(p.vectors).toLocaleString('en-US')));
+  pf.append(ro,el('p','meta','inputs gave the same result in WebAssembly as in the reference interpreter, '+fx(p.speedup,1)+'x faster. Saved run: '+(B.bench_source||'').split('/').pop()+'.'))}
+ else pf.appendChild(el('p','meta','No saved proof for this program yet. Run the prover locally.'));
+ const t=((B.live_trace||{}).turns||[]).find(x=>x.program===cur.name);kp.appendChild(el('h3',null,"Kiro's fix plan"));
+ if(t){kp.appendChild(el('p','meta','Recorded kiro-cli '+((B.live_trace||{}).kiro_cli_version||'')+' turn, '+fx(t.elapsed_ms/1000,1)+' s. Saved in benchmarks/live-kiro-trace.json.'));
+  if(t.response){const pp=el('div','paper');pp.textContent=String(t.response).trim().slice(0,1400);pp.tabIndex=0;pp.setAttribute('aria-label',"Kiro's recorded answer");kp.appendChild(pp)}}
+ else kp.appendChild(el('p','meta','No recorded Kiro turn for this program yet.'));
+}
+$('src').addEventListener('click',e=>{const row=e.target.closest('.ln[data-n]');if(!row||!cur.res)return;const n=+row.dataset.n;
+ const p=cur.res.pathologies.find(q=>n>=q.span.line&&n<=q.line_end);if(!p)return;hiLines(p.span.line,p.line_end,false);markNode(p.block);
+ const nd=document.querySelector('#cfg .node.sel');if(nd&&nd.scrollIntoView)nd.scrollIntoView({block:'nearest',inline:'center',behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'})});
+$('src').addEventListener('keydown',e=>{if(e.key!=='Enter')return;const row=e.target.closest('.ln[data-n]');if(row)row.click()});
 function renderCounts(c,after){
  const o=$('counts');o.replaceChildren();
- for(const k of ['Ghost','Vampire','Zombie']){const s=el('span');s.append(chip(k),' '+c[k.toLowerCase()]);if(after)s.append(' to '+after[k.toLowerCase()]);o.appendChild(s)}
+ for(const k of ['Ghost','Vampire','Zombie']){const s=el('span');const n=el('b',null,c[k.toLowerCase()]+(after?' \u2192 '+after[k.toLowerCase()]:''));s.append(chip(k),el('span','term',TERM[k]),n);o.appendChild(s)}
  o.append(el('span','mut','total '+c.total+(after?' to '+after.total:'')+' in '+cur.res.block_count+' blocks'));
 }
 function renderSource(){
@@ -224,7 +302,7 @@ function renderSource(){
  const notes={},ghost=new Set();
  if($('plan').checked&&cur.plan){cur.plan.patches.forEach(pt=>{const p=r.pathologies[pt.pathology_index];if(!p)return;(notes[p.span.line]=notes[p.span.line]||[]).push(p.label+': '+pt.proposed_change);if(p.kind==='Ghost')for(let l=p.span.line;l<=p.line_end;l++)ghost.add(l)})}
  r.source.split('\n').forEach((t,i)=>{const n=i+1,row=el('div','ln'+(kinds[n]?' '+kinds[n][kinds[n].length-1]:'')+(ghost.has(n)?' detached':''));
-  row.dataset.n=n;row.append(el('span','no',n),el('span','tx',t||' '));box.appendChild(row);
+  row.dataset.n=n;if(kinds[n])row.tabIndex=0;row.append(el('span','no',n),el('span','tx',t||' '));box.appendChild(row);
   (notes[n]||[]).forEach(x=>{const nr=el('div','ln note');nr.append(el('span','no','+'),el('span','tx','*> NECRO '+x));box.appendChild(nr)})});
  if(cur.sel)hiLines(cur.sel[0],cur.sel[1],false);
 }
@@ -245,6 +323,7 @@ const SVGNS='http://www.w3.org/2000/svg';
 function sv(t,a,x){const e=document.createElementNS(SVGNS,t);for(const k in a)e.setAttribute(k,a[k]);if(x!=null)e.textContent=x;return e}
 function markNode(id){document.querySelectorAll('#cfg .node').forEach(n=>n.classList.toggle('sel',n.dataset.id===id))}
 function renderCfg(r){
+ requestAnimationFrame(()=>{const b=$('cfg');b.scrollLeft=Math.max(0,(b.scrollWidth-b.clientWidth)/2)});
  const box=$('cfg');box.replaceChildren();const N=r.nodes;if(!N.length)return;
  if(N.length>140){box.appendChild(el('p','mut','Graph hidden: '+N.length+' blocks is too many to draw. The findings table still lists every block.'));return}
  const idx=new Map(N.map((n,i)=>[n.id,i])),adj=N.map(()=>[]);
@@ -257,7 +336,7 @@ function renderCfg(r){
  const W=Math.max(300,maxRow*W0+60),H=rows.length*GY+20;const pos=[];
  rows.forEach((row,l)=>{if(row)row.forEach((i,k)=>{pos[i]={x:W/2-(row.length-1)*W0/2+k*W0,y:10+NH/2+l*GY}})});
  const svg=sv('svg',{viewBox:`0 0 ${W} ${H}`,width:W,height:H,role:'img','aria-label':'Control-flow graph with '+N.length+' blocks'});
- const defs=sv('defs',{});const mk=sv('marker',{id:'ar',viewBox:'0 0 8 8',refX:7,refY:4,markerWidth:7,markerHeight:7,orient:'auto'});mk.appendChild(sv('path',{d:'M0 0L8 4L0 8z',fill:'#5b6a7b'}));defs.appendChild(mk);svg.appendChild(defs);
+ const defs=sv('defs',{});const mk=sv('marker',{id:'ar',viewBox:'0 0 8 8',refX:7,refY:4,markerWidth:7,markerHeight:7,orient:'auto'});mk.appendChild(sv('path',{d:'M0 0L8 4L0 8z',fill:'#7a5a40'}));defs.appendChild(mk);svg.appendChild(defs);
  r.edges.forEach(([a,b])=>{if(!idx.has(a)||!idx.has(b))return;const i=idx.get(a),j=idx.get(b),p=pos[i],s=pos[j];let d,cls='edge';
   if(i===j){d=`M${p.x+NW/2} ${p.y} q 26 -2 0 -${NH/2+2}`;cls+=' back'}
   else if(layer[j]>layer[i]){const x1=p.x,y1=p.y+NH/2,x2=s.x,y2=s.y-NH/2;d=`M${x1} ${y1} C${x1} ${(y1+y2)/2} ${x2} ${(y1+y2)/2} ${x2} ${y2}`}
@@ -363,7 +442,7 @@ const cv=$('screen'),ctx=cv.getContext('2d');let img=ctx.createImageData(64,32),
 function draw(){
  const hi=mem[0x1070]!==0,W=hi?128:64,H=hi?64:32;
  if(hi!==hiMode||cv.width!==W){hiMode=hi;cv.width=W;cv.height=H;img=ctx.createImageData(W,H);$('res').textContent=hi?'128x64 SUPER-CHIP':'64x32'}
- const n=W*H;for(let i=0;i<n;i++){const on=mem[0x1100+(i>>3)]&(0x80>>(i&7));const o=i*4;img.data[o]=on?52:0;img.data[o+1]=on?211:0;img.data[o+2]=on?153:0;img.data[o+3]=255}
+ const n=W*H;for(let i=0;i<n;i++){const on=mem[0x1100+(i>>3)]&(0x80>>(i&7));const o=i*4;img.data[o]=on?61:2;img.data[o+1]=on?255:10;img.data[o+2]=on?142:5;img.data[o+3]=255}
  ctx.putImageData(img,0,0)}
 const hctx=$('heat').getContext('2d'),himg=hctx.createImageData(64,64),heat=new Float32Array(4096);let prev=null;
 function drawHeat(){
@@ -433,9 +512,9 @@ async function boot(){
  if(has('arcade'))requestAnimationFrame(frame);
 }
 addEventListener('hashchange',async()=>{
- const r=route();if(!DAEMON)return;
- if(r.name&&!(B.cobol.some(c=>c.name===r.name)||B.roms.some(c=>c.name===r.name))){B=await (await fetch('/api/bootstrap')).json();fillPrograms();fillRoms()}
- if(r.tab==='crypt'&&r.name&&B.cobol.some(c=>c.name===r.name)){cur.name=r.name;progSel.value=r.name;await runAutopsy().catch(showErr);if(r.healed)$('b-exo').click()}
+ const r=route();
+ if(DAEMON&&r.name&&!(B.cobol.some(c=>c.name===r.name)||B.roms.some(c=>c.name===r.name))){B=await (await fetch('/api/bootstrap')).json();fillPrograms();fillRoms()}
+ if(r.tab==='crypt'&&r.name&&B.cobol.some(c=>c.name===r.name)){cur.name=r.name;progSel.value=r.name;await runAutopsy().catch(showErr);if(DAEMON&&r.healed)$('b-exo').click()}
  if(r.tab==='arcade'&&r.name){const i=B.roms.findIndex(x=>x.name===r.name);if(i>=0){$('rom').value=i;loadRom(i)}}
 });
 boot();

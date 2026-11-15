@@ -6,3 +6,10 @@ apps/macos-notch/necro_notch
 
 # local preview config
 .claude/
+
+# design process captures and local state
+.impeccable/review/
+.impeccable/build/
+
+# mood board images are third-party screenshots: kept locally, never published
+research/moodboard/*.jpg
