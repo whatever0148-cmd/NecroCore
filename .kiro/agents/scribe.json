@@ -9,19 +9,19 @@
   "permissions": {
     "rules": [
       {
-        "capability": "fs_write",
+        "capability": "fs_read",
         "match": [
-          "README.md",
-          "deliverables/**"
+          "**"
         ],
         "effect": "allow"
       },
       {
         "capability": "fs_write",
         "match": [
-          "**"
+          "README.md",
+          "deliverables/**"
         ],
-        "effect": "deny"
+        "effect": "allow"
       }
     ]
   },

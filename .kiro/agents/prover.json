@@ -11,6 +11,13 @@
   "permissions": {
     "rules": [
       {
+        "capability": "fs_read",
+        "match": [
+          "**"
+        ],
+        "effect": "allow"
+      },
+      {
         "capability": "shell",
         "match": [
           "cargo run*benchmark*",

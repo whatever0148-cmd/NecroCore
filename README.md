@@ -8,7 +8,7 @@ NecroCore takes a dead program, a 1978 COBOL batch job or a CHIP-8 ROM, lifts it
 to one intermediate representation, finds three kinds of rot in its control-flow
 graph, compiles it to WebAssembly, and proves with 10,000 seeded vectors that the
 lifted module behaves exactly like the reference interpreter. The Halloween names
-are the UI labels; the technical terms sit next to them everywhere.
+are the UI labels. The technical terms sit next to them everywhere.
 
 | Label | Technical term | What the scanner checks |
 |---|---|---|
@@ -78,18 +78,18 @@ Test run on the same day (`cargo test --release --workspace`): tests passed 23 f
   PAYROLL-BATCH-1982 never halts (its end-of-file flag is set in a paragraph
   nobody performs: a Zombie and a Ghost). BANK-INTEREST-1978 fails to halt on
   2,845 of 10,000 inputs because the monthly interest on a small balance
-  truncates to zero in COMP-3 and the balance never reaches the target; the
+  truncates to zero in COMP-3 and the balance never reaches the target. The
   scanner does not see that one (the two loops share a paragraph and collapse
   into one component), the prover does. WIRE-CLEARING-1985 spins on 1,138 inputs
   where the PIC 99 sequence counter wraps before it passes the batch size.
 - CHIP-8 speedup is about 1x at 300 steps per vector because each vector copies
-  the machine image in and out of the module and makes 12 host calls; the
+  the machine image in and out of the module and makes 12 host calls. The
   interpreter is already a tight loop over a byte array. The COBOL modules are
   9x to 17x faster than the interpreter per vector.
 - "left after heal" is a rescan of the healed IR: ghosts detached, zombie loops
   given a fuel guard, vampires given a cap guard. 15 found, 0 left.
 - The bridge column says `offline` because the benchmark does not call
-  `kiro-cli` by default; `--live-kiro` does, with a 120 s timeout and no tool
+  `kiro-cli` by default. `--live-kiro` does, with a 120 s timeout and no tool
   access.
 
 ## Live demo
