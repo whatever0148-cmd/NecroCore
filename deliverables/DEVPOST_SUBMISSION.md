@@ -3,6 +3,9 @@
 ## Tagline
 Bring dead programs back as WebAssembly, then prove they still behave.
 
+## Demo video
+https://youtu.be/blxbArocAas (2 minutes 36 seconds). Everything in it is the real app, the real repo and real kiro-cli turns. The voice is generated, the captions are burned in.
+
 ## Try it in ten seconds
 Open https://whatever0148-cmd.github.io/NecroCore/ . It starts on PhantomArcade, where four lifted games run as WebAssembly in your browser. Drag a slider and the running game changes without a reset. The CryptLedger tab shows a 1978 interest program with its dead code and its endless loop lit up on their own lines, Kiro's recorded fix plan, and the proof that 10,000 of 10,000 inputs match the original. Running it locally adds the live buttons (steps under "Try it" below).
 
@@ -109,6 +112,8 @@ A bigger COBOL subset (the REDEFINES clause and file handling) and a Kiro Power 
 Rust, WebAssembly, wasmtime, Swift, AppKit, tokio, serde, proptest, Kiro CLI, Kiro specs, steering, hooks and MCP.
 
 ## Live demo
+Video: https://youtu.be/blxbArocAas
+
 https://whatever0148-cmd.github.io/NecroCore/ opens on PhantomArcade, where the lifted games run as WebAssembly in the browser and the patch sliders write into the running module. The Kiro and prover buttons need the local daemon: `cargo build --release` then `./target/release/necro-cli observatory --serve` (steps in the README).
 
 ## What existed before

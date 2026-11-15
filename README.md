@@ -94,6 +94,8 @@ Test run on the same day (`cargo test --release --workspace`): tests passed 23 f
 
 ## Live demo
 
+Demo video (2:36): https://youtu.be/blxbArocAas
+
 Hosted copy, no install: https://whatever0148-cmd.github.io/NecroCore/
 
 It opens on PhantomArcade, where the four lifted games run as WebAssembly in your
