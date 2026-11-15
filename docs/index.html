@@ -425,7 +425,9 @@ function setPatch(name,v){
  const lr=(LIVEREG[rom.name]||{})[name];if(lr!==undefined)mem[0x1000+lr]=v;
  return v;
 }
+const MODTXT={'PONG-STYLE':'double ball speed, widen paddles, enable zero-gravity bounce','BREAKOUT-STYLE':'turn gravity on so the ball falls faster','INVADERS-STYLE':'faster shots and a faster descent','NECRORUNNER-1991':'double speed'};
 async function loadRom(i){
+ {const t=$('modtxt'),old=rom&&MODTXT[rom.name];if(!t.value.trim()||t.value===old||Object.values(MODTXT).includes(t.value))t.value=MODTXT[B.roms[i].name]||''}
  rom=B.roms[i];const m=await WebAssembly.instantiate(unb64(rom.wasm),{});
  inst=m.instance;mem=new Uint8Array(inst.exports.mem.buffer);mem.set(unb64(rom.image));step=inst.exports.step;patches=rom.patches;sliders={};
  const box=$('patches');box.replaceChildren();

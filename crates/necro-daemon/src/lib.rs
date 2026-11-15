@@ -730,6 +730,18 @@ fn offline_mod(prompt: &str, patches: &PatchTable) -> (HashMap<String, u8>, Stri
     if has(&["zero-gravity", "zero gravity", "no gravity", "float", "straight line", "no bounce"]) {
         set("BALL_DY", 0, "vertical velocity 0 so the ball floats straight across", &mut v, &mut why);
     }
+    if has(&["gravity on", "turn gravity", "add gravity", "heavier", "pull down", "pulls down", "drops faster", "falls faster", "fall faster"]) {
+        set("GRAVITY", 1, "gravity on: dy gains 1 every 16 frames, so the ball arcs down", &mut v, &mut why);
+    }
+    if has(&["anti-gravity", "antigravity", "float up", "pushes up"]) {
+        set("GRAVITY", 0xFF, "gravity reversed: dy loses 1 every 16 frames", &mut v, &mut why);
+    }
+    if has(&["faster shot", "shots faster", "quicker shot", "faster laser"]) {
+        set("SHOT_SPEED", 4, "the shot climbs 4 rows per frame instead of 2", &mut v, &mut why);
+    }
+    if has(&["faster descent", "descend faster", "invaders drop faster", "drop faster"]) {
+        set("DESCENT", 4, "the row drops 4 rows at each wall instead of 2", &mut v, &mut why);
+    }
     if has(&["reverse", "other way", "flip direction"]) {
         set("BALL_DX", 0xFF, "horizontal velocity reversed", &mut v, &mut why);
     }
@@ -750,7 +762,7 @@ fn modbox(st: &State, body: &Value) -> Result<Value, String> {
     let ask = format!(
         "You edit a running CHIP-8 game through named patch points. Patch points of {name}:\n{table}\nVelocity points only work with 1 (forward), 255 (backward) and 0 (none). \
          The player asked: \"{prompt}\"\nReply with ONE line of JSON and nothing else, in the form {{\"values\":{{\"NAME\":number}},\"explanation\":\"one short sentence\"}}. \
-         Hints: pace is set by FRAME_DELAY (lower is faster). A ball with no vertical pull has BALL_DY 0. \
+         Hints: pace is set by FRAME_DELAY (lower is faster). A ball with no vertical pull has BALL_DY 0. GRAVITY 1 pulls the ball down, 255 pushes it up. \
          Use only the names listed. Leave out any patch point that the request does not change."
     );
     let t = Instant::now();
@@ -886,6 +898,24 @@ mod tests {
     fn table() -> PatchTable {
         let e = |n: &str| PatchEntry { name: n.into(), addr: 0x200, field: PatchField::Kk, default: 1, description: String::new() };
         PatchTable { rom: "T".into(), entries: vec![e("FRAME_DELAY"), e("PADDLE_H"), e("BALL_DY")] }
+    }
+    #[test]
+    fn every_default_prompt_changes_its_game() {
+        // The page fills the mod box with one prompt per ROM. Each one must map to at
+        // least one patch value that differs from the ROM's default, or a judge who
+        // clicks Apply sees nothing happen.
+        let roms = format!("{}/../../samples/roms", env!("CARGO_MANIFEST_DIR"));
+        for (rom, prompt) in [
+            ("PONG-STYLE", "double ball speed, widen paddles, enable zero-gravity bounce"),
+            ("BREAKOUT-STYLE", "turn gravity on so the ball falls faster"),
+            ("INVADERS-STYLE", "faster shots and a faster descent"),
+            ("NECRORUNNER-1991", "double speed"),
+        ] {
+            let t = read_patches(&Path::new(&roms).join(format!("{rom}.ch8")), rom);
+            let (v, _) = offline_mod(prompt, &t);
+            let changed = v.iter().filter(|(n, x)| t.get(n).map(|e| e.default != **x).unwrap_or(false)).count();
+            assert!(changed > 0, "{rom}: \"{prompt}\" changes nothing ({v:?})");
+        }
     }
     #[test]
     fn reads_a_clean_reply() {
