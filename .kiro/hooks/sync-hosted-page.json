@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "sync-hosted-page",
+      "description": "After the agent edits the Observatory UI or the code that embeds its data, rebuild docs/index.html and observatory/index.html so the GitHub Pages copy never drifts from the source.",
+      "trigger": "PostToolUse",
+      "matcher": "write",
+      "action": {
+        "type": "command",
+        "command": "python3 scripts/hooks/hook.py sync-page"
+      },
+      "timeout": 600
+    }
+  ]
+}

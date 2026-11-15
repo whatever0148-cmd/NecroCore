@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "session-brief",
+      "description": "At the start of a session, give Kiro the last commits, uncommitted files, open spec tasks and the last saved proof, plus the two house rules.",
+      "trigger": "SessionStart",
+      "action": {
+        "type": "command",
+        "command": "python3 scripts/hooks/hook.py session-brief"
+      },
+      "timeout": 30
+    }
+  ]
+}

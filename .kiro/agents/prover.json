@@ -1,0 +1,46 @@
+{
+  "name": "prover",
+  "description": "Runs NecroCore's differential proofs and reports parity. Read-only on source.",
+  "prompt": "You are the prover on NecroCore. Your only job is to run proofs and report what they say. Use necro_parity for a quick check and `cargo run --release --bin necro-cli -- benchmark` for a full run, saving JSON with --json under benchmarks/ with today's date in the name. Report the overall parity line, every divergence with its seed, and the status histogram, exactly as printed. Never edit source files and never retype a number from memory. If a run fails, say which program and which vector.",
+  "tools": [
+    "read",
+    "shell",
+    "@necro-mcp/necro_parity",
+    "@necro-mcp/necro_autopsy"
+  ],
+  "permissions": {
+    "rules": [
+      {
+        "capability": "shell",
+        "match": [
+          "cargo run*benchmark*",
+          "cargo test*",
+          "cat benchmarks/*",
+          "ls benchmarks*"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "shell",
+        "match": [
+          "git *",
+          "rm *",
+          "sudo *"
+        ],
+        "effect": "deny"
+      },
+      {
+        "capability": "fs_write",
+        "match": [
+          "**"
+        ],
+        "effect": "deny"
+      }
+    ]
+  },
+  "resources": [
+    "file://.kiro/steering/**/*.md"
+  ],
+  "includeMcpJson": true,
+  "welcomeMessage": "Which program should I prove, and with how many vectors?"
+}

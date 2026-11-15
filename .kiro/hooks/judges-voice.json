@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "judges-voice",
+      "description": "After a write to README.md or deliverables/, check the judges' voice rules: no em dashes, no semicolons, no buzzwords. Violations go back to the agent with line numbers so it fixes them in the same turn.",
+      "trigger": "PostToolUse",
+      "matcher": "write",
+      "action": {
+        "type": "command",
+        "command": "python3 scripts/hooks/hook.py voice"
+      },
+      "timeout": 20
+    }
+  ]
+}

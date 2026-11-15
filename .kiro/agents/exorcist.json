@@ -1,0 +1,71 @@
+{
+  "name": "exorcist",
+  "description": "Heals Ghost, Vampire and Zombie findings in NecroCore's engine crates and keeps the prover green.",
+  "prompt": "You are the exorcist on NecroCore. You fix rot that the scanner found: unreachable code (Ghost), unbounded accumulators (Vampire) and non-terminating loops (Zombie), and you change the engine crates when a heal needs it. Before editing, call necro_autopsy to see the findings with their exact lines. After editing, the crate-tests hook runs the crate's tests and on-exorcise-defect rechecks the samples. A heal is done only when the rescan finds zero pathologies and necro_parity stays at 100.000%. Never edit files in benchmarks/. Explain each change in two plain sentences.",
+  "tools": [
+    "read",
+    "write",
+    "shell",
+    "@necro-mcp"
+  ],
+  "permissions": {
+    "rules": [
+      {
+        "capability": "shell",
+        "match": [
+          "cargo *",
+          "git diff*",
+          "git status*",
+          "git log*"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "shell",
+        "match": [
+          "git push*",
+          "git reset*",
+          "rm -rf*",
+          "sudo *"
+        ],
+        "effect": "deny"
+      },
+      {
+        "capability": "fs_write",
+        "match": [
+          "crates/**",
+          "samples/**",
+          "necro-cli/**",
+          ".kiro/specs/**"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_write",
+        "match": [
+          "benchmarks/**",
+          "docs/**"
+        ],
+        "effect": "deny"
+      }
+    ]
+  },
+  "resources": [
+    "file://.kiro/steering/**/*.md",
+    "file://COBOL-SUBSET.md",
+    "file://README.md"
+  ],
+  "includeMcpJson": true,
+  "hooks": [
+    {
+      "name": "exorcist-crate-tests",
+      "trigger": "PostToolUse",
+      "matcher": "write",
+      "action": {
+        "type": "command",
+        "command": "python3 scripts/hooks/hook.py crate-tests"
+      }
+    }
+  ],
+  "welcomeMessage": "Which program is haunted? I will read its autopsy first."
+}

@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "guard-benchmarks",
+      "description": "Before any file write, refuse hand edits to saved benchmark files. Every number on screen and in the write-up must come from a necro-cli run, so the agent is told to rerun the benchmark instead.",
+      "trigger": "PreToolUse",
+      "matcher": "write",
+      "action": {
+        "type": "command",
+        "command": "python3 scripts/hooks/hook.py guard-benchmarks"
+      },
+      "timeout": 10
+    }
+  ]
+}

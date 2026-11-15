@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "task-proof",
+      "description": "When a spec task finishes, run the whole workspace test suite and a 1,000-vector differential proof. A task is not done while either fails.",
+      "trigger": "PostTaskExecution",
+      "action": {
+        "type": "command",
+        "command": "python3 scripts/hooks/hook.py task-proof"
+      },
+      "timeout": 900
+    }
+  ]
+}

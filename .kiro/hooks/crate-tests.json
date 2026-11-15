@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "crate-tests",
+      "description": "After the agent edits a Rust file inside crates/, run that crate's tests at once and hand any failure back to the agent.",
+      "trigger": "PostToolUse",
+      "matcher": "write",
+      "action": {
+        "type": "command",
+        "command": "python3 scripts/hooks/hook.py crate-tests"
+      },
+      "timeout": 600
+    }
+  ]
+}

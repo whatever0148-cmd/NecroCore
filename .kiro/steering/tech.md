@@ -13,7 +13,7 @@ inclusion: always
 - CLI: `clap` derive. Serialization: `serde` + `serde_json`.
 - Property-based tests: `proptest` for the fixed-point store rules and the CHIP-8
   arithmetic.
-- Kiro: `kiro-cli` 2.34 (`~/.local/bin/kiro-cli`), signed in with a Builder ID.
+- Kiro: `kiro-cli` 2.37 (`~/.local/bin/kiro-cli`), signed in with GitHub.
   The bridge calls `kiro-cli chat --no-interactive --trust-tools=` so the model
   cannot run tools.
 - Budget: $0. No paid services, no API keys, no network at test time.
