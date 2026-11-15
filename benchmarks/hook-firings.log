@@ -133,3 +133,5 @@ pub const HEAL_FUEL: i64 = 100_
 2026-11-15T06:12:12Z sync-page {"hook": "sync-page", "event": "PostToolUse", "tool": "str_replace", "path": "README.md", "session": "sess_72263b26-5a54-4e16-839a-3c52ea03e7fb", "by_hand": false, "outcome": "skipped"}
 2026-11-15T06:12:12Z voice {"hook": "voice", "event": "PostToolUse", "tool": "str_replace", "path": "README.md", "session": "sess_72263b26-5a54-4e16-839a-3c52ea03e7fb", "by_hand": false, "outcome": "clean"}
 2026-11-15T06:12:19Z on-parity-verify stdin={"session_id":"sess_72263b26-5a54-4e16-839a-3c52ea03e7fb","hook_event_name":"Stop","cwd":"/Users/ahmed/NecroCore"}
+2026-11-15T06:12:52Z session-brief {"hook": "session-brief", "event": "SessionStart", "session": "sess_47c58dfd-bde5-4551-8d45-2167d5c2e5a9", "by_hand": false, "outcome": "ok"}
+2026-11-15T06:14:55Z on-parity-verify stdin={"session_id":"sess_47c58dfd-bde5-4551-8d45-2167d5c2e5a9","hook_event_name":"Stop","cwd":"/Users/ahmed/NecroCore"}

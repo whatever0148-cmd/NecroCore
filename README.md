@@ -32,7 +32,7 @@ are the UI labels. The technical terms sit next to them everywhere.
 | `necro-cli` | `autopsy`, `lift`, `assemble`, `benchmark`, and `mcp` (the `necro-mcp` server for Kiro) |
 | `samples/cobol` | three period-style COBOL programs with deliberate defects (two-digit years, COMP-3 drift, a dead paragraph, a loop that never ends on an edge input) |
 | `samples/roms` | four original games: three CHIP-8 and the 128x64 SUPER-CHIP NECRORUNNER-1991 (source, binary, patch table), see `samples/roms/LICENSES.md` |
-| `.kiro/` | steering, four specs, three hooks, the MCP server config |
+| `.kiro/` | six specs, ten steering docs, nine hooks, four custom agents, the MCP server config |
 
 ## Measured results
 
@@ -130,22 +130,53 @@ printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"n
 ```
 
 ## How Kiro is used
-- **Steering** (`.kiro/steering/`): product, tech and structure files loaded in
-  every interaction. The product file carries the rule that every number comes
-  from a run.
-- **Specs** (`.kiro/specs/`): four specs in EARS form. The scanner itself writes
+Every item has a job, and `benchmarks/hook-firings.log` shows which ones Kiro
+actually fired.
+- **Specs** (`.kiro/specs/`): six specs in EARS form, from the core engine (01) to
+  the machine-room redesign (05) and the guardrails (06). The scanner also writes
   EARS requirements for every finding (`NecroAutopsyReport::requirements_markdown`),
-  so an autopsy becomes a spec input.
-- **Hooks** (`.kiro/hooks/`): `on-legacy-drop` runs the autopsy when a sample is
-  saved, `on-exorcise-defect` reruns the sample tests after the scanner or healer
-  is edited, `on-parity-verify` runs a 1,000-vector parity check before the agent
-  stops.
+  so an autopsy becomes a spec input (`autopsy-PAYROLL-BATCH-1982/`).
+- **Steering** (`.kiro/steering/`, 10 docs): `product`, `tech`, `structure` and
+  `proof-before-trust` load every time. `voice`, `cobol-subset`, `chip8-semantics`,
+  `observatory-design` and `prover-and-wasm` load only for the files they cover.
+  `kiro-workflow` is loaded by hand with `#kiro-workflow`.
+- **Hooks** (`.kiro/hooks/`, 9). One script, `scripts/hooks/hook.py`, does the work.
+  | Hook | Trigger | Job |
+  |---|---|---|
+  | `guard-benchmarks` | PreToolUse write | blocks hand edits to saved benchmark files |
+  | `judges-voice` | PostToolUse write | returns em dashes, semicolons and buzzwords in judge-facing text |
+  | `sync-hosted-page` | PostToolUse write | rebuilds `docs/index.html` when the UI changes |
+  | `crate-tests` | PostToolUse write | runs the tests of the crate that was just edited |
+  | `on-exorcise-defect` | PostToolUse write | rechecks the samples after scanner or healer edits |
+  | `session-brief` | SessionStart | gives Kiro the last commits, open tasks and the last proof |
+  | `on-parity-verify` | Stop | runs a 1,000-vector proof before the agent stops |
+  | `task-proof` | PostTaskExecution | tests plus a proof when a spec task ends |
+  | `on-legacy-drop` | PostFileSave | runs the autopsy on a dropped `.cob` or `.ch8` |
+- **Custom agents** (`.kiro/agents/`, 4, run with `kiro-cli --v3 chat --agent <name>`):
+  `exorcist` heals findings in the engine crates, `prover` runs proofs and cannot
+  write files, `scribe` writes only README.md and `deliverables/`, `medium`
+  hot-patches running games through `necro_hotpatch` and cannot write files.
 - **MCP** (`.kiro/settings/mcp.json`): `necro-mcp` exposes `necro_autopsy`,
   `necro_parity` and `necro_hotpatch` to the agent.
 - **Kiro CLI bridge** (`crates/necro-kiro-bridge`): turns a report into spec text
   and patch proposals through `kiro-cli chat --no-interactive --trust-tools=`.
 - **Property-based tests**: `proptest` on the fixed-point store rule and literal
   parsing.
+
+### What Kiro did on 2026-11-15
+- The `scribe` agent fixed the four prose semicolons that `judges-voice` found in
+  this README. The hook fired on each of its writes and the last check was clean.
+- The `prover` agent ran `necro-cli benchmark --vectors 10000 --live-kiro`. All 7
+  programs got a real kiro-cli 2.37.0 turn (107.8 s in total, 0 offline
+  fallbacks) and 70,000 of 70,000 vectors matched
+  (`benchmarks/2026-11-15-live-kiro.json`, `benchmarks/2026-11-15-live-kiro-trace.json`).
+- In those 5 sessions Kiro fired 7 of the 9 hooks: `session-brief`,
+  `guard-benchmarks`, `judges-voice`, `sync-hosted-page`, `crate-tests`,
+  `on-exorcise-defect` and `on-parity-verify`. `task-proof` and `on-legacy-drop`
+  have not been fired by Kiro yet.
+- What did not work at first: the default engine could not find the workspace
+  agents (only `--v3` loads them), and a catch-all deny rule in `scribe` blocked
+  its allowed writes too. Both fixes are in the commits.
 
 ## Observatory (browser cockpit)
 
@@ -190,7 +221,7 @@ apps/macos-notch/necro_notch --sample PAYROLL-BATCH-1982     # same path as a dr
 ```
 
 Live Kiro benchmark (`necro-cli benchmark --live-kiro`, output in `benchmarks/2026-10-31-phase2.txt`,
-transcripts in `benchmarks/live-kiro-trace.json`): all 6 targets got a real kiro-cli turn, 117.7 s in total,
+timings in that .txt): all 6 targets got a real kiro-cli turn, 117.7 s in total,
 and parity stayed at 60,000 of 60,000. COBOL speedups on that run were 8.59x, 14.57x and 16.63x. The run
 shared the machine with a browser and a compiler, so they sit a little under the Phase 1 numbers.
 
@@ -230,7 +261,7 @@ other work):
 | COBOL wasm vs interpreter | 9.07x, 16.49x, 16.48x |
 | ROM wasm vs interpreter | 0.92x to 1.06x (2026-10-31 run, before `step_batch`) |
 | Problems found, left after heal | 19 found, 0 left |
-| Real kiro-cli turns | 7 of 7, 142 s in total (`benchmarks/live-kiro-trace.json`) |
+| Real kiro-cli turns | 7 of 7, 142 s in total (`benchmarks/2026-10-31-live-kiro-trace.json`) |
 | Tests, clippy | 32 passed, 0 failed, 0 warnings |
 
 Other real Kiro evidence in `benchmarks/`: `live-kiro-mcp-trace.json` (kiro-cli read

@@ -25,7 +25,7 @@ from datetime import datetime, timezone
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 LOG = os.path.join(ROOT, "benchmarks", "hook-firings.log")
-BENCH = "benchmarks/2026-11-01-register-locals.json"
+BENCH = "benchmarks/2026-11-15-live-kiro.json"
 
 
 def read_event(argv):
@@ -193,9 +193,16 @@ def session_brief(ev):
             n = sum(1 for line in open(t) if re.match(r"\s*- \[ \]", line))
             if n:
                 open_tasks.append(f"{d}: {n} open")
-    txt = os.path.join(ROOT, BENCH.replace(".json", ".txt"))
-    lines = [l.strip() for l in open(txt)] if os.path.exists(txt) else []
-    proof = " | ".join(l for l in lines if l.startswith(("vectors:", "pathologies found:"))) or "(no saved summary)"
+    try:
+        rows = json.load(open(os.path.join(ROOT, BENCH)))
+        v = sum(r["parity"]["vectors"] for r in rows)
+        m = sum(r["parity"]["matched"] for r in rows)
+        found = sum(r["ghosts"] + r["vampires"] + r["zombies"] for r in rows)
+        left = sum(r["healed_remaining"] for r in rows)
+        bridges = sorted({r.get("bridge_source", "?") for r in rows})
+        proof = f"{m} of {v} vectors matched, {found} pathologies found, {left} left after heal, bridge {'/'.join(bridges)}"
+    except Exception as e:  # noqa: BLE001
+        proof = f"(could not read {BENCH}: {e})"
     log("session-brief", ev, "ok")
     print("NecroCore session brief")
     print("Last commits:\n" + head.strip())
