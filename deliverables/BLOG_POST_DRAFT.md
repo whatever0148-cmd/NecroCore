@@ -39,7 +39,7 @@ SUPER-CHIP added the 128 by 64 mode, scrolling, a 16 by 16 sprite instruction an
 
 The prover runs 10,000 seeded vectors per program. For a COBOL program a vector is a set of input values with a bias toward edge cases such as zero, one and the largest value that fits. For a ROM a vector is a random number seed, a key schedule that changes every 25 steps, and a hot patch of every patch point halfway through. Both machines run, and I compare the full state at the end. For a ROM that means every byte of the machine image.
 
-Seven programs, 10,000 vectors each, gives 70,000 vectors. All 70,000 matched. The COBOL programs ran 8.7 to 17.3 times faster as WebAssembly than in my reference interpreter, and the lifted CHIP-8 and SUPER-CHIP games ran 1.6 to 2.4 times faster.
+Seven programs, 10,000 vectors each, gives 70,000 vectors. All 70,000 matched. In the latest run the COBOL programs ran 9.0 to 17.1 times faster as WebAssembly than in my reference interpreter, and the lifted CHIP-8 and SUPER-CHIP games ran 1.6 to 2.3 times faster.
 
 ## Healing
 
@@ -49,15 +49,15 @@ The healer detaches the Ghosts and puts a fuel counter on every loop that cannot
 
 Kiro shows up at three levels.
 
-**It shaped the work.** I wrote four specs in EARS form before the Rust, plus three steering files and three hooks in Kiro's v1 hook format. The task lists in `.kiro/specs/` are the real to-do list.
+**It shaped the work.** I wrote four specs in EARS form before the Rust, and two more later, six in all. There are ten steering files. Four load every time, and the rest load only for the files they cover, like the COBOL rules for the COBOL lifter. The task lists in `.kiro/specs/` are the real to-do list.
 
 **It wrote a feature.** Late in the build I added a requirement to spec 03: a `step_batch` entry point for the lifted ROMs that keeps the program counter and the timer divider in WebAssembly locals and reads key presses from a table, so one host call covers a whole test vector. Then I ran `kiro-cli` on it in real coding turns. It wrote the new export, the layout constants, the prover change and a parity test. It could only read and write files, so I ran the compiler between turns and pasted the errors back. It fixed two of them. One turn ended in an error and I added a single missing parenthesis myself, and the log says so. While it worked, Kiro fired my `on-exorcise-defect` hook 18 times and my `on-parity-verify` hook twice, and I saved the payloads it received. Every turn is in `benchmarks/kiro-coding-sessions.json`.
 
-Parity stayed at 70,000 of 70,000 after every change. I then kept going on speed myself: fused straight-line runs of up to six instructions into one dispatch, held the sixteen registers and the I register in WebAssembly locals for the whole batch, and rewrote sprite drawing to XOR whole rows instead of single pixels. Together they took the lifted ROMs from about the same speed as my native Rust interpreter to 1.6 to 2.4 times faster, and the draw and scroll routines are the next place to look.
+Parity stayed at 70,000 of 70,000 after every change. I then kept going on speed myself: fused straight-line runs of up to six instructions into one dispatch, held the sixteen registers and the I register in WebAssembly locals for the whole batch, and rewrote sprite drawing to XOR whole rows instead of single pixels. Together they took the lifted ROMs from about the same speed as my native Rust interpreter to 1.6 to 2.4 times faster in my Nov 1 runs, and the draw and scroll routines are the next place to look.
 
-**It runs inside the product.** A small crate drives `kiro-cli chat --no-interactive` with tools off and a timeout. The Exorcise button asks Kiro for a plan. The benchmark has a `--live-kiro` mode, and in one run all 7 of 7 turns were real, 142 seconds in total. I also wrote a small MCP server so Kiro can call the autopsy itself. In a real run, kiro-cli read the config, started the server, called `necro_autopsy` on the payroll program and listed the Zombie, the Vampire and the Ghost with their line numbers.
+**It runs inside the product.** A small crate drives `kiro-cli chat --no-interactive` with tools off and a timeout. The Exorcise button asks Kiro for a plan. The benchmark has a `--live-kiro` mode. In the latest run all 7 of 7 turns were real, 102.7 seconds in total, with no offline fallback. I also wrote a small MCP server so Kiro can call the autopsy itself. In a real run, kiro-cli read the config, started the server, called `necro_autopsy` on the payroll program and listed the Zombie, the Vampire and the Ghost with their line numbers.
 
-One note on the hooks. The third hook, `on-legacy-drop`, runs from my daemon and the notch pill on every dropped file and has not yet been fired from inside a Kiro session. I did not use Kiro Powers or Crew.
+**It is checked by the repo itself.** Near the end I moved my house rules into nine hooks. One blocks any write to a saved benchmark file, so nobody, Kiro included, can type a nicer number. One checks the README and these posts for em dashes, semicolons and buzzwords and hands back the line numbers. One rebuilds the hosted page when the UI changes, and one runs the tests of whatever crate was just edited. I also gave Kiro four custom agents with one job each. The `scribe` agent fixed four semicolons that the voice hook had found in my README, and the hook came back clean on its last write. The `prover` agent ran the full live benchmark. Two things went wrong first. Only `kiro-cli --v3` could find my workspace agents, and a catch-all deny rule I wrote blocked the writes I had allowed. Two of the nine hooks, `task-proof` and `on-legacy-drop`, have not been fired from inside a Kiro session yet. I did not use Kiro Powers or Crew.
 
 One small story from the mod box. You type a sentence like "double ball speed, widen paddles, and enable zero-gravity bounce". Kiro turns it into patch values, and the page writes them into the running game. The first time I tried it, Kiro skipped the zero-gravity part, so I added a hint to the prompt about which patch point controls vertical movement. On another run, Kiro's answer came back as valid JSON that was missing its final closing brace. The parser now repairs that case, labels the answer as repaired, and has a test for it. The last runs answered with clean JSON, set three bytes, and the Pong game kept its score.
 
@@ -77,3 +77,8 @@ The COBOL subset needs REDEFINES and file handling before it can touch real prog
 ## Try it
 
 The code is built with Rust, wasmtime and a bit of Swift. Build it with `cargo build --release`. Run `cryptledger` and open `127.0.0.1:4301` for the COBOL studio, or run `phantomarcade` and open `127.0.0.1:4302` for the games. Every number in this post comes from a run that is saved in the repo under `benchmarks/`.
+
+- Demo video (2:36): https://youtu.be/blxbArocAas
+- Try it in your browser: https://whatever0148-cmd.github.io/NecroCore/
+- Code (MIT): https://github.com/whatever0148-cmd/NecroCore
+- Devpost: https://devpost.com/software/necrocore
