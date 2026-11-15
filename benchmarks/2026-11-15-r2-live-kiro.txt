@@ -1,0 +1,27 @@
+NecroCore benchmark: 10000 vectors per target, seed 7, COBOL fuel 10000 blocks, ROM 300 steps per vector
+host: macos aarch64, necro-cli 0.1.0, wasmtime 50 (Cranelift), release build
+
+| target | kind | lift us | blocks | edges | ghosts | vampires | zombies | warnings | left after heal | parity | interp us/vec | wasm us/vec | speedup | compile us | non-halting vecs | bridge |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| BANK-INTEREST-1978 | cobol | 129.5 | 26 | 23 | 1 | 1 | 0 | 4 | 0 | 100.00% (10000/10000) | 70.01 | 7.75 | 9.03x | 9554 | 2845 | kiro-cli (2 patches, 17207 ms) |
+| PAYROLL-BATCH-1982 | cobol | 452.0 | 15 | 11 | 1 | 1 | 1 | 2 | 0 | 100.00% (10000/10000) | 463.14 | 27.91 | 16.59x | 4023 | 10000 | kiro-cli (3 patches, 13778 ms) |
+| WIRE-CLEARING-1985 | cobol | 199.1 | 22 | 16 | 1 | 1 | 0 | 2 | 0 | 100.00% (10000/10000) | 48.00 | 2.81 | 17.10x | 3846 | 1138 | kiro-cli (2 patches, 12783 ms) |
+| BREAKOUT-STYLE | chip8 | 1005.3 | 65 | 179 | 0 | 0 | 1 | 0 | 0 | 100.00% (10000/10000) | 3.57 | 1.58 | 2.26x | 30386 | 0 | kiro-cli (1 patches, 13292 ms) |
+| INVADERS-STYLE | chip8 | 865.4 | 61 | 113 | 0 | 2 | 2 | 0 | 0 | 100.00% (10000/10000) | 3.49 | 1.67 | 2.09x | 30750 | 0 | kiro-cli (4 patches, 15108 ms) |
+| NECRORUNNER-1991 | chip8 | 958.4 | 46 | 96 | 1 | 1 | 2 | 0 | 0 | 100.00% (10000/10000) | 6.14 | 3.80 | 1.61x | 31532 | 0 | kiro-cli (4 patches, 17621 ms) |
+| PONG-STYLE | chip8 | 1197.5 | 86 | 364 | 1 | 0 | 1 | 0 | 0 | 100.00% (10000/10000) | 2.85 | 1.69 | 1.69x | 35735 | 0 | kiro-cli (2 patches, 12943 ms) |
+
+pathologies found: 18, remaining after heal: 0, healed: 18
+vectors: 70000, matched: 70000, overall parity: 100.000%
+  BANK-INTEREST-1978: FuelExhausted x 2845
+  BANK-INTEREST-1978: Halted x 7155
+  PAYROLL-BATCH-1982: FuelExhausted x 10000
+  WIRE-CLEARING-1985: FuelExhausted x 1138
+  WIRE-CLEARING-1985: Halted x 8862
+  BREAKOUT-STYLE: Ok x 10000
+  INVADERS-STYLE: Ok x 10000
+  NECRORUNNER-1991: Ok x 10000
+  PONG-STYLE: Ok x 10000
+live kiro-cli turns: 7 of 7 (102732 ms in total)
+wrote benchmarks/live-kiro-trace.json
+wrote benchmarks/2026-11-15-r2-live-kiro.json

@@ -285,3 +285,51 @@ fn step_batch_matches_step_with_no_keys() {
         assert_eq!(m.image, img, "{name}: step_batch image differs from interpreter after 400 steps");
     }
 }
+
+#[test]
+fn breakout_keeps_playing_after_a_miss() {
+    // With no keys the paddle never moves, so the ball is missed. The game must serve
+    // again and keep drawing, never freeze on a blank screen.
+    let (bytes, _) = rom("BREAKOUT-STYLE");
+    let mut m = Chip8::new(&bytes, 3);
+    let (mut lit, mut samples, mut ys) = (0, 0, std::collections::BTreeSet::new());
+    for _ in 0..400 {
+        let (st, _) = m.run(500);
+        assert_eq!(st, StepStatus::Ok);
+        samples += 1;
+        if m.lit_pixels() > 0 { lit += 1; }
+        ys.insert(m.v(5));
+    }
+    // A frame is cleared before it is redrawn, so a few samples land between the two.
+    assert!(lit * 10 >= samples * 7, "screen blank in {} of {} samples", samples - lit, samples);
+    assert!(ys.len() > 10, "ball stopped moving: y values {ys:?}");
+}
+
+#[test]
+fn breakout_gravity_patch_is_live() {
+    // Without gravity dy is only ever -1 or +1. A live write to GRAVITY must make the
+    // ball hover (dy 0) within a few frames, without a reset.
+    let (bytes, patches) = rom("BREAKOUT-STYLE");
+    let mut m = Chip8::new(&bytes, 4);
+    for _ in 0..200 { m.run(100); assert_ne!(m.v(7), 0, "dy was 0 before the patch"); }
+    patches.apply(&mut m.image, "GRAVITY", 1).unwrap();
+    let mut hovered = false;
+    for _ in 0..400 { m.run(50); hovered |= m.v(7) == 0; assert!(matches!(m.v(7), 0 | 1 | 0xFF), "dy left -1..1: {}", m.v(7)); }
+    assert!(hovered, "GRAVITY = 1 never changed dy");
+}
+
+#[test]
+fn breakout_draws_the_bricks_that_are_left() {
+    // Clearing the first brick of row 0 must hide only that brick, not the whole row.
+    let (bytes, _) = rom("BREAKOUT-STYLE");
+    let mut m = Chip8::new(&bytes, 6);
+    m.run(2000);
+    let (mut seen_second, mut first_lit) = (false, false);
+    for _ in 0..200 {
+        m.set_v(8, 0xFE);
+        m.run(37);
+        if m.pixel(9, 3) { seen_second = true; if m.pixel(2, 3) { first_lit = true; } }
+    }
+    assert!(seen_second, "the second brick of row 0 was never drawn");
+    assert!(!first_lit, "the cleared first brick was still drawn");
+}

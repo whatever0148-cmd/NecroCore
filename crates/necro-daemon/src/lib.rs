@@ -407,11 +407,18 @@ fn list(dir: &Path, ext: &str) -> Vec<PathBuf> {
 }
 
 fn latest_bench(root: &Path) -> Option<(String, Value)> {
-    let mut v: Vec<PathBuf> = list(&root.join("benchmarks"), "json").into_iter().filter(|p| p.file_name().map(|n| n.to_string_lossy().contains("phase")).unwrap_or(false)).collect();
+    // The newest dated full benchmark run: a JSON array of per-program rows with a
+    // `parity` block. Traces and other JSON in benchmarks/ are skipped.
+    let mut v: Vec<PathBuf> = list(&root.join("benchmarks"), "json")
+        .into_iter()
+        .filter(|p| p.file_name().map(|n| n.to_string_lossy().starts_with("20")).unwrap_or(false))
+        .collect();
     v.sort();
-    let p = v.pop()?;
-    let val = serde_json::from_str(&std::fs::read_to_string(&p).ok()?).ok()?;
-    Some((p.strip_prefix(root).unwrap_or(&p).display().to_string(), val))
+    v.into_iter().rev().find_map(|p| {
+        let val: Value = serde_json::from_str(&std::fs::read_to_string(&p).ok()?).ok()?;
+        val.as_array()?.first()?.get("parity")?;
+        Some((p.strip_prefix(root).unwrap_or(&p).display().to_string(), val))
+    })
 }
 
 fn bootstrap(st: &State) -> Result<Value, String> {

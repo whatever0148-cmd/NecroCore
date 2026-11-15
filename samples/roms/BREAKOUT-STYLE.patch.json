@@ -3,24 +3,24 @@
   "entries": [
     {
       "name": "GRAVITY",
-      "addr": 522,
+      "addr": 630,
       "field": "Kk",
       "default": 0,
-      "description": "added to dy every 16 frames (0 off, 1 pulls down)"
+      "description": "added to dy every 16 frames (0 off, 1 pulls down, 255 pushes up)"
     },
     {
       "name": "BALL_DX",
-      "addr": 728,
+      "addr": 748,
       "field": "Kk",
       "default": 1,
-      "description": "ball horizontal velocity per frame"
+      "description": "ball horizontal velocity at each serve"
     },
     {
       "name": "BALL_DY",
-      "addr": 730,
+      "addr": 750,
       "field": "Kk",
       "default": 255,
-      "description": "ball vertical velocity per frame"
+      "description": "ball vertical velocity at each serve"
     }
   ]
 }

@@ -23,19 +23,19 @@ For each program it does the following.
 1. **Autopsy.** It lifts the program to one intermediate form, builds the control-flow graph, and reports three static problems. The UI calls them Ghost (unreachable code), Vampire (a counter that only grows and bounds nothing) and Zombie (a loop that can never exit). Every finding carries a line and byte range.
 2. **Lift.** It compiles the program to WebAssembly text that wasmtime runs.
 3. **Prove.** It feeds 10,000 seeded vectors to both a reference interpreter and the WebAssembly module and compares every result byte for byte.
-4. **Exorcise.** It detaches the ghosts and puts a guard on every loop, then scans again. In the last run it found 19 problems across the 7 sample programs and 0 were left after healing.
+4. **Exorcise.** It detaches the ghosts and puts a guard on every loop, then scans again. In the last run it found 18 problems across the 7 sample programs and 0 were left after healing.
 5. **Spec.** It writes the findings as EARS requirements into `.kiro/specs/` and asks kiro-cli for a fix plan.
 6. **Hot patch.** A ROM can be changed while it runs. Pong gets a second ball, a faster pace or wider paddles by writing one byte into the module. The score and the screen stay.
 
-### Measured results (from `benchmarks/2026-11-01-register-locals.txt` and `benchmarks/2026-11-01-register-locals-longrun.txt`)
+### Measured results (from `benchmarks/2026-11-15-r2-live-kiro.txt`, the run the live site shows, and `benchmarks/2026-11-01-register-locals-longrun.txt`)
 | What | Result |
 |---|---|
 | Differential vectors | 70,000 of 70,000 matched (7 programs, 10,000 each, seed 7) |
-| COBOL, WebAssembly vs reference interpreter | 8.69x, 16.77x and 17.25x faster per vector |
-| CHIP-8 and SUPER-CHIP, lifted WebAssembly vs native Rust reference interpreter | 1.61x to 2.40x faster at 300 steps per vector and 1.87x to 2.32x at 30,000 steps |
-| Problems found and left after healing | 19 found, 0 left |
-| Real kiro-cli turns in the live benchmark (earlier run, `benchmarks/2026-10-31-phase3.txt`) | 7 of 7, 142 s in total |
-| Tests | 33 passed, 0 failed. Clippy shows 0 warnings |
+| COBOL, WebAssembly vs reference interpreter | 9.03x, 16.59x and 17.10x faster per vector |
+| CHIP-8 and SUPER-CHIP, lifted WebAssembly vs native Rust reference interpreter | 1.61x to 2.26x faster at 300 steps per vector and 1.87x to 2.32x at 30,000 steps (Nov 1 long run) |
+| Problems found and left after healing | 18 found, 0 left |
+| Real kiro-cli turns in the live benchmark | 7 of 7, 102.7 s in total, 0 offline fallbacks (`benchmarks/2026-11-15-r2-live-kiro-trace.json`) |
+| Tests | 36 passed, 0 failed. Clippy shows 0 warnings |
 
 ## How it fits the four tracks
 **Resurrection.** This is the main entry. A 1978 style interest program and a 1991 style SUPER-CHIP game come back as live WebAssembly, and the proof is a number, not a promise.
@@ -76,7 +76,7 @@ Kiro could only read and write files in these sessions, so I ran `cargo build` a
 
 **Hooks that check Kiro's work.** There are nine hooks, and one script, `scripts/hooks/hook.py`, does their work. `guard-benchmarks` blocks any write to a saved benchmark file, so nobody, Kiro included, can type a nicer number. `judges-voice` hands back every em dash, semicolon and buzzword in the README and these deliverables with its line number. `sync-hosted-page` rebuilds the GitHub Pages copy when the UI changes. `crate-tests` runs the tests of whatever crate was just edited. `session-brief` gives Kiro the last commits, open spec tasks and the last proof when a session starts. `task-proof` runs the tests and a proof when a spec task ends. The first three hooks are older: `on-exorcise-defect`, `on-parity-verify` and `on-legacy-drop`. Kiro fired `on-exorcise-defect` 23 times and `on-parity-verify` 7 times in all, and on Nov 15 it fired `session-brief`, `guard-benchmarks`, `judges-voice`, `sync-hosted-page` and `crate-tests` too. Every payload it sent is in `benchmarks/hook-firings.log`. `task-proof` and `on-legacy-drop` have not been fired from inside a Kiro session yet.
 
-**Custom agents.** `.kiro/agents/` has four agents, each with one job and only the tools and write rights that job needs. `exorcist` heals findings in the engine crates. `prover` runs proofs and cannot write any file. `scribe` writes only the README and `deliverables/`. `medium` turns a player's sentence into patch-table writes through `necro_hotpatch` and cannot write files. On Nov 15 the `scribe` agent fixed the four semicolons that `judges-voice` had found in the README, and the hook came back clean on its last write. The `prover` agent ran the full live benchmark below. Two things went wrong first. The default engine could not find workspace agents, only `kiro-cli --v3` does. And a catch-all deny rule I gave `scribe` also blocked the writes I had allowed.
+**Custom agents.** `.kiro/agents/` has four agents, each with one job and only the tools and write rights that job needs. `exorcist` heals findings in the engine crates. `prover` runs proofs. It has no file-write tool, and its shell runs only the benchmark and the tests without asking. `scribe` writes only the README and `deliverables/`. `medium` turns a player's sentence into patch-table writes through `necro_hotpatch`. It has no write tool and no shell. On Nov 15 the `scribe` agent fixed the four semicolons that `judges-voice` had found in the README, and the hook came back clean on its last write. The `prover` agent ran the full live benchmark below. Two things went wrong first. The default engine could not find workspace agents, only `kiro-cli --v3` does. And a catch-all deny rule I gave `scribe` also blocked the writes I had allowed.
 
 **MCP.** `.kiro/settings/mcp.json` defines `necro-mcp`, a small MCP server I wrote in Rust that speaks JSON-RPC over stdio, with `necro_autopsy`, `necro_parity` and `necro_hotpatch`. A real `kiro-cli` turn read the config, started the server, called `necro_autopsy` on the payroll program and reported the Zombie, the Vampire and the Ghost with their lines. The transcript is in `benchmarks/live-kiro-mcp-trace.json`.
 

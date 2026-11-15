@@ -153,9 +153,10 @@ actually fired.
   | `task-proof` | PostTaskExecution | tests plus a proof when a spec task ends |
   | `on-legacy-drop` | PostFileSave | runs the autopsy on a dropped `.cob` or `.ch8` |
 - **Custom agents** (`.kiro/agents/`, 4, run with `kiro-cli --v3 chat --agent <name>`):
-  `exorcist` heals findings in the engine crates, `prover` runs proofs and cannot
-  write files, `scribe` writes only README.md and `deliverables/`, `medium`
-  hot-patches running games through `necro_hotpatch` and cannot write files.
+  `exorcist` heals findings in the engine crates. `prover` has no file-write tool,
+  and its shell runs only the benchmark and the tests without asking. `scribe`
+  writes only README.md and `deliverables/`. `medium` has no write tool and no
+  shell, it hot-patches running games through `necro_hotpatch`.
 - **MCP** (`.kiro/settings/mcp.json`): `necro-mcp` exposes `necro_autopsy`,
   `necro_parity` and `necro_hotpatch` to the agent.
 - **Kiro CLI bridge** (`crates/necro-kiro-bridge`): turns a report into spec text
@@ -170,6 +171,13 @@ actually fired.
   programs got a real kiro-cli 2.37.0 turn (107.8 s in total, 0 offline
   fallbacks) and 70,000 of 70,000 vectors matched
   (`benchmarks/2026-11-15-live-kiro.json`, `benchmarks/2026-11-15-live-kiro-trace.json`).
+- Later that day I fixed three bugs in BREAKOUT-STYLE: a missed ball froze the
+  game on a blank screen, the GRAVITY slider only changed a line that runs at
+  start, and clearing one brick hid its whole row. Three new tests fail on the
+  old ROM and pass on the new one. The run was repeated on the fixed ROM:
+  70,000 of 70,000 matched, 18 found (the old lose loop was a Zombie), 0 left,
+  7 of 7 real kiro-cli turns in 102.7 s (`benchmarks/2026-11-15-r2-live-kiro.json`).
+  The live site and the local daemon read this run.
 - In those 5 sessions Kiro fired 7 of the 9 hooks: `session-brief`,
   `guard-benchmarks`, `judges-voice`, `sync-hosted-page`, `crate-tests`,
   `on-exorcise-defect` and `on-parity-verify`. `task-proof` and `on-legacy-drop`

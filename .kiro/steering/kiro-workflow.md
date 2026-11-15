@@ -10,7 +10,7 @@ Use `#kiro-workflow` in chat to load this.
    `design.md`, then `tasks.md`. One task is one reviewable change.
 2. Pick an agent from `.kiro/agents/`:
    - `exorcist` heals findings and edits the engine crates.
-   - `prover` runs proofs and reports parity. It cannot edit source.
+   - `prover` runs proofs and reports parity. It has no file-write tool.
    - `scribe` writes the README and deliverables in the judges' voice.
    - `medium` hot-patches running PhantomArcade games through necro-mcp.
 3. Hooks do the checking. `crate-tests` after each Rust edit, `judges-voice`

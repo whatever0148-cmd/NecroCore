@@ -25,7 +25,7 @@ from datetime import datetime, timezone
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 LOG = os.path.join(ROOT, "benchmarks", "hook-firings.log")
-BENCH = "benchmarks/2026-11-15-live-kiro.json"
+BENCH = "benchmarks/2026-11-15-r2-live-kiro.json"
 
 
 def read_event(argv):

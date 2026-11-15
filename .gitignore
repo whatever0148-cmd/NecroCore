@@ -13,3 +13,10 @@ apps/macos-notch/necro_notch
 
 # mood board images are third-party screenshots: kept locally, never published
 research/moodboard/*.jpg
+
+# third-party video references stay local
+video/references/
+
+# third-party reference frames and contact sheets stay local
+video/analysis/frames/
+video/analysis/sheets/

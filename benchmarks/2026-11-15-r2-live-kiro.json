@@ -1,0 +1,255 @@
+[
+  {
+    "target": "BANK-INTEREST-1978",
+    "kind": "cobol",
+    "lift_us": 129.5,
+    "blocks": 26,
+    "edges": 23,
+    "ghosts": 1,
+    "vampires": 1,
+    "zombies": 0,
+    "warnings": 4,
+    "healed_remaining": 0,
+    "parity": {
+      "target": "BANK-INTEREST-1978",
+      "vectors": 10000,
+      "matched": 10000,
+      "parity_pct": 100.0,
+      "divergences": [],
+      "interp_total_us": 700129.5059999868,
+      "wasm_total_us": 77533.16599999878,
+      "interp_per_vector_us": 70.01295059999867,
+      "wasm_per_vector_us": 7.753316599999877,
+      "speedup": 9.030064708050203,
+      "compile_us": 9554.25,
+      "non_halting": 2845,
+      "status_histogram": [
+        [
+          "FuelExhausted",
+          2845
+        ],
+        [
+          "Halted",
+          7155
+        ]
+      ]
+    },
+    "bridge_source": "kiro-cli",
+    "bridge_patches": 2,
+    "bridge_ms": 17207
+  },
+  {
+    "target": "PAYROLL-BATCH-1982",
+    "kind": "cobol",
+    "lift_us": 452.0,
+    "blocks": 15,
+    "edges": 11,
+    "ghosts": 1,
+    "vampires": 1,
+    "zombies": 1,
+    "warnings": 2,
+    "healed_remaining": 0,
+    "parity": {
+      "target": "PAYROLL-BATCH-1982",
+      "vectors": 10000,
+      "matched": 10000,
+      "parity_pct": 100.0,
+      "divergences": [],
+      "interp_total_us": 4631383.875000005,
+      "wasm_total_us": 279131.1319999997,
+      "interp_per_vector_us": 463.1383875000005,
+      "wasm_per_vector_us": 27.91311319999997,
+      "speedup": 16.592143777785452,
+      "compile_us": 4023.25,
+      "non_halting": 10000,
+      "status_histogram": [
+        [
+          "FuelExhausted",
+          10000
+        ]
+      ]
+    },
+    "bridge_source": "kiro-cli",
+    "bridge_patches": 3,
+    "bridge_ms": 13778
+  },
+  {
+    "target": "WIRE-CLEARING-1985",
+    "kind": "cobol",
+    "lift_us": 199.125,
+    "blocks": 22,
+    "edges": 16,
+    "ghosts": 1,
+    "vampires": 1,
+    "zombies": 0,
+    "warnings": 2,
+    "healed_remaining": 0,
+    "parity": {
+      "target": "WIRE-CLEARING-1985",
+      "vectors": 10000,
+      "matched": 10000,
+      "parity_pct": 100.0,
+      "divergences": [],
+      "interp_total_us": 480034.53200000053,
+      "wasm_total_us": 28066.322999999375,
+      "interp_per_vector_us": 48.00345320000005,
+      "wasm_per_vector_us": 2.8066322999999374,
+      "speedup": 17.10357755093217,
+      "compile_us": 3846.375,
+      "non_halting": 1138,
+      "status_histogram": [
+        [
+          "FuelExhausted",
+          1138
+        ],
+        [
+          "Halted",
+          8862
+        ]
+      ]
+    },
+    "bridge_source": "kiro-cli",
+    "bridge_patches": 2,
+    "bridge_ms": 12783
+  },
+  {
+    "target": "BREAKOUT-STYLE",
+    "kind": "chip8",
+    "lift_us": 1005.333,
+    "blocks": 65,
+    "edges": 179,
+    "ghosts": 0,
+    "vampires": 0,
+    "zombies": 1,
+    "warnings": 0,
+    "healed_remaining": 0,
+    "parity": {
+      "target": "BREAKOUT-STYLE",
+      "vectors": 10000,
+      "matched": 10000,
+      "parity_pct": 100.0,
+      "divergences": [],
+      "interp_total_us": 35733.462999999814,
+      "wasm_total_us": 15793.92900000015,
+      "interp_per_vector_us": 3.573346299999981,
+      "wasm_per_vector_us": 1.5793929000000149,
+      "speedup": 2.26248091909236,
+      "compile_us": 30386.334000000003,
+      "non_halting": 0,
+      "status_histogram": [
+        [
+          "Ok",
+          10000
+        ]
+      ]
+    },
+    "bridge_source": "kiro-cli",
+    "bridge_patches": 1,
+    "bridge_ms": 13292
+  },
+  {
+    "target": "INVADERS-STYLE",
+    "kind": "chip8",
+    "lift_us": 865.416,
+    "blocks": 61,
+    "edges": 113,
+    "ghosts": 0,
+    "vampires": 2,
+    "zombies": 2,
+    "warnings": 0,
+    "healed_remaining": 0,
+    "parity": {
+      "target": "INVADERS-STYLE",
+      "vectors": 10000,
+      "matched": 10000,
+      "parity_pct": 100.0,
+      "divergences": [],
+      "interp_total_us": 34932.49199999961,
+      "wasm_total_us": 16705.232000000087,
+      "interp_per_vector_us": 3.493249199999961,
+      "wasm_per_vector_us": 1.6705232000000088,
+      "speedup": 2.091110856766277,
+      "compile_us": 30749.5,
+      "non_halting": 0,
+      "status_histogram": [
+        [
+          "Ok",
+          10000
+        ]
+      ]
+    },
+    "bridge_source": "kiro-cli",
+    "bridge_patches": 4,
+    "bridge_ms": 15108
+  },
+  {
+    "target": "NECRORUNNER-1991",
+    "kind": "chip8",
+    "lift_us": 958.417,
+    "blocks": 46,
+    "edges": 96,
+    "ghosts": 1,
+    "vampires": 1,
+    "zombies": 2,
+    "warnings": 0,
+    "healed_remaining": 0,
+    "parity": {
+      "target": "NECRORUNNER-1991",
+      "vectors": 10000,
+      "matched": 10000,
+      "parity_pct": 100.0,
+      "divergences": [],
+      "interp_total_us": 61359.4779999999,
+      "wasm_total_us": 38033.487999999474,
+      "interp_per_vector_us": 6.1359477999999905,
+      "wasm_per_vector_us": 3.8033487999999473,
+      "speedup": 1.6133013622100805,
+      "compile_us": 31532.125,
+      "non_halting": 0,
+      "status_histogram": [
+        [
+          "Ok",
+          10000
+        ]
+      ]
+    },
+    "bridge_source": "kiro-cli",
+    "bridge_patches": 4,
+    "bridge_ms": 17621
+  },
+  {
+    "target": "PONG-STYLE",
+    "kind": "chip8",
+    "lift_us": 1197.458,
+    "blocks": 86,
+    "edges": 364,
+    "ghosts": 1,
+    "vampires": 0,
+    "zombies": 1,
+    "warnings": 0,
+    "healed_remaining": 0,
+    "parity": {
+      "target": "PONG-STYLE",
+      "vectors": 10000,
+      "matched": 10000,
+      "parity_pct": 100.0,
+      "divergences": [],
+      "interp_total_us": 28495.124999999887,
+      "wasm_total_us": 16885.273000000034,
+      "interp_per_vector_us": 2.849512499999989,
+      "wasm_per_vector_us": 1.6885273000000034,
+      "speedup": 1.6875726557693103,
+      "compile_us": 35735.458,
+      "non_halting": 0,
+      "status_histogram": [
+        [
+          "Ok",
+          10000
+        ]
+      ]
+    },
+    "bridge_source": "kiro-cli",
+    "bridge_patches": 2,
+    "bridge_ms": 12943
+  }
+]

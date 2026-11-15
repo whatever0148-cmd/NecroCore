@@ -43,7 +43,7 @@ Seven programs, 10,000 vectors each, gives 70,000 vectors. All 70,000 matched. T
 
 ## Healing
 
-The healer detaches the Ghosts and puts a fuel counter on every loop that cannot end, plus a cap on every runaway counter. After healing, the scanner runs again. It found 19 problems across the seven programs and 0 were left. The prover then checks that the healed program still agrees with its own interpreter.
+The healer detaches the Ghosts and puts a fuel counter on every loop that cannot end, plus a cap on every runaway counter. After healing, the scanner runs again. It found 18 problems across the seven programs and 0 were left. The prover then checks that the healed program still agrees with its own interpreter.
 
 ## How Kiro fits in
 

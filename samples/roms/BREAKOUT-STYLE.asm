@@ -1,16 +1,14 @@
 ; BREAKOUT-STYLE: a paddle, a ball and two rows of eight bricks.
-; Keys: 4 / 6 move the paddle. Clear every brick to win, miss the ball to lose.
+; Keys: 4 / 6 move the paddle. Clear every brick to win. A missed ball is served again.
 ; Original program written for NecroCore (2026). Not a historical binary.
 ; Registers: V2 paddle x, V4/V5 ball x/y, V6/V7 ball dx/dy, V8 row 0 bricks,
-;            V9 row 1 bricks, VA gravity, VB frame counter, VC scratch, V0/V1 scratch.
+;            V9 row 1 bricks, VB frame counter, VC/VD scratch, V0/V1 scratch.
 start:
     CLS
     LD V2, 28
     LD V8, 0xFF
     LD V9, 0xFF
     LD VB, 0
-    .patch GRAVITY added to dy every 16 frames (0 off, 1 pulls down)
-    LD VA, 0
     CALL reset_ball
 loop:
     CLS
@@ -46,7 +44,7 @@ loop:
     SNE V5, 29
     CALL hit_paddle
     SNE V5, 31
-    JP lose
+    CALL reset_ball
     ; draw
     LD I, paddle_sprite
     LD V0, 30
@@ -71,8 +69,26 @@ wait:
     JP wait
     JP loop
 apply_gravity:
+    ; runs every 16 frames, so a live write to GRAVITY shows at once
     LD VB, 0
-    ADD V7, VA
+    LD V0, V7
+    .patch GRAVITY added to dy every 16 frames (0 off, 1 pulls down, 255 pushes up)
+    ADD V0, 0
+    ; keep dy in {-1, 0, 1} so the row and paddle checks still see every line.
+    ; V7 is written once, with the final value.
+    LD VD, V0
+    ADD VD, 1
+    LD V1, 2
+    SUB V1, VD
+    SE VF, 0
+    JP gravity_set
+    LD VD, V0
+    SHL VD
+    LD V0, 1
+    SE VF, 0
+    LD V0, 0xFF
+gravity_set:
+    LD V7, V0
     RET
 hit_paddle:
     LD V0, V4
@@ -118,9 +134,7 @@ draw_row:
     LD I, brick_sprite
     LD VC, 0
 draw_row_next:
-    LD VF, V1
-    SHR VF
-    LD V1, VF
+    SHR V1
     SE VF, 0
     DRW VC, V0, 3
     ADD VC, 8
@@ -130,15 +144,13 @@ draw_row_next:
 reset_ball:
     LD V4, 30
     LD V5, 20
-    .patch BALL_DX ball horizontal velocity per frame
+    .patch BALL_DX ball horizontal velocity at each serve
     LD V6, 1
-    .patch BALL_DY ball vertical velocity per frame
+    .patch BALL_DY ball vertical velocity at each serve
     LD V7, 0xFF
     RET
 win:
     JP win
-lose:
-    JP lose
 paddle_sprite:
     DB 0xFF
 ball_sprite:

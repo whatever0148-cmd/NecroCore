@@ -38,9 +38,9 @@ The idea is simple. Old programs are hard to trust because nobody can say what t
 
 What the last run showed:
 - 7 sample programs, 10,000 test vectors each, 70,000 of 70,000 matched
-- COBOL copies ran 8.7 to 17.3 times faster than my reference interpreter
-- Lifted game ROMs ran 1.6 to 2.4 times faster
-- 19 problems found, 0 left after healing
+- COBOL copies ran 9.0 to 17.1 times faster than my reference interpreter
+- Lifted game ROMs ran 1.6 to 2.3 times faster
+- 18 problems found, 0 left after healing
 
 What I liked about using @kirodotdev in this project. I wrote the specs in EARS form before the code. A small MCP server lets kiro-cli call the scanner directly. A live kiro-cli turn writes the fix plan, and I saved all 7 benchmark transcripts in the repo.
 
