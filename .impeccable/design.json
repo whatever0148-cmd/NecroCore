@@ -1,0 +1,712 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-15T05:42:33+00:00",
+  "title": "Design System: NecroCore",
+  "extensions": {
+    "colorMeta": {
+      "machine-room-black": {
+        "role": "neutral",
+        "displayName": "Machine-Room Black",
+        "canonical": "#140d09",
+        "oklch": "oklch(16.7% 0.015 51.3)",
+        "tonalRamp": [
+          "#0d0a09",
+          "#292421",
+          "#47413d",
+          "#675f5b",
+          "#8a807b",
+          "#aca39e",
+          "#cfc7c3",
+          "#f3edea"
+        ]
+      },
+      "well-black": {
+        "role": "neutral",
+        "displayName": "Well Black",
+        "canonical": "#1a110b",
+        "oklch": "oklch(18.7% 0.019 54.9)",
+        "tonalRamp": [
+          "#0e0a08",
+          "#292420",
+          "#48403b",
+          "#695f58",
+          "#8c8078",
+          "#aea39c",
+          "#d0c7c1",
+          "#f5ede8"
+        ]
+      },
+      "console-brown": {
+        "role": "neutral",
+        "displayName": "Console Brown",
+        "canonical": "#1d130c",
+        "oklch": "oklch(19.8% 0.021 56.1)",
+        "tonalRamp": [
+          "#0e0a08",
+          "#2a241f",
+          "#49403a",
+          "#6a5f57",
+          "#8d7f76",
+          "#aea29a",
+          "#d1c7c0",
+          "#f5ede7"
+        ]
+      },
+      "raised-console": {
+        "role": "neutral",
+        "displayName": "Raised Console",
+        "canonical": "#26180f",
+        "oklch": "oklch(22.4% 0.028 53.5)",
+        "tonalRamp": [
+          "#0f0a07",
+          "#2c231e",
+          "#4b3f38",
+          "#6d5e55",
+          "#907e73",
+          "#b2a197",
+          "#d4c6bd",
+          "#f8ece5"
+        ]
+      },
+      "hairline-umber": {
+        "role": "neutral",
+        "displayName": "Hairline Umber",
+        "canonical": "#3a2516",
+        "oklch": "oklch(28.7% 0.041 55.8)",
+        "tonalRamp": [
+          "#110905",
+          "#2e221a",
+          "#4f3e33",
+          "#715c4e",
+          "#967d6b",
+          "#b7a091",
+          "#d9c5b8",
+          "#fbebe0"
+        ]
+      },
+      "rivet-umber": {
+        "role": "neutral",
+        "displayName": "Rivet Umber",
+        "canonical": "#5c3820",
+        "oklch": "oklch(37.8% 0.063 53.4)",
+        "tonalRamp": [
+          "#140802",
+          "#332014",
+          "#553b2b",
+          "#7a5944",
+          "#a1785f",
+          "#c19c86",
+          "#e1c2af",
+          "#ffe9d9"
+        ]
+      },
+      "rust": {
+        "role": "secondary",
+        "displayName": "Rust",
+        "canonical": "#b3602f",
+        "oklch": "oklch(57.7% 0.124 48.8)",
+        "tonalRamp": [
+          "#1c0300",
+          "#401700",
+          "#67310e",
+          "#914c23",
+          "#bc6939",
+          "#db9169",
+          "#f9b997",
+          "#ffe1c6"
+        ]
+      },
+      "rust-deep": {
+        "role": "secondary",
+        "displayName": "Rust Deep",
+        "canonical": "#7d3d1c",
+        "oklch": "oklch(43.6% 0.100 45.7)",
+        "tonalRamp": [
+          "#190500",
+          "#3b1b0a",
+          "#61351f",
+          "#895035",
+          "#b36f4e",
+          "#d29578",
+          "#f1bca3",
+          "#ffe4d0"
+        ]
+      },
+      "amber-phosphor": {
+        "role": "primary",
+        "displayName": "Amber Phosphor",
+        "canonical": "#ffb22e",
+        "oklch": "oklch(81.7% 0.160 74.9)",
+        "tonalRamp": [
+          "#1b0400",
+          "#3e1b00",
+          "#643500",
+          "#8e5100",
+          "#b87000",
+          "#d6972f",
+          "#f4be72",
+          "#ffe7aa"
+        ]
+      },
+      "amber-dim": {
+        "role": "primary",
+        "displayName": "Amber Dim",
+        "canonical": "#e0952a",
+        "oklch": "oklch(72.9% 0.145 70.2)",
+        "tonalRamp": [
+          "#1b0400",
+          "#3d1b00",
+          "#643500",
+          "#8d5100",
+          "#b77000",
+          "#d69646",
+          "#f4be7e",
+          "#ffe6b3"
+        ]
+      },
+      "amber-hover": {
+        "role": "primary",
+        "displayName": "Amber Hover",
+        "canonical": "#ffc354",
+        "oklch": "oklch(85.2% 0.143 80.0)",
+        "tonalRamp": [
+          "#180600",
+          "#391e00",
+          "#5e3900",
+          "#855700",
+          "#ae7600",
+          "#cd9c41",
+          "#ecc27b",
+          "#ffe9b1"
+        ]
+      },
+      "amber-pale": {
+        "role": "primary",
+        "displayName": "Amber Pale",
+        "canonical": "#ffd27a",
+        "oklch": "oklch(88.5% 0.118 82.9)",
+        "tonalRamp": [
+          "#150800",
+          "#352100",
+          "#583d00",
+          "#7d5b00",
+          "#a47b1a",
+          "#c49f58",
+          "#e4c58a",
+          "#ffebbc"
+        ]
+      },
+      "amber-ink": {
+        "role": "primary",
+        "displayName": "Amber Ink",
+        "canonical": "#1e1204",
+        "oklch": "oklch(19.4% 0.033 70.8)",
+        "tonalRamp": [
+          "#0f0a05",
+          "#2b241b",
+          "#4a4034",
+          "#6c5f50",
+          "#8f7f6e",
+          "#b1a293",
+          "#d3c7b9",
+          "#f7ede2"
+        ]
+      },
+      "listing-amber": {
+        "role": "primary",
+        "displayName": "Listing Amber",
+        "canonical": "#f0c27a",
+        "oklch": "oklch(83.9% 0.104 77.8)",
+        "tonalRamp": [
+          "#150800",
+          "#352000",
+          "#583c06",
+          "#7d5a1b",
+          "#a47a31",
+          "#c49e64",
+          "#e4c493",
+          "#ffeac3"
+        ]
+      },
+      "bone-text": {
+        "role": "neutral",
+        "displayName": "Bone Text",
+        "canonical": "#f2e2c4",
+        "oklch": "oklch(91.8% 0.043 83.2)",
+        "tonalRamp": [
+          "#0f0a03",
+          "#2b2417",
+          "#4a412f",
+          "#6c6049",
+          "#8f8065",
+          "#b0a38b",
+          "#d3c8b3",
+          "#f6eddd"
+        ]
+      },
+      "faded-ledger": {
+        "role": "neutral",
+        "displayName": "Faded Ledger",
+        "canonical": "#bba184",
+        "oklch": "oklch(72.4% 0.051 70.0)",
+        "tonalRamp": [
+          "#110903",
+          "#2e2315",
+          "#4f3f2d",
+          "#725d46",
+          "#967d62",
+          "#b7a188",
+          "#d9c6b1",
+          "#fbecdb"
+        ]
+      },
+      "disabled-ink": {
+        "role": "neutral",
+        "displayName": "Disabled Ink",
+        "canonical": "#8c735a",
+        "oklch": "oklch(57.3% 0.048 66.6)",
+        "tonalRamp": [
+          "#110903",
+          "#2e2216",
+          "#4f3f2e",
+          "#725d48",
+          "#967d64",
+          "#b7a18a",
+          "#d9c5b2",
+          "#fbebdc"
+        ]
+      },
+      "oxide-red": {
+        "role": "tertiary",
+        "displayName": "Oxide Red",
+        "canonical": "#ff6a45",
+        "oklch": "oklch(70.5% 0.190 35.1)",
+        "tonalRamp": [
+          "#240000",
+          "#4d0100",
+          "#7a1800",
+          "#aa300d",
+          "#db4a25",
+          "#f87b5c",
+          "#ffa88d",
+          "#ffd5be"
+        ]
+      },
+      "oxide-pale": {
+        "role": "tertiary",
+        "displayName": "Oxide Pale",
+        "canonical": "#ffb39e",
+        "oklch": "oklch(83.4% 0.094 36.1)",
+        "tonalRamp": [
+          "#190402",
+          "#3b1a11",
+          "#613428",
+          "#895040",
+          "#b36d5b",
+          "#d29482",
+          "#f1bbac",
+          "#ffe3d6"
+        ]
+      },
+      "ghost-slate": {
+        "role": "tertiary",
+        "displayName": "Ghost Slate",
+        "canonical": "#a9bdd6",
+        "oklch": "oklch(79.1% 0.042 254.1)",
+        "tonalRamp": [
+          "#060c13",
+          "#1d2631",
+          "#374352",
+          "#536376",
+          "#72849b",
+          "#96a7bb",
+          "#bccbdd",
+          "#e4f0ff"
+        ]
+      },
+      "zombie-lichen": {
+        "role": "tertiary",
+        "displayName": "Zombie Lichen",
+        "canonical": "#c3d24f",
+        "oklch": "oklch(82.8% 0.154 115.4)",
+        "tonalRamp": [
+          "#0b0d00",
+          "#242900",
+          "#414800",
+          "#5f6900",
+          "#808c00",
+          "#a2af44",
+          "#c6d27e",
+          "#ecf6b3"
+        ]
+      },
+      "crt-glass": {
+        "role": "neutral",
+        "displayName": "CRT Glass",
+        "canonical": "#0e0805",
+        "oklch": "oklch(14.2% 0.014 53.7)",
+        "tonalRamp": [
+          "#0d0a09",
+          "#282421",
+          "#46413d",
+          "#67605b",
+          "#89807b",
+          "#aba39e",
+          "#cec8c3",
+          "#f3edea"
+        ]
+      },
+      "bone-paper": {
+        "role": "neutral",
+        "displayName": "Bone Paper",
+        "canonical": "#efe2c6",
+        "oklch": "oklch(91.6% 0.040 86.1)",
+        "tonalRamp": [
+          "#0e0b04",
+          "#2a2418",
+          "#494131",
+          "#6a604b",
+          "#8d8168",
+          "#aea48e",
+          "#d1c8b5",
+          "#f5eede"
+        ]
+      },
+      "paper-ink": {
+        "role": "neutral",
+        "displayName": "Paper Ink",
+        "canonical": "#2a1b10",
+        "oklch": "oklch(23.8% 0.031 56.9)",
+        "tonalRamp": [
+          "#100a06",
+          "#2c231d",
+          "#4b3f37",
+          "#6d5e53",
+          "#917e71",
+          "#b2a196",
+          "#d5c6bc",
+          "#f8ece4"
+        ]
+      },
+      "green-phosphor": {
+        "role": "tertiary",
+        "displayName": "Green Phosphor",
+        "canonical": "#3dff8e",
+        "oklch": "oklch(88.2% 0.215 152.1)",
+        "tonalRamp": [
+          "#001400",
+          "#003400",
+          "#00570b",
+          "#007c20",
+          "#00a337",
+          "#1ec469",
+          "#73e597",
+          "#afffc7"
+        ]
+      },
+      "patch-add": {
+        "role": "neutral",
+        "displayName": "Patch Add",
+        "canonical": "#2a2410",
+        "oklch": "oklch(26.1% 0.034 93.2)",
+        "tonalRamp": [
+          "#0d0b05",
+          "#28251a",
+          "#464233",
+          "#67614e",
+          "#89826c",
+          "#aba591",
+          "#cec9b8",
+          "#f3eee0"
+        ]
+      },
+      "patch-remove": {
+        "role": "neutral",
+        "displayName": "Patch Remove",
+        "canonical": "#3a160f",
+        "oklch": "oklch(25.4% 0.059 32.6)",
+        "tonalRamp": [
+          "#150705",
+          "#341f1a",
+          "#563a33",
+          "#7c574f",
+          "#a2766c",
+          "#c29a91",
+          "#e3c0b8",
+          "#ffe7e1"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "wordmark": {
+        "displayName": "Wordmark",
+        "purpose": "Top-bar NecroCore wordmark, Core in amber."
+      },
+      "display": {
+        "displayName": "Display",
+        "purpose": "One view title per tab."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Section heads."
+      },
+      "readout": {
+        "displayName": "Readout",
+        "purpose": "Proof readout numerals in amber."
+      },
+      "stat": {
+        "displayName": "Stat",
+        "purpose": "Amber figures in stat rows."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "Intro paragraph under each view title, max 68ch."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Prose, notes, table cells."
+      },
+      "control": {
+        "displayName": "Control",
+        "purpose": "Button and tab text."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Uppercase table column headers only."
+      },
+      "code": {
+        "displayName": "Code",
+        "purpose": "Listing, logs, diffs, registers, printed paper."
+      },
+      "count": {
+        "displayName": "Count",
+        "purpose": "The three findings counts in the rail."
+      }
+    },
+    "shadows": [
+      {
+        "name": "screen-recess",
+        "value": "inset 0 0 0 1px #0a0603, inset 0 0 60px rgba(0,0,0,.65), 0 18px 40px -24px rgba(0,0,0,.9)",
+        "purpose": "The listing screen only."
+      },
+      {
+        "name": "cabinet-bezel",
+        "value": "inset 0 0 40px rgba(0,0,0,.8), 0 0 0 6px #0b0805, 0 0 0 7px #5c3820, 0 14px 30px -18px rgba(0,0,0,.9)",
+        "purpose": "The PhantomArcade canvas only."
+      },
+      {
+        "name": "paper-lift",
+        "value": "0 10px 24px -14px rgba(0,0,0,.8)",
+        "purpose": "Printed reports in the rail."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(.16,1,.3,1)",
+        "purpose": "All state transitions (0.2s on control borders and fills) and the power-on and Vampire swell."
+      },
+      {
+        "name": "power-on",
+        "value": "0.9s brightness(.25) saturate(.6) to none",
+        "purpose": "Listing screen phosphor power-on when a program loads."
+      },
+      {
+        "name": "ghost-flicker",
+        "value": "5.5s steps(1,end) infinite",
+        "purpose": "Ghost line text flicker."
+      },
+      {
+        "name": "vampire-swell",
+        "value": "3.2s cubic-bezier(.16,1,.3,1) infinite",
+        "purpose": "Oxide band swelling across a Vampire line."
+      },
+      {
+        "name": "zombie-shimmer",
+        "value": "3.4s linear infinite",
+        "purpose": "Lichen shimmer scrolling across Zombie loop lines."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "@media (prefers-reduced-motion: reduce) { * { transition:none; animation:none } }",
+        "purpose": "All motion off."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "stack-table",
+        "value": "600px"
+      },
+      {
+        "name": "split",
+        "value": "960px"
+      },
+      {
+        "name": "rail",
+        "value": "1020px"
+      },
+      {
+        "name": "container",
+        "value": "1320px"
+      },
+      {
+        "name": "coarse-pointer",
+        "value": "(pointer: coarse) -> 44px targets"
+      }
+    ],
+    "pageGround": {
+      "value": "radial-gradient(120% 70% at 30% -10%, #2a170b 0%, #140d09 55%) fixed",
+      "purpose": "Warm glow from the upper left over Machine-Room Black."
+    },
+    "focusRing": {
+      "value": "2px solid #ffb22e, offset 2px",
+      "purpose": "Every focusable element."
+    }
+  },
+  "components": [
+    {
+      "name": "Go Button",
+      "kind": "button",
+      "refersTo": "button-go",
+      "description": "The single lit action in a group: amber fill, amber ink.",
+      "html": "<button class=\"ds-btn-go\">Autopsy the program</button>",
+      "css": ".ds-btn-go{background:var(--amber,#ffb22e);color:var(--amberink,#1e1204);border:1px solid var(--amber,#ffb22e);border-radius:4px;padding:9px 12px;min-height:40px;font:600 15px/1.55 ui-sans-serif,system-ui,-apple-system,\"Segoe UI\",sans-serif;cursor:pointer;transition:border-color .2s cubic-bezier(.16,1,.3,1),background-color .2s cubic-bezier(.16,1,.3,1)}.ds-btn-go:hover{background:#ffc354;border-color:#ffc354}.ds-btn-go:focus-visible{outline:2px solid #ffb22e;outline-offset:2px}.ds-btn-go:disabled{background:transparent;color:#8c735a;border-color:#5c3820;border-style:dashed;cursor:not-allowed}"
+    },
+    {
+      "name": "Button",
+      "kind": "button",
+      "refersTo": "button",
+      "description": "Default control: raised console, rust border on hover.",
+      "html": "<button class=\"ds-btn\">Exorcise with Kiro</button> <button class=\"ds-btn\" disabled>Prove on 10,000 inputs</button>",
+      "css": ".ds-btn{background:var(--panel2,#26180f);color:var(--tx,#f2e2c4);border:1px solid var(--line2,#5c3820);border-radius:4px;padding:9px 12px;min-height:40px;font:600 15px/1.55 ui-sans-serif,system-ui,-apple-system,\"Segoe UI\",sans-serif;cursor:pointer;transition:border-color .2s cubic-bezier(.16,1,.3,1),background-color .2s cubic-bezier(.16,1,.3,1)}.ds-btn:hover:not(:disabled){border-color:var(--rust,#b3602f)}.ds-btn:focus-visible{outline:2px solid #ffb22e;outline-offset:2px}.ds-btn:disabled{background:transparent;color:#8c735a;border-color:#3a2516;border-style:dashed;cursor:not-allowed}"
+    },
+    {
+      "name": "Tabs",
+      "kind": "nav",
+      "refersTo": "tab",
+      "description": "Underline tabs in the top bar; rust underline marks the selected view.",
+      "html": "<div class=\"ds-tabs\" role=\"tablist\"><button class=\"ds-tab\" role=\"tab\" aria-selected=\"true\">CryptLedger</button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\">PhantomArcade</button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\">Evidence</button></div>",
+      "css": ".ds-tabs{display:flex;gap:2px;background:#140d09;border-bottom:1px solid #3a2516;padding:0 8px}.ds-tab{background:none;border:0;border-bottom:2px solid transparent;color:#bba184;padding:10px 14px 8px;font:600 14.5px/1 ui-sans-serif,system-ui,-apple-system,\"Segoe UI\",sans-serif;cursor:pointer;border-radius:0}.ds-tab:hover{color:#f2e2c4}.ds-tab[aria-selected=true]{color:#f2e2c4;border-bottom-color:#b3602f}.ds-tab:focus-visible{outline:2px solid #ffb22e;outline-offset:2px}"
+    },
+    {
+      "name": "Select",
+      "kind": "input",
+      "refersTo": "select",
+      "description": "Native select in Plex Mono on the raised console.",
+      "html": "<select class=\"ds-select\"><option>PAYROLL-BATCH-1982</option><option>BANK-INTEREST-1978</option></select>",
+      "css": ".ds-select{background:#26180f;color:#f2e2c4;border:1px solid #5c3820;border-radius:4px;padding:9px 12px;min-height:40px;font:14px \"IBM Plex Mono\",ui-monospace,Menlo,monospace}.ds-select:hover{border-color:#b3602f}.ds-select:focus-visible{outline:2px solid #ffb22e;outline-offset:2px}"
+    },
+    {
+      "name": "Status Tag",
+      "kind": "chip",
+      "refersTo": "status-tag",
+      "description": "Small outlined mono tag for daemon state and resolution.",
+      "html": "<span class=\"ds-tag\">static copy</span> <span class=\"ds-tag ds-tag-on\">daemon live</span>",
+      "css": ".ds-tag{font:500 12px/1 \"IBM Plex Mono\",ui-monospace,Menlo,monospace;padding:5px 10px;border-radius:3px;border:1px solid #5c3820;color:#bba184;white-space:nowrap;letter-spacing:.02em;display:inline-block}.ds-tag-on{color:#ffb22e;border-color:#7d3d1c}"
+    },
+    {
+      "name": "Finding Chips",
+      "kind": "chip",
+      "refersTo": "finding-chip-vampire",
+      "description": "Line icon plus label in the finding hue, always beside its technical term.",
+      "html": "<div class=\"ds-finds\"><span class=\"ds-chip ds-ghost\"><svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M8 1.5c-3 0-5 2.2-5 5.2V14l1.7-1.3L6.3 14 8 12.7 9.7 14l1.6-1.3L13 14V6.7c0-3-2-5.2-5-5.2Z M6 6.6h.01 M10 6.6h.01\"/></svg>Ghost</span><span class=\"ds-term\">unreachable code</span><span class=\"ds-chip ds-vamp\"><svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2.5 3.5h11 M5 3.5l1.2 5.2L7.4 3.5 M8.6 3.5l1.2 5.2 1.2-5.2 M8 11.5c0 1.6-.8 2.5-1.6 3\"/></svg>Vampire</span><span class=\"ds-term\">unbounded accumulator</span><span class=\"ds-chip ds-zomb\"><svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.6 5.2a3 3 0 1 0 0 5.6c1.6 0 2.4-1.4 3.4-2.8s1.8-2.8 3.4-2.8a3 3 0 1 1 0 5.6c-1.6 0-2.4-1.4-3.4-2.8S6.2 5.2 4.6 5.2Z\"/></svg>Zombie</span><span class=\"ds-term\">non-terminating loop</span></div>",
+      "css": ".ds-finds{display:grid;grid-template-columns:auto 1fr;gap:10px 12px;align-items:center;background:#1d130c;padding:16px}.ds-chip{display:inline-flex;align-items:center;gap:6px;font:600 13px/1 ui-sans-serif,system-ui,-apple-system,\"Segoe UI\",sans-serif;white-space:nowrap}.ds-chip svg{width:16px;height:16px;flex:none}.ds-ghost{color:#a9bdd6}.ds-vamp{color:#ff6a45}.ds-zomb{color:#c3d24f}.ds-term{color:#bba184;font:13px ui-sans-serif,system-ui,sans-serif}"
+    },
+    {
+      "name": "Rail Section with Proof Readout",
+      "kind": "card",
+      "refersTo": "proof-readout",
+      "description": "Unboxed rail section under a rust-deep rule; amber VT323 readout.",
+      "html": "<section class=\"ds-rail\"><h3 class=\"ds-rail-h\">Proof</h3><div class=\"ds-readout\">10,000<small> / 10,000</small></div><p class=\"ds-meta\">inputs gave the same result in WebAssembly as in the reference interpreter.</p></section>",
+      "css": ".ds-rail{background:#140d09;border-top:1px solid #7d3d1c;padding:14px 0 16px;color:#f2e2c4}.ds-rail-h{font:400 24px/1 \"VT323\",ui-monospace,Menlo,monospace;letter-spacing:.03em;margin:0 0 10px}.ds-readout{font:400 52px/.95 \"VT323\",ui-monospace,Menlo,monospace;color:#ffb22e;letter-spacing:.01em;font-variant-numeric:tabular-nums}.ds-readout small{font-size:26px;color:#e0952a}.ds-meta{color:#bba184;font:13px/1.55 ui-sans-serif,system-ui,sans-serif;margin:6px 0 0}"
+    },
+    {
+      "name": "Listing Screen with Haunted Lines",
+      "kind": "custom",
+      "refersTo": "listing-screen",
+      "description": "Signature: COBOL listing on CRT glass; Ghost flickers, Vampire swells, Zombie shimmers.",
+      "html": "<div class=\"ds-src\"><div class=\"ds-ln\"><span class=\"ds-no\">25</span><span class=\"ds-tx\">           STOP RUN.</span></div><div class=\"ds-ln ds-zombie\"><span class=\"ds-no\">26</span><span class=\"ds-tx\">       PROCESS-EMPLOYEE.</span></div><div class=\"ds-ln ds-vampire\"><span class=\"ds-no\">37</span><span class=\"ds-tx\">           ADD 1 TO WS-PROCESSED.</span></div><div class=\"ds-ln ds-ghost\"><span class=\"ds-no\">41</span><span class=\"ds-tx\">           MOVE 1 TO WS-EOF.</span></div></div>",
+      "css": ".ds-src{font:13px/1.6 \"IBM Plex Mono\",ui-monospace,Menlo,monospace;color:#f0c27a;background:radial-gradient(140% 120% at 50% 0%,#1d1108 0%,#0e0805 70%);border:1px solid #5c3820;border-radius:8px;box-shadow:inset 0 0 0 1px #0a0603,inset 0 0 60px rgba(0,0,0,.65),0 18px 40px -24px rgba(0,0,0,.9);padding:6px 0;animation:ds-power .9s cubic-bezier(.16,1,.3,1)}@keyframes ds-power{from{filter:brightness(.25) saturate(.6)}to{filter:none}}.ds-ln{display:grid;grid-template-columns:52px 1fr;white-space:pre}.ds-no{color:#9a6a3c;text-align:right;padding-right:12px}.ds-ghost{background:rgba(169,189,214,.13);box-shadow:inset 1px 0 0 #a9bdd6;cursor:pointer}.ds-ghost .ds-tx{color:#a9bdd6;animation:ds-g 5.5s steps(1,end) infinite}.ds-vampire{background:linear-gradient(90deg,rgba(255,106,69,.30),rgba(255,106,69,.30)) 0 0/0% 100% no-repeat,rgba(255,106,69,.12);box-shadow:inset 1px 0 0 #ff6a45;animation:ds-v 3.2s cubic-bezier(.16,1,.3,1) infinite;cursor:pointer}.ds-vampire .ds-tx{color:#ffb39e}.ds-zombie{background:linear-gradient(90deg,transparent 0%,rgba(195,210,79,.26) 50%,transparent 100%) 0 0/220% 100% no-repeat,rgba(195,210,79,.11);box-shadow:inset 1px 0 0 #c3d24f;animation:ds-z 3.4s linear infinite;cursor:pointer}.ds-zombie .ds-tx{color:#dbe58a}@keyframes ds-g{0%,82%{opacity:.85}84%{opacity:.2}86%{opacity:.8}89%{opacity:.3}92%,100%{opacity:.85}}@keyframes ds-v{0%{background-size:0% 100%,auto}70%,100%{background-size:100% 100%,auto}}@keyframes ds-z{from{background-position:220% 0,0 0}to{background-position:-120% 0,0 0}}@media(prefers-reduced-motion:reduce){.ds-src,.ds-src *{animation:none!important}}"
+    },
+    {
+      "name": "Printed Report",
+      "kind": "card",
+      "refersTo": "printed-report",
+      "description": "Bone paper for Kiro plans and specs, lifted off the console.",
+      "html": "<pre class=\"ds-paper\">## 1. EARS Requirements\n\nWHEN the loop at PROCESS-EMPLOYEE is entered,\nTHE SYSTEM SHALL decrement a fuel counter.</pre>",
+      "css": ".ds-paper{background:#efe2c6;color:#2a1b10;border-radius:2px;padding:12px 14px;font:12.5px/1.6 \"IBM Plex Mono\",ui-monospace,Menlo,monospace;white-space:pre-wrap;max-height:260px;overflow:auto;box-shadow:0 10px 24px -14px rgba(0,0,0,.8);margin:0}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Machine Room at Midnight",
+    "overview": "NecroCore is a working analysis tool lit the way a 1978 bank machine room is lit after hours: a warm brown-black room, amber phosphor on the screens, rust on the racks and rails, and printed reports on bone paper. The light comes from the instruments, never from the chrome around them. Everything that glows is either live data or the one thing you can do next.\n\nThe shell is an Operate surface, dense and calm. A sticky top bar holds the wordmark, a status tag and three tabs. Below it, wide content columns carry the program listing on its amber screen, a control-flow graph, and tables, while a narrow right rail stacks the findings counts, the proof readout, Kiro's plan on paper and the run actions, each separated by a rust rule rather than boxed. Controls are standard web controls in the room's materials: no invented widgets.\n\nOne signature move carries the identity: haunted lines. Rot is shown on the program's own lines with a quiet, specific animation per kind of defect, and selecting any haunted line or graph block jumps to its counterpart. Motion is short and exponential (ease-out), and all of it stops under reduced motion.",
+    "keyCharacteristics": [
+      "Warm brown-black ground with a faint amber glow from the top left. No neutral greys in the ground or chrome.",
+      "Amber phosphor for live text, focus and the proof. Rust for structure and selection. Oxide red only for a live finding.",
+      "Three type voices: VT323 for headings and readouts, IBM Plex Mono for code and numbers, system sans for prose and controls.",
+      "Flat panels with hairline umber borders. The only depth belongs to screens (listing and cabinet) and to the printed paper.",
+      "Haunted lines as the single signature interaction.",
+      "Green phosphor exists only inside the PhantomArcade cabinet."
+    ],
+    "rules": [
+      {
+        "name": "The One Amber Field Rule",
+        "body": "Solid amber fill is reserved for the single action you can take (the go button). The proof readout is the only other large amber element, and it is amber text, not a field. Everything else uses amber as text, ring or accent at most.",
+        "section": "colors"
+      },
+      {
+        "name": "The Rust Holds the Frame Rule",
+        "body": "Rust marks structure and selection, never content. If something is selected, hovered or ruled off, it is rust. If something is read, it is bone or amber.",
+        "section": "colors"
+      },
+      {
+        "name": "The Oxide Means Live Rot Rule",
+        "body": "Oxide red appears only where a live finding or a failure is shown. It is never decoration, never a brand accent.",
+        "section": "colors"
+      },
+      {
+        "name": "The Green Lives in the Cabinet Rule",
+        "body": "Green phosphor never leaves the PhantomArcade cabinet.",
+        "section": "colors"
+      },
+      {
+        "name": "The Warm Ground Rule",
+        "body": "Every ground, panel, border and neutral text is warm (brown, umber, bone). The only cool hue is Ghost Slate, and only on Ghost findings.",
+        "section": "colors"
+      },
+      {
+        "name": "The Three Voices Rule",
+        "body": "VT323 only for headings, the wordmark and big numerals. Plex Mono for anything a machine wrote: code, program and block names, numbers, registers. System sans for anything a person reads as prose or clicks.",
+        "section": "typography"
+      },
+      {
+        "name": "The Label Beside the Term Rule",
+        "body": "A finding label (Ghost, Vampire, Zombie) is always set next to its technical term in Faded Ledger at the same size or one step smaller.",
+        "section": "typography"
+      },
+      {
+        "name": "The Only Glass Is the Screen Rule",
+        "body": "Shadows and glows belong to screens and paper. Panels, buttons and tags stay flat.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** keep every ground, panel and border warm: Machine-Room Black, Console Brown, Hairline and Rivet Umber.",
+      "**Do** reserve the solid Amber Phosphor fill for the single go action of a group, and make the proof readout amber text in VT323.",
+      "**Do** use Rust for selection, hover borders, rail rules and the selected-tab underline.",
+      "**Do** pair every finding label with its technical term and its hue, using the finding chip.",
+      "**Do** set code, block names and numbers in IBM Plex Mono with tabular figures in numeric columns.",
+      "**Do** keep controls as standard web controls in the room's materials, at 40px (44px on coarse pointers).",
+      "**Do** use ease-out cubic-bezier(.16,1,.3,1) for state changes and turn every animation off under prefers-reduced-motion."
+    ],
+    "donts": [
+      "**Don't** use cold neutral greys for grounds, panels, borders or text. The one cool hue is Ghost Slate, on Ghost findings only.",
+      "**Don't** use Oxide Red for anything except a live finding or a failure.",
+      "**Don't** use Green Phosphor outside the PhantomArcade cabinet.",
+      "**Don't** fill large areas with amber, or light more than one amber button per action group.",
+      "**Don't** put shadows or glows on panels, buttons or tags; depth belongs to screens and paper.",
+      "**Don't** set prose or controls in VT323, or headings in the system sans.",
+      "**Don't** build a dark dashboard of metric cards with one neon accent; the instruments (listing, graph, readout, tables) carry the screen."
+    ]
+  }
+}

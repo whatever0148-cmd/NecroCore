@@ -56,11 +56,10 @@ input[type=range]{accent-color:var(--amber);width:100%}
 @media(max-width:1020px){.crypt{grid-template-columns:minmax(0,1fr)}.deck{display:contents}.deck>*{order:1}.rail{order:2}.deck>.graphbox{order:3}}
 .deckhead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 8px}
 .deckhead h3{margin:0}
-.rail{display:grid;gap:14px;position:sticky;top:76px}
+.rail{display:grid;gap:6px;position:sticky;top:76px}
 @media(max-width:1020px){.rail{position:static}}
 .rail .panel{padding:14px 0 16px;background:transparent;border:0;border-top:1px solid var(--rust2);border-radius:0}
 .rail h3{margin:0 0 10px}
-.rail{gap:6px}
 .statline{margin:10px 0 0;font-size:13px;color:var(--mut)}
 #counts{display:grid;gap:2px;margin:0}
 #counts>span{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
@@ -80,7 +79,7 @@ input[type=range]{accent-color:var(--amber);width:100%}
  border:1px solid var(--line2);border-radius:8px;box-shadow:inset 0 0 0 1px #0a0603,inset 0 0 60px rgba(0,0,0,.65),0 18px 40px -24px rgba(0,0,0,.9)}
 .src.on{animation:power .9s cubic-bezier(.16,1,.3,1)}
 @keyframes power{from{filter:brightness(.25) saturate(.6)}to{filter:none}}
-.ln{display:grid;grid-template-columns:52px 1fr;white-space:pre}.ln .no{color:#9a6a3c;text-align:right;padding-right:12px;user-select:none}.ln .tx{padding-right:14px}
+.ln{display:grid;grid-template-columns:52px 1fr;white-space:pre}.ln .no{color:#a87444;text-align:right;padding-right:12px;user-select:none}.ln .tx{padding-right:14px}
 .ln.Ghost,.ln.Vampire,.ln.Zombie{cursor:pointer}
 .ln.Ghost{background:rgba(169,189,214,.13);box-shadow:inset 1px 0 0 var(--ghost)}.ln.Ghost .tx{color:var(--ghost);animation:ghost 5.5s steps(1,end) infinite}
 .ln.Vampire{background:linear-gradient(90deg,rgba(255,106,69,.30),rgba(255,106,69,.30)) 0 0/0% 100% no-repeat,rgba(255,106,69,.12);box-shadow:inset 1px 0 0 var(--vamp);animation:vamp 3.2s cubic-bezier(.16,1,.3,1) infinite}.ln.Vampire .tx{color:#ffb39e}
@@ -96,7 +95,7 @@ svg text{font:11px var(--mono);fill:var(--tx);pointer-events:none}
 .node rect{fill:var(--panel2);stroke:var(--line2);stroke-width:1}
 .node{cursor:pointer}.node:hover rect,.node.sel rect{stroke:var(--rust);stroke-width:2}.node:focus-visible rect{stroke:var(--amber);stroke-width:2}
 .node.Ghost rect{fill:#1d2129;stroke:var(--ghost)}.node.Vampire rect{fill:#34150d;stroke:var(--vamp)}.node.Zombie rect{fill:#262a0e;stroke:var(--zomb)}
-.edge{fill:none;stroke:#7a5a40;stroke-width:1.2}.edge.back{stroke:var(--rust);stroke-dasharray:4 3}
+.edge{fill:none;stroke:#8c6849;stroke-width:1.2}.edge.back{stroke:var(--rust);stroke-dasharray:4 3}
 .chip{display:inline-flex;align-items:center;gap:6px;font:600 13px/1 var(--sans);white-space:nowrap}
 .chip svg{width:16px;height:16px;flex:none}
 .chip.Ghost{color:var(--ghost)}.chip.Vampire{color:var(--vamp)}.chip.Zombie{color:var(--zomb)}
@@ -112,7 +111,7 @@ code,pre{font-family:var(--mono);font-size:.92em}
 progress{width:100%;height:8px;accent-color:var(--amber);margin:8px 0}
 .log{font:13px/1.6 var(--mono);color:var(--mut);margin:8px 0}.log div::before{content:"> ";color:var(--amber)}
 .diff{font:12.5px/1.55 var(--mono);max-height:420px;overflow:auto;background:var(--screen);border:1px solid var(--line);border-radius:6px}
-.diff div{white-space:pre;padding:0 10px}.diff .p{background:var(--add);color:#ffd27a}.diff .m{background:var(--del);color:#ffb39e}.diff .s{color:#9a6a3c;font-style:italic}
+.diff div{white-space:pre;padding:0 10px}.diff .p{background:var(--add);color:#ffd27a}.diff .m{background:var(--del);color:#ffb39e}.diff .s{color:#a87444;font-style:italic}
 .md{white-space:pre-wrap;font:13px/1.6 var(--mono);background:var(--paper);color:var(--ink);border-radius:2px;padding:14px;max-height:360px;overflow:auto}
 .hide,.gone{display:none!important}
 .arc{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px}@media(max-width:960px){.arc{grid-template-columns:minmax(0,1fr)}}
@@ -340,7 +339,7 @@ function renderCfg(r){
  const W=colW,H=lines.length*GY+20;const pos=[];
  lines.forEach((row,l)=>{const w=Math.min(lw[l],Math.floor((colW-40)/row.length)-14),gap=w+14;row.forEach((i,k)=>{pos[i]={x:W/2-(row.length-1)*gap/2+k*gap,y:10+NH/2+l*GY,w}})});
  const svg=sv('svg',{viewBox:`0 0 ${W} ${H}`,width:W,height:H,role:'img','aria-label':'Control-flow graph with '+N.length+' blocks'});
- const defs=sv('defs',{});const mk=sv('marker',{id:'ar',viewBox:'0 0 8 8',refX:7,refY:4,markerWidth:7,markerHeight:7,orient:'auto'});mk.appendChild(sv('path',{d:'M0 0L8 4L0 8z',fill:'#7a5a40'}));defs.appendChild(mk);svg.appendChild(defs);
+ const defs=sv('defs',{});const mk=sv('marker',{id:'ar',viewBox:'0 0 8 8',refX:7,refY:4,markerWidth:7,markerHeight:7,orient:'auto'});mk.appendChild(sv('path',{d:'M0 0L8 4L0 8z',fill:'#8c6849'}));defs.appendChild(mk);svg.appendChild(defs);
  r.edges.forEach(([a,b])=>{if(!idx.has(a)||!idx.has(b))return;const i=idx.get(a),j=idx.get(b),p=pos[i],s=pos[j];let d,cls='edge';
   if(i===j){d=`M${p.x+p.w/2} ${p.y} q 26 -2 0 -${NH/2+2}`;cls+=' back'}
   else if(layer[j]>layer[i]){const x1=p.x,y1=p.y+NH/2,x2=s.x,y2=s.y-NH/2;d=`M${x1} ${y1} C${x1} ${(y1+y2)/2} ${x2} ${(y1+y2)/2} ${x2} ${y2}`}
